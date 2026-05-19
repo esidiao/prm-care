@@ -38,9 +38,30 @@ export async function POST(req: NextRequest) {
       }, { status: 402 })
     }
 
-    // Save medications to DB (upsert)
+    // Save medications to DB — reuse existing records, only create new ones
     const savedMeds = await Promise.all(
       (medications || []).map(async (med: any) => {
+        if (med.existingId) {
+          // Medication already in DB — update with any edits and return existing record
+          return prisma.medication.update({
+            where: { id: med.existingId },
+            data: {
+              activeIngredient: med.activeIngredient,
+              tradeName: med.tradeName || null,
+              dose: med.dose ? parseFloat(med.dose) : null,
+              doseUnit: med.doseUnit || null,
+              pharmaceuticalForm: med.pharmaceuticalForm || null,
+              route: (med.route as RouteOfAdministration) || RouteOfAdministration.ORAL,
+              frequency: med.frequency || null,
+              indication: med.indication || null,
+              isPrescribed: med.isPrescribed ?? true,
+              isSelfMedication: med.isSelfMedication ?? false,
+              adherence: (med.adherence as AdherenceLevel) || AdherenceLevel.UNKNOWN,
+              adverseEffects: med.adverseEffects || null,
+            },
+          })
+        }
+        // New medication — create record
         return prisma.medication.create({
           data: {
             patientId,
