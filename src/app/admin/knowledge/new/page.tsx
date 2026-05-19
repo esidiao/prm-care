@@ -8,7 +8,7 @@ import { z } from 'zod'
 import Link from 'next/link'
 import {
   ArrowLeft, BookOpen, Plus, Save, Loader2,
-  AlertTriangle, Tag, Pill, X
+  AlertTriangle, Tag, Pill, X, FileText
 } from 'lucide-react'
 
 const schema = z.object({

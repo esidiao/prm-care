@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { id: true, passwordHash: true },
+      select: { id: true, password: true },
     })
 
-    if (!user?.passwordHash) {
+    if (!user?.password) {
       return NextResponse.json({ error: 'Usuário sem senha definida (login social?)' }, { status: 400 })
     }
 
-    const isValid = await bcrypt.compare(body.currentPassword, user.passwordHash)
+    const isValid = await bcrypt.compare(body.currentPassword, user.password)
     if (!isValid) {
       return NextResponse.json({ error: 'Senha atual incorreta.' }, { status: 400 })
     }
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     const newHash = await bcrypt.hash(body.newPassword, 12)
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { passwordHash: newHash },
+      data: { password: newHash },
     })
 
     await prisma.auditLog.create({

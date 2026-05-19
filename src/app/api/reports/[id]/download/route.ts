@@ -83,7 +83,7 @@ export async function GET(
 }
 
 function servePDF(buffer: Buffer, reportId: string): NextResponse {
-  return new NextResponse(buffer, {
+  return new NextResponse(buffer as unknown as BodyInit, {
     status: 200,
     headers: {
       'Content-Type': 'application/pdf',

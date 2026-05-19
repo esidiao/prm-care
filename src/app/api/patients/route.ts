@@ -111,10 +111,9 @@ export async function POST(req: NextRequest) {
           labResults: {
             createMany: {
               data: data.labResults.map(lr => ({
-                name: lr.name,
+                examName: lr.name || '',
                 value: lr.value,
-                unit: lr.unit,
-                referenceRange: lr.referenceRange,
+                unit: lr.unit || null,
                 collectedAt: lr.collectedAt ? new Date(lr.collectedAt) : new Date(),
               })),
             },
