@@ -3,13 +3,35 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import {
   FlaskConical, Users, FileText, Coins, TrendingUp,
-  AlertTriangle, Plus, ArrowRight, Clock, Activity
+  AlertTriangle, Plus, ArrowRight, Clock, Activity,
+  ShieldAlert, CheckCircle2, BarChart3, Target
 } from 'lucide-react'
 import { formatRelative } from '@/lib/utils'
-import { RiskLevel } from '@prisma/client'
+import { PRMCategory, RiskLevel } from '@prisma/client'
+import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
+import { HighRiskPatients } from '@/components/dashboard/HighRiskPatients'
 
 async function getDashboardData(userId: string) {
-  const [user, recentAnalyses, totalPatients, totalReports, urgentFindings] = await Promise.all([
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+  const ninetyDaysAgo = new Date()
+  ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
+
+  const [
+    user,
+    recentAnalyses,
+    totalPatients,
+    totalReports,
+    urgentFindings,
+    // Stats for charts
+    allFindings,
+    analysesLast90Days,
+    resolvedCount,
+    totalFindingsCount,
+    topCategories,
+    highRiskPatients,
+  ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: { tokenBalance: true, plan: true, demonstrationUsed: true },
@@ -29,55 +51,190 @@ async function getDashboardData(userId: string) {
         isResolved: false,
       },
     }),
+    // Findings distribution by category and risk
+    prisma.pRMFinding.findMany({
+      where: { analysis: { userId } },
+      select: { category: true, riskLevel: true, isResolved: true },
+    }),
+    // Analyses per day (last 90 days)
+    prisma.pRMAnalysis.findMany({
+      where: { userId, createdAt: { gte: ninetyDaysAgo } },
+      select: { createdAt: true, totalPRMs: true, urgentPRMs: true, highRiskPRMs: true },
+      orderBy: { createdAt: 'asc' },
+    }),
+    // Resolved PRMs
+    prisma.pRMFinding.count({
+      where: { analysis: { userId }, isResolved: true },
+    }),
+    // Total PRMs
+    prisma.pRMFinding.count({
+      where: { analysis: { userId } },
+    }),
+    // Most common categories
+    prisma.pRMFinding.groupBy({
+      by: ['category'],
+      where: { analysis: { userId } },
+      _count: { category: true },
+      orderBy: { _count: { category: 'desc' } },
+    }),
+    // Patients with unresolved high/urgent PRMs
+    prisma.patient.findMany({
+      where: {
+        userId,
+        isActive: true,
+        analyses: {
+          some: {
+            findings: {
+              some: {
+                riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] },
+                isResolved: false,
+              },
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        analyses: {
+          where: {
+            findings: {
+              some: {
+                riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] },
+                isResolved: false,
+              },
+            },
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            urgentPRMs: true,
+            highRiskPRMs: true,
+            _count: { select: { findings: true } },
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+      },
+      take: 5,
+    }),
   ])
-  return { user, recentAnalyses, totalPatients, totalReports, urgentFindings }
+
+  return {
+    user, recentAnalyses, totalPatients, totalReports, urgentFindings,
+    allFindings, analysesLast90Days, resolvedCount, totalFindingsCount,
+    topCategories, highRiskPatients,
+  }
+}
+
+const CATEGORY_LABELS: Record<PRMCategory, string> = {
+  NECESSITY: 'Necessidade',
+  EFFECTIVENESS: 'Efetividade',
+  SAFETY: 'Segurança',
+  ADHERENCE: 'Adesão',
+}
+
+const RISK_LABELS: Record<RiskLevel, string> = {
+  URGENT: 'Urgente',
+  HIGH: 'Alto',
+  MODERATE: 'Moderado',
+  LOW: 'Baixo',
 }
 
 export default async function DashboardPage() {
   const session = await getSession()
   if (!session) return null
 
-  const { user, recentAnalyses, totalPatients, totalReports, urgentFindings } =
-    await getDashboardData(session.user.id)
+  const {
+    user, recentAnalyses, totalPatients, totalReports, urgentFindings,
+    allFindings, analysesLast90Days, resolvedCount, totalFindingsCount,
+    topCategories, highRiskPatients,
+  } = await getDashboardData(session.user.id)
 
   const firstName = session.user.name?.split(' ')[0] || 'Farmacêutico(a)'
 
+  // ── Prepare chart data ──────────────────────────────────────────────────
+
+  // Risk distribution
+  const riskCounts: Record<string, number> = { URGENT: 0, HIGH: 0, MODERATE: 0, LOW: 0 }
+  const categoryCounts: Record<string, number> = { NECESSITY: 0, EFFECTIVENESS: 0, SAFETY: 0, ADHERENCE: 0 }
+  for (const f of allFindings) {
+    riskCounts[f.riskLevel] = (riskCounts[f.riskLevel] || 0) + 1
+    categoryCounts[f.category] = (categoryCounts[f.category] || 0) + 1
+  }
+
+  const riskChartData = [
+    { name: 'Urgente', value: riskCounts.URGENT, color: '#dc2626' },
+    { name: 'Alto', value: riskCounts.HIGH, color: '#ea580c' },
+    { name: 'Moderado', value: riskCounts.MODERATE, color: '#d97706' },
+    { name: 'Baixo', value: riskCounts.LOW, color: '#16a34a' },
+  ].filter(d => d.value > 0)
+
+  const categoryChartData = [
+    { name: 'Segurança', value: categoryCounts.SAFETY, color: '#dc2626' },
+    { name: 'Efetividade', value: categoryCounts.EFFECTIVENESS, color: '#2563eb' },
+    { name: 'Necessidade', value: categoryCounts.NECESSITY, color: '#7c3aed' },
+    { name: 'Adesão', value: categoryCounts.ADHERENCE, color: '#d97706' },
+  ].filter(d => d.value > 0)
+
+  // Analyses timeline (last 30 days, grouped by week)
+  const weekMap = new Map<string, { analyses: number; prms: number }>()
+  for (const a of analysesLast90Days) {
+    const d = new Date(a.createdAt)
+    // Group by week
+    const weekStart = new Date(d)
+    weekStart.setDate(d.getDate() - d.getDay())
+    const key = weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+    const existing = weekMap.get(key) || { analyses: 0, prms: 0 }
+    weekMap.set(key, { analyses: existing.analyses + 1, prms: existing.prms + a.totalPRMs })
+  }
+  const timelineData = Array.from(weekMap.entries()).map(([week, data]) => ({
+    week,
+    análises: data.analyses,
+    PRMs: data.prms,
+  }))
+
+  // Resolution rate
+  const resolutionRate = totalFindingsCount > 0
+    ? Math.round((resolvedCount / totalFindingsCount) * 100)
+    : 0
+
+  // Total analyses count
+  const totalAnalyses = await prisma.pRMAnalysis.count({ where: { userId: session.user.id } })
+
   const stats = [
-    {
-      label: 'Tokens disponíveis',
-      value: user?.tokenBalance ?? 0,
-      icon: Coins,
-      gradient: 'from-blue-500 to-blue-700',
-      bg: 'bg-blue-50',
-      text: 'text-blue-600',
-      action: { href: '/tokens', label: 'Comprar tokens' },
-    },
     {
       label: 'Pacientes ativos',
       value: totalPatients,
       icon: Users,
-      gradient: 'from-violet-500 to-violet-700',
       bg: 'bg-violet-50',
       text: 'text-violet-600',
-      action: { href: '/patients', label: 'Ver todos' },
+      action: { href: '/patients', label: 'Ver pacientes' },
     },
     {
       label: 'Análises realizadas',
-      value: recentAnalyses.length,
+      value: totalAnalyses,
       icon: FlaskConical,
-      gradient: 'from-emerald-500 to-emerald-700',
       bg: 'bg-emerald-50',
       text: 'text-emerald-600',
       action: { href: '/analysis/new', label: 'Nova análise' },
     },
     {
-      label: 'Relatórios gerados',
-      value: totalReports,
-      icon: FileText,
-      gradient: 'from-orange-500 to-orange-700',
-      bg: 'bg-orange-50',
-      text: 'text-orange-600',
-      action: { href: '/reports', label: 'Ver todos' },
+      label: 'PRMs identificados',
+      value: totalFindingsCount,
+      icon: ShieldAlert,
+      bg: 'bg-red-50',
+      text: 'text-red-600',
+      action: { href: '/reports', label: 'Ver relatórios' },
+    },
+    {
+      label: 'Taxa de resolução',
+      value: `${resolutionRate}%`,
+      icon: CheckCircle2,
+      bg: 'bg-green-50',
+      text: 'text-green-600',
+      action: { href: '/reports', label: 'Ver PRMs' },
     },
   ]
 
@@ -85,9 +242,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Olá, {firstName} 👋
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-900">Olá, {firstName} 👋</h1>
         <p className="mt-1 text-sm text-gray-500">Painel de seguimento farmacoterapêutico — Método Dáder</p>
       </div>
 
@@ -100,7 +255,7 @@ export default async function DashboardPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-red-800">
-                {urgentFindings} alerta{urgentFindings > 1 ? 's' : ''} de alto risco ou urgência
+                {urgentFindings} alerta{urgentFindings > 1 ? 's' : ''} de alto risco ou urgência sem resolução
               </p>
               <p className="text-xs text-red-600">Requerem intervenção imediata ou prioritária</p>
             </div>
@@ -133,55 +288,30 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Quick actions + recent analyses */}
+      {/* Charts row */}
+      {totalFindingsCount > 0 && (
+        <DashboardCharts
+          riskChartData={riskChartData}
+          categoryChartData={categoryChartData}
+          timelineData={timelineData}
+          totalFindingsCount={totalFindingsCount}
+          resolvedCount={resolvedCount}
+          resolutionRate={resolutionRate}
+        />
+      )}
+
+      {/* High-risk patients + Recent analyses */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Quick actions */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Ações rápidas</h2>
-
-          <Link href="/analysis/new"
-            className="flex items-center gap-4 rounded-2xl border-2 border-dashed border-[#1e3a5f]/20 bg-white p-4 hover:border-[#1e3a5f]/50 hover:bg-[#eff6ff]/50 transition-all group">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f] text-white shadow-sm group-hover:scale-105 transition-transform">
-              <Plus className="h-5 w-5" />
+        {/* High risk patients */}
+        <div className="card">
+          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-red-500" />
+              <h2 className="text-sm font-semibold text-gray-900">Pacientes em risco</h2>
             </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1e3a5f]">Nova análise PRM</p>
-              <p className="text-xs text-gray-500">Seguimento farmacoterapêutico</p>
-            </div>
-          </Link>
-
-          <Link href="/patients/new"
-            className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md hover:border-gray-200 transition-all group">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 group-hover:scale-105 transition-transform">
-              <Users className="h-5 w-5 text-violet-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900">Cadastrar paciente</p>
-              <p className="text-xs text-gray-500">{totalPatients} paciente{totalPatients !== 1 ? 's' : ''} ativo{totalPatients !== 1 ? 's' : ''}</p>
-            </div>
-          </Link>
-
-          <Link href="/reports"
-            className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md hover:border-gray-200 transition-all group">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-orange-50 group-hover:scale-105 transition-transform">
-              <FileText className="h-5 w-5 text-orange-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900">Relatórios PDF</p>
-              <p className="text-xs text-gray-500">{totalReports} relatório{totalReports !== 1 ? 's' : ''} gerado{totalReports !== 1 ? 's' : ''}</p>
-            </div>
-          </Link>
-
-          <Link href="/tokens"
-            className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md hover:border-gray-200 transition-all group">
-            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 group-hover:scale-105 transition-transform">
-              <Coins className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-900">Comprar tokens</p>
-              <p className="text-xs text-gray-500">Saldo: {user?.tokenBalance ?? 0} tokens</p>
-            </div>
-          </Link>
+            <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] hover:underline">Ver todos</Link>
+          </div>
+          <HighRiskPatients patients={highRiskPatients} />
         </div>
 
         {/* Recent analyses */}
@@ -191,9 +321,7 @@ export default async function DashboardPage() {
               <Activity className="h-4 w-4 text-gray-400" />
               <h2 className="text-sm font-semibold text-gray-900">Análises recentes</h2>
             </div>
-            <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] hover:underline">
-              Ver todos
-            </Link>
+            <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] hover:underline">Ver todos</Link>
           </div>
 
           {recentAnalyses.length === 0 ? (
@@ -203,8 +331,7 @@ export default async function DashboardPage() {
               </div>
               <p className="text-sm font-semibold text-gray-600">Nenhuma análise ainda</p>
               <p className="mt-1 text-xs text-gray-400">Cadastre um paciente e inicie o seguimento</p>
-              <Link href="/analysis/new"
-                className="btn-primary mt-5 text-xs">
+              <Link href="/analysis/new" className="btn-primary mt-5 text-xs">
                 <Plus className="h-3.5 w-3.5" /> Iniciar análise
               </Link>
             </div>
@@ -241,6 +368,53 @@ export default async function DashboardPage() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Quick actions */}
+      <div>
+        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Ações rápidas</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Link href="/analysis/new"
+            className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-[#1e3a5f]/20 bg-white p-4 hover:border-[#1e3a5f]/50 hover:bg-[#eff6ff]/50 transition-all group">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f] text-white shadow-sm group-hover:scale-105 transition-transform">
+              <Plus className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1e3a5f]">Nova análise PRM</p>
+              <p className="text-xs text-gray-500">Seguimento farmacoterapêutico</p>
+            </div>
+          </Link>
+          <Link href="/patients/new"
+            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 group-hover:scale-105 transition-transform">
+              <Users className="h-5 w-5 text-violet-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Cadastrar paciente</p>
+              <p className="text-xs text-gray-500">{totalPatients} ativo{totalPatients !== 1 ? 's' : ''}</p>
+            </div>
+          </Link>
+          <Link href="/reports"
+            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-50 group-hover:scale-105 transition-transform">
+              <FileText className="h-5 w-5 text-orange-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Relatórios PDF</p>
+              <p className="text-xs text-gray-500">{totalReports} gerado{totalReports !== 1 ? 's' : ''}</p>
+            </div>
+          </Link>
+          <Link href="/tokens"
+            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 group-hover:scale-105 transition-transform">
+              <Coins className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Tokens</p>
+              <p className="text-xs text-gray-500">Saldo: {user?.tokenBalance ?? 0}</p>
+            </div>
+          </Link>
         </div>
       </div>
 
