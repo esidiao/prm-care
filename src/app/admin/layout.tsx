@@ -1,0 +1,19 @@
+import { getSession } from '@/lib/auth'
+import { redirect } from 'next/navigation'
+import { Sidebar } from '@/components/layout/sidebar'
+import { TopBar } from '@/components/layout/topbar'
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  if (!session || session.user.role !== 'ADMIN') redirect('/dashboard')
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      <Sidebar user={session.user} />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <TopBar user={session.user} />
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+      </div>
+    </div>
+  )
+}

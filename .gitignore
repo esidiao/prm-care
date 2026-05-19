@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+build/
+
+# Environment variables — NUNCA subir para o GitHub
+.env
+.env.local
+.env.development
+.env.production
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+
+# Logs
+*.log
+dev.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+.vercel
+supabase-schema.sql
+scripts/

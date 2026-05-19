@@ -1,0 +1,605 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  PROFESSIONAL
+  STUDENT
+  INSTITUTIONAL_MANAGER
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PROFESSIONAL
+  INSTITUTIONAL
+}
+
+enum AnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PRMCategory {
+  NECESSITY
+  EFFECTIVENESS
+  SAFETY
+  ADHERENCE
+}
+
+enum RiskLevel {
+  LOW
+  MODERATE
+  HIGH
+  URGENT
+}
+
+enum ReportType {
+  SIMPLE
+  COMPLETE
+  SOAP
+  INSTITUTIONAL
+}
+
+enum KnowledgeType {
+  INTERACTION
+  CONTRAINDICATION
+  DOSAGE
+  HEALTH_ALERT
+  PROTOCOL
+  PACKAGE_INSERT
+  GUIDELINE
+  ADVERSE_REACTION
+}
+
+enum KnowledgeStatus {
+  PENDING
+  VALIDATED
+  EXPIRED
+  ARCHIVED
+}
+
+enum TransactionType {
+  PURCHASE
+  CONSUMPTION
+  REFUND
+  BONUS
+  EXPIRATION
+}
+
+enum ConsentType {
+  TERMS_OF_USE
+  PRIVACY_POLICY
+  DATA_PROCESSING
+  CLINICAL_DISCLAIMER
+}
+
+enum Sex {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum RouteOfAdministration {
+  ORAL
+  SUBLINGUAL
+  INHALED
+  INTRAVENOUS
+  INTRAMUSCULAR
+  SUBCUTANEOUS
+  TOPICAL
+  OPHTHALMIC
+  OTIC
+  NASAL
+  RECTAL
+  TRANSDERMAL
+  OTHER
+}
+
+enum AdherenceLevel {
+  EXCELLENT
+  GOOD
+  MODERATE
+  POOR
+  UNKNOWN
+}
+
+// ─── USERS & AUTH ─────────────────────────────────────────────────────────────
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  name              String?
+  password          String?
+  role              UserRole  @default(PROFESSIONAL)
+  plan              PlanType  @default(FREE)
+  tokenBalance      Int       @default(0)
+  demonstrationUsed Int       @default(0)
+  twoFactorEnabled  Boolean   @default(false)
+  twoFactorSecret   String?
+  isActive          Boolean   @default(true)
+  image             String?
+  institution       String?
+  crfNumber         String?   // CRF (Conselho Regional de Farmácia)
+  specialization    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+
+  // Relations
+  institutionId       String?
+  institutionMembership Institution? @relation("InstitutionMembers", fields: [institutionId], references: [id])
+  managedInstitution  Institution?  @relation("InstitutionManager")
+
+  accounts          Account[]
+  sessions          Session[]
+  patients          Patient[]
+  analyses          PRMAnalysis[]
+  reports           Report[]
+  tokenTransactions TokenTransaction[]
+  consents          ConsentRecord[]
+  auditLogs         AuditLog[]
+  knowledgeEntries  KnowledgeBase[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── INSTITUTIONS ─────────────────────────────────────────────────────────────
+
+model Institution {
+  id          String   @id @default(cuid())
+  name        String
+  cnpj        String?  @unique
+  type        String   // hospital, clinic, pharmacy, school, other
+  address     String?
+  phone       String?
+  email       String?
+  website     String?
+  logoUrl     String?
+  tokenPool   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  managerId   String   @unique
+  manager     User     @relation("InstitutionManager", fields: [managerId], references: [id])
+  members     User[]   @relation("InstitutionMembers")
+  subscriptions Subscription[]
+
+  @@map("institutions")
+}
+
+// ─── PATIENTS ─────────────────────────────────────────────────────────────────
+
+model Patient {
+  id                String    @id @default(cuid())
+  userId            String
+  code              String    // anonymized code
+  name              String?   // encrypted, optional
+  dateOfBirth       DateTime?
+  age               Int?
+  sex               Sex?
+  weight            Float?    // kg
+  height            Float?    // cm
+  bmi               Float?
+  isPregnant        Boolean   @default(false)
+  gestationalAge    Int?      // weeks
+  isLactating       Boolean   @default(false)
+  isAnonymized      Boolean   @default(false)
+  chiefComplaint    String?   @db.Text
+  clinicalHistory   String?   @db.Text
+  renalFunction     String?   // normal, mild_impairment, moderate_impairment, severe_impairment, failure
+  creatinineClearance Float?  // mL/min
+  hepaticFunction   String?   // normal, mild_impairment, moderate_impairment, severe_impairment
+  isElderly         Boolean   @default(false) // >= 60 years
+  observations      String?   @db.Text
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  user              User      @relation(fields: [userId], references: [id])
+  comorbidities     Comorbidity[]
+  allergies         Allergy[]
+  diagnoses         Diagnosis[]
+  medications       Medication[]
+  labResults        LabResult[]
+  analyses          PRMAnalysis[]
+  soapRecords       SOAPRecord[]
+
+  @@unique([userId, code])
+  @@map("patients")
+}
+
+model Comorbidity {
+  id          String   @id @default(cuid())
+  patientId   String
+  name        String
+  icd10Code   String?
+  severity    String?
+  since       String?
+  notes       String?
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("comorbidities")
+}
+
+model Allergy {
+  id          String   @id @default(cuid())
+  patientId   String
+  substance   String
+  reaction    String?
+  severity    String?  // mild, moderate, severe, anaphylaxis
+  confirmed   Boolean  @default(false)
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("allergies")
+}
+
+model Diagnosis {
+  id          String   @id @default(cuid())
+  patientId   String
+  name        String
+  icd10Code   String?
+  isPrimary   Boolean  @default(false)
+  since       String?
+  notes       String?
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("diagnoses")
+}
+
+model LabResult {
+  id            String   @id @default(cuid())
+  patientId     String
+  examName      String
+  value         String
+  unit          String?
+  referenceMin  Float?
+  referenceMax  Float?
+  isAbnormal    Boolean  @default(false)
+  collectedAt   DateTime?
+  notes         String?
+  patient       Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@map("lab_results")
+}
+
+// ─── MEDICATIONS ─────────────────────────────────────────────────────────────
+
+model Medication {
+  id                  String                @id @default(cuid())
+  patientId           String
+  tradeName           String?
+  activeIngredient    String
+  dose                Float?
+  doseUnit            String?              // mg, mcg, mL, g, UI, etc.
+  pharmaceuticalForm  String?              // tablet, capsule, solution, etc.
+  route               RouteOfAdministration @default(ORAL)
+  frequency           String?              // once daily, twice daily, etc.
+  frequencyHours      Int?                 // in hours
+  schedule            String?              // 8h, 12h, 20h
+  indication          String?
+  isPrescribed        Boolean              @default(true)
+  isSelfMedication    Boolean              @default(false)
+  durationOfUse       String?
+  startDate           DateTime?
+  endDate             DateTime?
+  adherence           AdherenceLevel       @default(UNKNOWN)
+  adverseEffects      String?              @db.Text
+  prescriber          String?
+  observations        String?              @db.Text
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  patient             Patient              @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  prmFindings         PRMFinding[]
+
+  @@map("medications")
+}
+
+// ─── PRM ANALYSIS ─────────────────────────────────────────────────────────────
+
+model PRMAnalysis {
+  id               String         @id @default(cuid())
+  userId           String
+  patientId        String
+  status           AnalysisStatus @default(PENDING)
+  tokensConsumed   Int            @default(0)
+  analysisType     String         // basic, complete, advanced
+  totalPRMs        Int            @default(0)
+  urgentPRMs       Int            @default(0)
+  highRiskPRMs     Int            @default(0)
+  moderatePRMs     Int            @default(0)
+  lowRiskPRMs      Int            @default(0)
+  summary          String?        @db.Text
+  clinicalNotes    String?        @db.Text
+  completedAt      DateTime?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  user             User           @relation(fields: [userId], references: [id])
+  patient          Patient        @relation(fields: [patientId], references: [id])
+  findings         PRMFinding[]
+  report           Report?
+  soapRecord       SOAPRecord?
+
+  @@map("prm_analyses")
+}
+
+model PRMFinding {
+  id                    String      @id @default(cuid())
+  analysisId            String
+  medicationId          String?
+  category              PRMCategory
+  riskLevel             RiskLevel
+  title                 String
+  description           String      @db.Text
+  clinicalEvidence      String      @db.Text
+  potentialImpact       String      @db.Text
+  pharmacistConduct     String      @db.Text
+  patientGuidance       String      @db.Text
+  needsReferral         Boolean     @default(false)
+  needsPrescriberContact Boolean    @default(false)
+  monitoring            String?     @db.Text
+  suggestedExams        String?
+  reevaluationPeriod    String?
+  confidenceLevel       String      // high, moderate, low, insufficient_data
+  validationNote        String      @db.Text
+  interventionDeadline  String?
+  isResolved            Boolean     @default(false)
+  resolvedAt            DateTime?
+  resolvedNotes         String?     @db.Text
+  createdAt             DateTime    @default(now())
+
+  analysis   PRMAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  medication Medication? @relation(fields: [medicationId], references: [id])
+
+  @@map("prm_findings")
+}
+
+// ─── SOAP RECORDS ─────────────────────────────────────────────────────────────
+
+model SOAPRecord {
+  id           String      @id @default(cuid())
+  analysisId   String      @unique
+  patientId    String
+  subjective   String      @db.Text
+  objective    String      @db.Text
+  assessment   String      @db.Text
+  plan         String      @db.Text
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  analysis     PRMAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+  patient      Patient     @relation(fields: [patientId], references: [id])
+
+  @@map("soap_records")
+}
+
+// ─── REPORTS ─────────────────────────────────────────────────────────────────
+
+model Report {
+  id             String     @id @default(cuid())
+  analysisId     String     @unique
+  userId         String
+  type           ReportType
+  tokensConsumed Int        @default(0)
+  fileUrl        String?
+  fileSize       Int?
+  isAnonymized   Boolean    @default(false)
+  professionalId String?    // CRF or other professional identifier
+  digitalSignature String?
+  generatedAt    DateTime   @default(now())
+
+  analysis PRMAnalysis @relation(fields: [analysisId], references: [id])
+  user     User        @relation(fields: [userId], references: [id])
+
+  @@map("reports")
+}
+
+// ─── TOKENS ───────────────────────────────────────────────────────────────────
+
+model TokenPackage {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  tokens        Int
+  priceInCents  Int
+  currency      String   @default("BRL")
+  isActive      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  transactions  TokenTransaction[]
+
+  @@map("token_packages")
+}
+
+model TokenTransaction {
+  id          String          @id @default(cuid())
+  userId      String
+  packageId   String?
+  type        TransactionType
+  amount      Int             // positive = credit, negative = debit
+  balanceBefore Int
+  balanceAfter  Int
+  description String?
+  referenceId String?         // analysisId, reportId, paymentId
+  paymentId   String?
+  createdAt   DateTime        @default(now())
+
+  user    User          @relation(fields: [userId], references: [id])
+  package TokenPackage? @relation(fields: [packageId], references: [id])
+
+  @@map("token_transactions")
+}
+
+// ─── SUBSCRIPTIONS & PAYMENTS ────────────────────────────────────────────────
+
+model Subscription {
+  id              String    @id @default(cuid())
+  userId          String?
+  institutionId   String?
+  plan            PlanType
+  status          String    // active, cancelled, expired, trial
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean @default(false)
+  externalId      String?   // Stripe subscription ID
+  priceInCents    Int
+  currency        String    @default("BRL")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  institution Institution? @relation(fields: [institutionId], references: [id])
+  payments    Payment[]
+
+  @@map("subscriptions")
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  subscriptionId  String?
+  userId          String?
+  amountInCents   Int
+  currency        String   @default("BRL")
+  status          String   // pending, completed, failed, refunded
+  method          String?  // credit_card, pix, boleto
+  gateway         String?  // stripe, mercadopago, pagseguro
+  externalId      String?  // gateway transaction ID
+  receiptUrl      String?
+  metadata        Json?
+  paidAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@map("payments")
+}
+
+// ─── KNOWLEDGE BASE ───────────────────────────────────────────────────────────
+
+model KnowledgeBase {
+  id              String          @id @default(cuid())
+  title           String
+  type            KnowledgeType
+  content         String          @db.Text
+  summary         String?         @db.Text
+  source          String
+  sourceUrl       String?
+  publishedAt     DateTime?
+  lastReviewedAt  DateTime?
+  expiresAt       DateTime?
+  status          KnowledgeStatus @default(PENDING)
+  validatedBy     String?
+  validatedAt     DateTime?
+  tags            String[]
+  drugNames       String[]        // associated drug names
+  icd10Codes      String[]        // associated conditions
+  observations    String?         @db.Text
+  createdById     String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  createdBy User @relation(fields: [createdById], references: [id])
+
+  @@map("knowledge_base")
+}
+
+// ─── SYSTEM CONFIG ────────────────────────────────────────────────────────────
+
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String   @db.Text
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// ─── AUDIT & COMPLIANCE ───────────────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  resource    String
+  resourceId  String?
+  ipAddress   String?
+  userAgent   String?
+  details     Json?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model ConsentRecord {
+  id          String      @id @default(cuid())
+  userId      String
+  type        ConsentType
+  version     String
+  accepted    Boolean
+  ipAddress   String?
+  userAgent   String?
+  acceptedAt  DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("consent_records")
+}
