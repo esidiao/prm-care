@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { analyzePRM, getTokenCostForAnalysis } from '@/lib/prm-engine'
 import { analyzeWithGemini } from '@/lib/gemini-service'
+import { enrichWithFDA } from '@/lib/drug-lookup-service'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
 import { AnalysisStatus, RouteOfAdministration, AdherenceLevel } from '@prisma/client'
 import type { PatientContext } from '@/types'
@@ -158,13 +159,25 @@ export async function POST(req: NextRequest) {
       })),
     }
 
-    // Run PRM engine (regras clínicas locais)
-    const result = analyzePRM(patientContext)
+    // Run PRM engine (regras clínicas locais) + FDA enrichment em paralelo
+    const drugNames = patientContext.medications.map(m => m.activeIngredient).filter(Boolean)
 
-    // Run Gemini AI analysis (complementar, não bloqueia se falhar)
+    const [result, fdaData] = await Promise.all([
+      Promise.resolve(analyzePRM(patientContext)),
+      enrichWithFDA(drugNames).catch(err => {
+        console.warn('[FDA] Enriquecimento não disponível:', err?.message)
+        return { labels: new Map(), directInteractions: [], fdaContextSummary: '' }
+      }),
+    ])
+
+    if (fdaData.directInteractions.length > 0) {
+      console.log(`[FDA] ${fdaData.directInteractions.length} interação(ões) direta(s) encontrada(s) nas bulas`)
+    }
+
+    // Run Groq AI analysis (complementar, não bloqueia se falhar)
     let geminiSummaryNote = ''
     try {
-      const geminiResult = await analyzeWithGemini(patientContext)
+      const geminiResult = await analyzeWithGemini(patientContext, fdaData)
       if (geminiResult.success && geminiResult.findings.length > 0) {
         result.findings.push(...geminiResult.findings)
         result.totalPRMs += geminiResult.findings.length

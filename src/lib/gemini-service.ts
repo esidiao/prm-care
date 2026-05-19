@@ -10,6 +10,7 @@
 
 import type { PatientContext, PRMFindingResult } from '@/types'
 import { PRMCategory, RiskLevel } from '@prisma/client'
+import type { FDAEnrichmentResult } from './drug-lookup-service'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
@@ -175,14 +176,19 @@ ${meds}`
 
 // ── User prompt ───────────────────────────────────────────────────────────────
 
-function buildUserPrompt(context: PatientContext): string {
+function buildUserPrompt(context: PatientContext, fdaData?: FDAEnrichmentResult): string {
   const patientContext = buildPatientContext(context)
   const medCount = context.medications.length
   const isComplex = medCount >= 5 || context.isElderly || context.isPregnant || context.isLactating
 
+  const fdaSection = fdaData?.fdaContextSummary
+    ? `\n${fdaData.fdaContextSummary}\n`
+    : ''
+
   return `${FEW_SHOT_EXAMPLES}
 
 ${patientContext}
+${fdaSection}
 
 === SUA TAREFA ===
 ${isComplex ? `⚠️ ATENÇÃO: Este é um paciente COMPLEXO (${medCount} medicamentos${context.isElderly ? ', idoso' : ''}${context.isPregnant ? ', gestante' : ''}${context.isLactating ? ', lactante' : ''}). Analise com máxima atenção.` : ''}
@@ -225,7 +231,7 @@ Se não identificar PRMs adicionais após análise cuidadosa, retorne:
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export async function analyzeWithGemini(context: PatientContext): Promise<{
+export async function analyzeWithGemini(context: PatientContext, fdaData?: FDAEnrichmentResult): Promise<{
   findings: PRMFindingResult[]
   observacaoGeral: string
   success: boolean
@@ -237,7 +243,7 @@ export async function analyzeWithGemini(context: PatientContext): Promise<{
   }
 
   try {
-    const userPrompt = buildUserPrompt(context)
+    const userPrompt = buildUserPrompt(context, fdaData)
 
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
