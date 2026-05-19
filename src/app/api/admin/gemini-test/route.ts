@@ -5,40 +5,41 @@ export async function GET() {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GROQ_API_KEY
 
   if (!apiKey) {
-    return NextResponse.json({ status: 'inactive', message: 'GEMINI_API_KEY não configurada no servidor.' })
+    return NextResponse.json({ status: 'inactive', message: 'GROQ_API_KEY não configurada no servidor.' })
   }
 
-  // Testa a chave com uma requisição mínima
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: 'Responda apenas: OK' }] }],
-          generationConfig: { maxOutputTokens: 10, temperature: 0 },
-        }),
-        signal: AbortSignal.timeout(15000),
-      }
-    )
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: 'Responda apenas: OK' }],
+        max_tokens: 10,
+        temperature: 0,
+      }),
+      signal: AbortSignal.timeout(15000),
+    })
 
     if (!response.ok) {
       const err = await response.text()
-      return NextResponse.json({ status: 'error', message: `Erro HTTP ${response.status}`, detail: err.substring(0, 200) })
+      return NextResponse.json({ status: 'error', message: `Erro HTTP ${response.status}`, detail: err.substring(0, 300) })
     }
 
     const data = await response.json()
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || ''
+    const text = data?.choices?.[0]?.message?.content || ''
 
     return NextResponse.json({
       status: 'active',
-      message: 'Google Gemini está funcionando corretamente.',
+      message: 'Groq IA está funcionando corretamente.',
       response: text.trim(),
-      model: 'gemini-2.0-flash',
+      model: 'llama-3.3-70b-versatile',
     })
   } catch (err: any) {
     return NextResponse.json({ status: 'error', message: err.message || 'Erro desconhecido' })

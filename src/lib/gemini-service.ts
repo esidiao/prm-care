@@ -1,16 +1,18 @@
 /**
- * PRM Care — Serviço de Análise com Google Gemini (IA)
+ * PRM Care — Serviço de Análise com IA (Groq — gratuito)
  *
- * Utiliza o modelo gemini-1.5-flash (gratuito: 15 req/min, 1M tokens/dia)
- * para análise farmacoterapêutica complementar às regras clínicas locais.
+ * Utiliza o modelo llama-3.3-70b via Groq API
+ * Gratuito: 14.400 requisições/dia, sem cartão de crédito.
  *
- * Para ativar: defina GEMINI_API_KEY no .env e no Vercel.
+ * Para ativar: defina GROQ_API_KEY no .env e no Vercel.
+ * Obter chave em: https://console.groq.com/keys
  */
 
 import type { PatientContext, PRMFindingResult } from '@/types'
 import { PRMCategory, RiskLevel } from '@prisma/client'
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+const GROQ_MODEL = 'llama-3.3-70b-versatile'
 
 interface GeminiPRM {
   titulo: string
@@ -39,15 +41,13 @@ function buildPrompt(context: PatientContext): string {
 
   return `Você é um farmacêutico clínico especialista em seguimento farmacoterapêutico pelo Método Dáder.
 
-Analise o perfil farmacoterapêutico abaixo e identifique APENAS os Problemas Relacionados a Medicamentos (PRMs) que uma análise automatizada de regras simples NÃO detectaria, como:
-- Interações incomuns ou de terceira geração
+Analise o perfil abaixo e identifique APENAS PRMs que uma análise de regras simples NÃO detectaria, como:
+- Interações incomuns ou de terceira geração não cobertas por listas padrão
 - Inadequação de dose para o perfil clínico específico
-- Medicamentos inapropriados para condições não listadas nos critérios de Beers/STOPP
-- Inconsistências terapêuticas (ex: medicamento para sintoma que deveria ter tratamento causal)
-- Risco de cascata de prescrição (efeito adverso tratado como nova doença)
+- Cascata de prescrição (efeito adverso tratado como nova doença)
 - Duração inapropriada de uso
 - Problemas de efetividade específicos ao diagnóstico
-- Qualquer outro PRM clinicamente relevante
+- Qualquer outro PRM clinicamente relevante não óbvio
 
 PERFIL DO PACIENTE:
 - Idade: ${context.age ? `${context.age} anos` : 'Não informada'}
@@ -68,29 +68,26 @@ PERFIL DO PACIENTE:
 MEDICAMENTOS EM USO (${context.medications.length}):
 ${meds}
 
-INSTRUÇÕES DE RESPOSTA:
-Responda EXCLUSIVAMENTE em JSON válido, sem texto antes ou depois, no formato:
+Responda EXCLUSIVAMENTE em JSON válido, sem texto antes ou depois:
 {
   "prms": [
     {
       "titulo": "título conciso do PRM",
-      "categoria": "NECESSITY" | "EFFECTIVENESS" | "SAFETY" | "ADHERENCE",
-      "risco": "URGENT" | "HIGH" | "MODERATE" | "LOW",
+      "categoria": "NECESSITY" ou "EFFECTIVENESS" ou "SAFETY" ou "ADHERENCE",
+      "risco": "URGENT" ou "HIGH" ou "MODERATE" ou "LOW",
       "descricao": "descrição clara do problema (2-3 frases)",
       "evidencia": "embasamento clínico e farmacológico",
-      "conduta_farmaceutica": "conduta específica e acionável para o farmacêutico",
-      "orientacao_paciente": "orientação clara para o paciente",
-      "monitoramento": "parâmetros e frequência de monitoramento",
-      "prazo_intervencao": "Imediato | 24-48h | Próxima consulta | 7 dias | 30 dias",
-      "necessita_prescritor": true | false
+      "conduta_farmaceutica": "conduta específica e acionável",
+      "orientacao_paciente": "orientação clara ao paciente",
+      "monitoramento": "parâmetros e frequência",
+      "prazo_intervencao": "Imediato ou 24-48h ou Próxima consulta ou 7 dias ou 30 dias",
+      "necessita_prescritor": true ou false
     }
   ],
-  "observacao_geral": "comentário geral sobre o perfil farmacoterapêutico (opcional, 1-2 frases)"
+  "observacao_geral": "comentário geral (1-2 frases)"
 }
 
-Se não identificar PRMs adicionais além dos que regras básicas detectariam, retorne: {"prms": [], "observacao_geral": "Nenhum PRM adicional identificado além dos detectáveis por regras clínicas básicas."}
-
-Seja preciso, baseado em evidências e use terminologia farmacêutica clínica em português brasileiro.`
+Se não identificar PRMs adicionais, retorne: {"prms":[],"observacao_geral":"Nenhum PRM adicional identificado."}`
 }
 
 export async function analyzeWithGemini(context: PatientContext): Promise<{
@@ -99,55 +96,50 @@ export async function analyzeWithGemini(context: PatientContext): Promise<{
   success: boolean
   error?: string
 }> {
-  const apiKey = process.env.GEMINI_API_KEY
+  const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    return { findings: [], observacaoGeral: '', success: false, error: 'GEMINI_API_KEY não configurada' }
+    return { findings: [], observacaoGeral: '', success: false, error: 'GROQ_API_KEY não configurada' }
   }
 
   try {
     const prompt = buildPrompt(context)
 
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const response = await fetch(GROQ_API_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 4096,
-          responseMimeType: 'application/json',
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_NONE' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_NONE' },
-        ],
+        model: GROQ_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.2,
+        max_tokens: 4096,
+        response_format: { type: 'json_object' },
       }),
-      signal: AbortSignal.timeout(30000), // 30 segundos de timeout
+      signal: AbortSignal.timeout(30000),
     })
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('[GEMINI] Erro HTTP:', response.status, errorText)
+      console.error('[GROQ] Erro HTTP:', response.status, errorText)
       return { findings: [], observacaoGeral: '', success: false, error: `Erro HTTP ${response.status}` }
     }
 
     const data = await response.json()
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text
+    const text = data?.choices?.[0]?.message?.content
 
     if (!text) {
-      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta vazia do Gemini' }
+      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta vazia do Groq' }
     }
 
     let parsed: { prms: GeminiPRM[]; observacao_geral?: string }
     try {
-      // Remove markdown code blocks se presentes
       const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
       parsed = JSON.parse(cleanText)
     } catch {
-      console.error('[GEMINI] Erro ao parsear JSON:', text.substring(0, 500))
-      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta inválida do Gemini' }
+      console.error('[GROQ] Erro ao parsear JSON:', text.substring(0, 500))
+      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta inválida do Groq' }
     }
 
     const findings: PRMFindingResult[] = (parsed.prms || []).map((prm: GeminiPRM) => ({
@@ -164,7 +156,7 @@ export async function analyzeWithGemini(context: PatientContext): Promise<{
       monitoring: prm.monitoramento,
       reevaluationPeriod: prm.prazo_intervencao,
       confidenceLevel: 'moderate' as const,
-      validationNote: 'Análise gerada por Inteligência Artificial (Google Gemini). Deve ser obrigatoriamente validada pelo farmacêutico antes de qualquer intervenção.',
+      validationNote: 'Análise gerada por Inteligência Artificial (Groq/Llama). Deve ser obrigatoriamente validada pelo farmacêutico antes de qualquer intervenção.',
       interventionDeadline: prm.prazo_intervencao,
     }))
 
@@ -174,7 +166,7 @@ export async function analyzeWithGemini(context: PatientContext): Promise<{
       success: true,
     }
   } catch (err: any) {
-    console.error('[GEMINI] Erro na análise:', err)
+    console.error('[GROQ] Erro na análise:', err)
     return { findings: [], observacaoGeral: '', success: false, error: err.message || 'Erro desconhecido' }
   }
 }
