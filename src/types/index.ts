@@ -32,6 +32,8 @@ export interface PatientContext {
   diagnoses: { name: string; icd10Code?: string | null; isPrimary: boolean }[]
   labResults: { examName: string; value: string; unit?: string | null; isAbnormal: boolean }[]
   medications: MedicationContext[]
+  chiefComplaint?: string | null
+  clinicalHistory?: string | null
 }
 
 export interface MedicationContext {

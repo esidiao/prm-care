@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { analyzePRM, getTokenCostForAnalysis } from '@/lib/prm-engine'
+import { analyzeWithGemini } from '@/lib/gemini-service'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
 import { AnalysisStatus, RouteOfAdministration, AdherenceLevel } from '@prisma/client'
 import type { PatientContext } from '@/types'
@@ -115,6 +116,8 @@ export async function POST(req: NextRequest) {
         unit: l.unit,
         isAbnormal: l.isAbnormal,
       })),
+      chiefComplaint: patient.chiefComplaint,
+      clinicalHistory: patient.clinicalHistory,
       medications: savedMeds.map(m => ({
         id: m.id,
         activeIngredient: m.activeIngredient,
@@ -134,8 +137,32 @@ export async function POST(req: NextRequest) {
       })),
     }
 
-    // Run PRM engine
+    // Run PRM engine (regras clínicas locais)
     const result = analyzePRM(patientContext)
+
+    // Run Gemini AI analysis (complementar, não bloqueia se falhar)
+    let geminiSummaryNote = ''
+    try {
+      const geminiResult = await analyzeWithGemini(patientContext)
+      if (geminiResult.success && geminiResult.findings.length > 0) {
+        result.findings.push(...geminiResult.findings)
+        result.totalPRMs += geminiResult.findings.length
+        result.urgentPRMs += geminiResult.findings.filter(f => f.riskLevel === 'URGENT').length
+        result.highRiskPRMs += geminiResult.findings.filter(f => f.riskLevel === 'HIGH').length
+        result.moderatePRMs += geminiResult.findings.filter(f => f.riskLevel === 'MODERATE').length
+        result.lowRiskPRMs += geminiResult.findings.filter(f => f.riskLevel === 'LOW').length
+        geminiSummaryNote = ` Análise de IA identificou ${geminiResult.findings.length} PRM(s) adicional(is).`
+      }
+      if (geminiResult.observacaoGeral) {
+        geminiSummaryNote += ` Obs. IA: ${geminiResult.observacaoGeral}`
+      }
+    } catch (geminiErr) {
+      console.warn('[GEMINI] Análise IA não disponível, continuando com análise local.', geminiErr)
+    }
+
+    if (geminiSummaryNote) {
+      result.summary += geminiSummaryNote
+    }
 
     // Consume tokens
     const tokenOp = await consumeTokens(
