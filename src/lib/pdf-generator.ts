@@ -11,6 +11,7 @@ import {
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { RiskLevel, PRMCategory } from '@prisma/client'
+import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS, ADHERENCE_LABELS } from '@/lib/utils'
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
 
@@ -126,8 +127,8 @@ function PRMReport({ data }: { data: ReportData }) {
         React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Peso / Altura:'), React.createElement(Text, { style: styles.value }, `${patient.weight || '—'} kg / ${patient.height || '—'} cm`)),
         React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Gestante:'), React.createElement(Text, { style: styles.value }, patient.isPregnant ? `Sim${patient.gestationalAge ? ` (${patient.gestationalAge} sem.)` : ''}` : 'Não')),
         React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Idoso (≥60a):'), React.createElement(Text, { style: styles.value }, patient.isElderly ? 'Sim' : 'Não')),
-        React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Função renal:'), React.createElement(Text, { style: styles.value }, patient.renalFunction || '—')),
-        React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Função hepática:'), React.createElement(Text, { style: styles.value }, patient.hepaticFunction || '—')),
+        React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Função renal:'), React.createElement(Text, { style: styles.value }, patient.renalFunction ? (RENAL_FUNCTION_LABELS[patient.renalFunction] || patient.renalFunction) : '—')),
+        React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Função hepática:'), React.createElement(Text, { style: styles.value }, patient.hepaticFunction ? (HEPATIC_FUNCTION_LABELS[patient.hepaticFunction] || patient.hepaticFunction) : '—')),
         patient.chiefComplaint && React.createElement(View, { style: styles.row }, React.createElement(Text, { style: styles.label }, 'Queixa principal:'), React.createElement(Text, { style: styles.value }, patient.chiefComplaint)),
       ),
 

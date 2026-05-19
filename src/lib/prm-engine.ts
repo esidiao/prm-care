@@ -21,6 +21,10 @@ import type {
   SOAPSuggestion,
 } from '@/types'
 import { PRMCategory, RiskLevel, AdherenceLevel } from '@prisma/client'
+import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS } from '@/lib/utils'
+
+function labelRenal(v?: string | null) { return v ? (RENAL_FUNCTION_LABELS[v] || v) : '—' }
+function labelHepatic(v?: string | null) { return v ? (HEPATIC_FUNCTION_LABELS[v] || v) : '—' }
 
 // ─── Utility Functions ────────────────────────────────────────────────────────
 
@@ -953,7 +957,7 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
             riskLevel: (context.renalFunction === 'severe_impairment' || context.renalFunction === 'failure') ? RiskLevel.HIGH : RiskLevel.MODERATE,
             title: `Ajuste de dose em IR necessário: ${med.activeIngredient}`,
             description: warning,
-            clinicalEvidence: `Função renal: ${context.renalFunction}${context.creatinineClearance ? ` (ClCr: ${context.creatinineClearance} mL/min)` : ''}. Medicamento: ${med.activeIngredient}.`,
+            clinicalEvidence: `Função renal: ${labelRenal(context.renalFunction)}${context.creatinineClearance ? ` (ClCr: ${context.creatinineClearance} mL/min)` : ''}. Medicamento: ${med.activeIngredient}.`,
             potentialImpact: 'Acúmulo do medicamento e toxicidade por clearance renal reduzido.',
             pharmacistConduct: 'Verificar adequação de dose e intervalo para a função renal atual. Comunicar ao prescritor.',
             patientGuidance: 'Informe sempre ao médico sobre problemas nos rins.',
@@ -984,7 +988,7 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
             riskLevel: context.hepaticFunction === 'severe_impairment' ? RiskLevel.HIGH : RiskLevel.MODERATE,
             title: `Cautela em hepatopatia: ${med.activeIngredient}`,
             description: warning,
-            clinicalEvidence: `Função hepática comprometida (${context.hepaticFunction}). Medicamento: ${med.activeIngredient}.`,
+            clinicalEvidence: `Função hepática comprometida — ${labelHepatic(context.hepaticFunction)}. Medicamento: ${med.activeIngredient}.`,
             potentialImpact: 'Risco de acúmulo e hepatotoxicidade adicional.',
             pharmacistConduct: 'Verificar dose máxima para a função hepática. Comunicar ao prescritor.',
             patientGuidance: 'Informe ao médico sobre problemas no fígado. Evite automedicação.',
@@ -1110,8 +1114,8 @@ function generateSOAP(context: PatientContext, findings: PRMFindingResult[]): SO
   ).join('; ')}. ${context.labResults.length > 0
     ? `Exames: ${context.labResults.map(l => `${l.examName}: ${l.value}${l.unit || ''}${l.isAbnormal ? ' (ALTERADO)' : ''}`).join('; ')}.`
     : 'Exames laboratoriais: não informados.'
-  } ${context.renalFunction ? `Função renal: ${context.renalFunction}${context.creatinineClearance ? ` (ClCr: ${context.creatinineClearance} mL/min)` : ''}. ` : ''
-  }${context.hepaticFunction ? `Função hepática: ${context.hepaticFunction}.` : ''}`
+  } ${context.renalFunction ? `Função renal: ${labelRenal(context.renalFunction)}${context.creatinineClearance ? ` (ClCr: ${context.creatinineClearance} mL/min)` : ''}. ` : ''
+  }${context.hepaticFunction ? `Função hepática: ${labelHepatic(context.hepaticFunction)}.` : ''}`
 
   const assessment = `Identificados ${findings.length} PRM(s). ${
     urgent.length > 0 ? `⚠️ URGENTE: ${urgent.map(f => f.title).join('; ')}. ` : ''
