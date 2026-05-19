@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, FlaskConical, Plus, Pill, Activity,
-  AlertTriangle, Calendar, FileText
+  AlertTriangle, Calendar, FileText, Pencil
 } from 'lucide-react'
 import {
   formatDate, formatDateTime, calculateAge,
@@ -54,10 +54,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             <span className="mt-1 inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">Anonimizado</span>
           )}
         </div>
-        <Link href={`/analysis/new?patientId=${patient.id}`}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
-          <FlaskConical className="h-4 w-4" /> Nova análise PRM
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={`/patients/${patient.id}/edit`}
+            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <Pencil className="h-4 w-4" /> Editar perfil
+          </Link>
+          <Link href={`/analysis/new?patientId=${patient.id}`}
+            className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+            <FlaskConical className="h-4 w-4" /> Nova análise PRM
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

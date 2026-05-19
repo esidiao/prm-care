@@ -59,6 +59,17 @@ export async function PATCH(
     where: { id: params.id },
     data: {
       isActive: body.isActive ?? medication.isActive,
+      ...(body.activeIngredient !== undefined && { activeIngredient: body.activeIngredient }),
+      ...(body.tradeName !== undefined && { tradeName: body.tradeName }),
+      ...(body.dose !== undefined && { dose: body.dose }),
+      ...(body.doseUnit !== undefined && { doseUnit: body.doseUnit }),
+      ...(body.pharmaceuticalForm !== undefined && { pharmaceuticalForm: body.pharmaceuticalForm }),
+      ...(body.route !== undefined && { route: body.route }),
+      ...(body.frequency !== undefined && { frequency: body.frequency }),
+      ...(body.indication !== undefined && { indication: body.indication }),
+      ...(body.adherence !== undefined && { adherence: body.adherence }),
+      ...(body.isSelfMedication !== undefined && { isSelfMedication: body.isSelfMedication }),
+      ...(body.adverseEffects !== undefined && { adverseEffects: body.adverseEffects }),
     },
   })
 
