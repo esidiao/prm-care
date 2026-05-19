@@ -10,7 +10,7 @@
 import type { PatientContext, PRMFindingResult } from '@/types'
 import { PRMCategory, RiskLevel } from '@prisma/client'
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
 
 interface GeminiPRM {
   titulo: string
