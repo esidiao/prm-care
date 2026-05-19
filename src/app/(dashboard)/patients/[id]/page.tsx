@@ -11,6 +11,7 @@ import {
   RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS,
   RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS, ADHERENCE_LABELS
 } from '@/lib/utils'
+import { DeleteMedicationButton } from '@/components/patients/DeleteMedicationButton'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -167,13 +168,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                         </p>
                         {med.indication && <p className="mt-0.5 text-xs text-gray-400">Para: {med.indication}</p>}
                       </div>
-                      <span className={`text-xs rounded-full px-2 py-0.5 ${
-                        med.adherence === 'POOR' ? 'bg-red-50 text-red-700' :
-                        med.adherence === 'MODERATE' ? 'bg-yellow-50 text-yellow-700' :
-                        'bg-green-50 text-green-700'
-                      }`}>
-                        {ADHERENCE_LABELS[med.adherence] || med.adherence}
-                      </span>
+                      <div className="flex items-center gap-1 shrink-0">
+                        <span className={`text-xs rounded-full px-2 py-0.5 ${
+                          med.adherence === 'POOR' ? 'bg-red-50 text-red-700' :
+                          med.adherence === 'MODERATE' ? 'bg-yellow-50 text-yellow-700' :
+                          'bg-green-50 text-green-700'
+                        }`}>
+                          {ADHERENCE_LABELS[med.adherence] || med.adherence}
+                        </span>
+                        <DeleteMedicationButton medicationId={med.id} medicationName={med.activeIngredient} />
+                      </div>
                     </div>
                     {med.adverseEffects && (
                       <p className="mt-2 text-xs text-orange-600 bg-orange-50 rounded px-2 py-1">
