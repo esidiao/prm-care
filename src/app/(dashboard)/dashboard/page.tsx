@@ -10,6 +10,7 @@ import { formatRelative } from '@/lib/utils'
 import { PRMCategory, RiskLevel } from '@prisma/client'
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
 import { HighRiskPatients } from '@/components/dashboard/HighRiskPatients'
+import { UpcomingReviews } from '@/components/dashboard/UpcomingReviews'
 
 async function getDashboardData(userId: string) {
   const thirtyDaysAgo = new Date()
@@ -300,7 +301,12 @@ export default async function DashboardPage() {
         />
       )}
 
-      {/* High-risk patients + Recent analyses */}
+      {/* Upcoming reviews + High-risk patients + Recent analyses */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        {/* Upcoming reviews — full width on mobile, 1 col on lg */}
+        <UpcomingReviews />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-3">
         {/* High risk patients */}
         <div className="card">

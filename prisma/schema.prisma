@@ -149,6 +149,7 @@ model User {
   reports           Report[]
   clinicalNotes     ClinicalNote[]
   scaleAssessments  ScaleAssessment[]
+  reviews           PatientReview[]
   tokenTransactions TokenTransaction[]
   consents          ConsentRecord[]
   auditLogs         AuditLog[]
@@ -259,6 +260,7 @@ model Patient {
   soapRecords       SOAPRecord[]
   clinicalNotes     ClinicalNote[]
   scaleAssessments  ScaleAssessment[]
+  reviews           PatientReview[]
 
   @@unique([userId, code])
   @@map("patients")
@@ -645,4 +647,28 @@ model ScaleAssessment {
 
   @@index([patientId, scaleType, appliedAt(sort: Desc)])
   @@map("scale_assessments")
+}
+
+// ─── REVISÕES / AGENDAMENTOS ──────────────────────────────────────────────────
+
+model PatientReview {
+  id            String    @id @default(cuid())
+  patientId     String
+  userId        String
+  scheduledDate DateTime
+  type          String    // "MEDICATION_REVIEW" | "FOLLOW_UP" | "LAB_CHECK" | "ADHERENCE" | "CUSTOM"
+  title         String
+  notes         String?   @db.Text
+  status        String    @default("PENDING") // "PENDING" | "COMPLETED" | "CANCELLED" | "OVERDUE"
+  completedAt   DateTime?
+  completedNote String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([userId, scheduledDate])
+  @@index([patientId, scheduledDate])
+  @@map("patient_reviews")
 }

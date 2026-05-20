@@ -17,12 +17,13 @@ import { PatientNotes } from '@/components/patients/PatientNotes'
 import { ClinicalScales } from '@/components/patients/ClinicalScales'
 import { PatientEvolution } from '@/components/patients/PatientEvolution'
 import { MedDiscontinuationAlert } from '@/components/patients/MedDiscontinuationAlert'
+import { PatientReviews } from '@/components/patients/PatientReviews'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
   if (!session) return null
 
-  const [patient, initialNotes, initialAssessments] = await Promise.all([
+  const [patient, initialNotes, initialAssessments, initialReviews] = await Promise.all([
     prisma.patient.findFirst({
       where: { id: params.id, userId: session.user.id },
       include: {
@@ -55,6 +56,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         severity: true, notes: true, appliedAt: true, createdAt: true,
         user: { select: { name: true, email: true } },
       },
+    }).catch(() => [] as never[]),
+    prisma.patientReview.findMany({
+      where: { patientId: params.id, userId: session.user.id },
+      orderBy: { scheduledDate: 'asc' },
     }).catch(() => [] as never[]),
   ])
 
@@ -306,6 +311,18 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               ...a,
               appliedAt: a.appliedAt.toISOString(),
               createdAt: a.createdAt.toISOString(),
+            }))}
+          />
+
+          {/* Scheduled Reviews */}
+          <PatientReviews
+            patientId={patient.id}
+            initialReviews={initialReviews.map((r) => ({
+              ...r,
+              scheduledDate: r.scheduledDate.toISOString(),
+              completedAt: r.completedAt?.toISOString() ?? null,
+              createdAt: r.createdAt.toISOString(),
+              updatedAt: r.updatedAt.toISOString(),
             }))}
           />
 
