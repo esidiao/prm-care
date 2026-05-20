@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, FlaskConical, Plus, Pill, Activity,
-  AlertTriangle, Calendar, FileText, Pencil
+  AlertTriangle, Calendar, FileText, Pencil, History
 } from 'lucide-react'
 import {
   formatDate, formatDateTime, calculateAge,
@@ -59,6 +59,12 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             <Pencil className="h-4 w-4" /> Editar perfil
           </Link>
+          {patient.analyses.length > 0 && (
+            <Link href={`/patients/${patient.id}/history`}
+              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              <History className="h-4 w-4" /> Histórico
+            </Link>
+          )}
           <Link href={`/analysis/new?patientId=${patient.id}`}
             className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
             <FlaskConical className="h-4 w-4" /> Nova análise PRM
@@ -235,7 +241,15 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           {/* Recent analyses */}
           <div className="rounded-xl border bg-white shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 className="font-semibold text-gray-900">Análises PRM</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="font-semibold text-gray-900">Análises PRM</h2>
+                {patient.analyses.length >= 2 && (
+                  <Link href={`/patients/${patient.id}/history`}
+                    className="flex items-center gap-1 text-xs text-[#1e3a5f] hover:underline">
+                    <History className="h-3 w-3" /> Ver histórico
+                  </Link>
+                )}
+              </div>
               <Link href={`/analysis/new?patientId=${patient.id}`}
                 className="flex items-center gap-1 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] transition-colors">
                 <FlaskConical className="h-3 w-3" /> Nova análise
