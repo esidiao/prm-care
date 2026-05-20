@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { formatDateTime, RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS } from '@/lib/utils'
 import { RiskLevel, PRMCategory } from '@prisma/client'
+import { FindingsPanel } from '@/components/analysis/FindingsPanel'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -114,118 +115,15 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         </div>
       </div>
 
-      {/* PRM Findings */}
-      {analysis.findings.length === 0 ? (
-        <div className="rounded-xl border bg-white p-10 text-center shadow-sm">
-          <CheckCircle className="mx-auto mb-3 h-12 w-12 text-green-400" />
-          <p className="font-semibold text-gray-700">Nenhum PRM identificado com os dados informados</p>
-          <p className="text-sm text-gray-400 mt-1">Isso não exclui a existência de problemas não detectáveis com os dados disponíveis.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <h2 className="text-lg font-bold text-gray-900">Problemas identificados ({analysis.totalPRMs})</h2>
-          {[
-            { level: RiskLevel.URGENT, findings: urgentFindings },
-            { level: RiskLevel.HIGH, findings: highFindings },
-            { level: RiskLevel.MODERATE, findings: moderateFindings },
-            { level: RiskLevel.LOW, findings: lowFindings },
-          ].filter(g => g.findings.length > 0).map(({ level, findings }) => (
-            <div key={level} className={`rounded-xl border-l-4 ${
-              level === RiskLevel.URGENT ? 'border-l-red-500 bg-red-50 border border-red-200' :
-              level === RiskLevel.HIGH ? 'border-l-orange-500 bg-orange-50 border border-orange-200' :
-              level === RiskLevel.MODERATE ? 'border-l-yellow-500 bg-yellow-50 border border-yellow-200' :
-              'border-l-green-500 bg-green-50 border border-green-200'
-            } p-0 overflow-hidden shadow-sm`}>
-              <div className={`px-5 py-3 font-semibold flex items-center justify-between ${
-                level === RiskLevel.URGENT ? 'bg-red-100 text-red-800' :
-                level === RiskLevel.HIGH ? 'bg-orange-100 text-orange-800' :
-                level === RiskLevel.MODERATE ? 'bg-yellow-100 text-yellow-800' :
-                'bg-green-100 text-green-800'
-              }`}>
-                <span>{RISK_LEVEL_CONFIG[level].label}</span>
-                <span className="text-sm font-normal">{findings.length} PRM(s)</span>
-              </div>
-              <div className="divide-y">
-                {findings.map((finding) => (
-                  <div key={finding.id} className="bg-white p-5 space-y-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                          {riskBadge(finding.riskLevel)}
-                          <span className="text-xs rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-600">
-                            {PRM_CATEGORY_LABELS[finding.category]}
-                          </span>
-                          <span className={`text-xs rounded-full px-2.5 py-0.5 ${
-                            finding.confidenceLevel === 'high' ? 'bg-green-50 text-green-700' :
-                            finding.confidenceLevel === 'moderate' ? 'bg-yellow-50 text-yellow-700' :
-                            'bg-gray-50 text-gray-600'
-                          }`}>
-                            Confiança: {finding.confidenceLevel === 'high' ? 'Alta' : finding.confidenceLevel === 'moderate' ? 'Moderada' : 'Baixa'}
-                          </span>
-                        </div>
-                        <h3 className="font-semibold text-gray-900">{finding.title}</h3>
-                        <p className="text-sm text-gray-600 mt-1">{finding.description}</p>
-                      </div>
-                    </div>
-
-                    <div className="grid gap-3 md:grid-cols-2 text-sm">
-                      <div className="rounded-lg bg-blue-50 p-3">
-                        <p className="text-xs font-semibold text-blue-700 mb-1">📋 Evidência clínica</p>
-                        <p className="text-gray-700">{finding.clinicalEvidence}</p>
-                      </div>
-                      <div className="rounded-lg bg-orange-50 p-3">
-                        <p className="text-xs font-semibold text-orange-700 mb-1">⚠️ Impacto potencial</p>
-                        <p className="text-gray-700">{finding.potentialImpact}</p>
-                      </div>
-                      <div className="rounded-lg bg-green-50 p-3">
-                        <p className="text-xs font-semibold text-green-700 mb-1">💊 Conduta farmacêutica</p>
-                        <p className="text-gray-700">{finding.pharmacistConduct}</p>
-                      </div>
-                      <div className="rounded-lg bg-purple-50 p-3">
-                        <p className="text-xs font-semibold text-purple-700 mb-1">🗣 Orientação ao paciente</p>
-                        <p className="text-gray-700">{finding.patientGuidance}</p>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3 text-xs">
-                      {finding.needsPrescriberContact && (
-                        <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-blue-700">
-                          📞 Contato com prescritor recomendado
-                        </span>
-                      )}
-                      {finding.needsReferral && (
-                        <span className="flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-red-700">
-                          🏥 Encaminhamento recomendado
-                        </span>
-                      )}
-                      {finding.interventionDeadline && (
-                        <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-gray-600">
-                          ⏱ Prazo: {finding.interventionDeadline}
-                        </span>
-                      )}
-                      {finding.reevaluationPeriod && (
-                        <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-gray-600">
-                          🔄 Reavaliação: {finding.reevaluationPeriod}
-                        </span>
-                      )}
-                    </div>
-
-                    {finding.monitoring && (
-                      <div className="rounded-lg border border-gray-200 p-3 text-xs text-gray-600">
-                        <span className="font-semibold text-gray-800">Monitoramento: </span>{finding.monitoring}
-                      </div>
-                    )}
-
-                    <div className="rounded-lg border border-amber-100 bg-amber-50 p-2.5 text-xs text-amber-700">
-                      <strong>Nota de validação:</strong> {finding.validationNote}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* PRM Findings — painel interativo com filtros e resolução inline */}
+      <FindingsPanel
+        findings={analysis.findings.map(f => ({
+          ...f,
+          resolvedAt: f.resolvedAt?.toISOString() ?? null,
+        }))}
+        analysisId={analysis.id}
+        totalPRMs={analysis.totalPRMs}
+      />
 
       {/* SOAP */}
       {analysis.soapRecord && (
