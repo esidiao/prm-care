@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import {
   Brain, ChevronDown, ChevronUp, Plus, Trash2, Printer,
   CheckCircle2, AlertTriangle, AlertCircle, Info, X, Loader2,
@@ -156,7 +156,7 @@ function ScaleForm({
               <span className="mr-2 text-gray-400 dark:text-gray-500">{idx + 1}.</span>
               {q.text}
             </p>
-            <div className="grid gap-2">
+            <div className="flex flex-col gap-2">
               {q.options.map((opt) => (
                 <label
                   key={opt.value}
@@ -433,6 +433,23 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
   const [activeForm, setActiveForm] = useState<ScaleType | null>(null)
   const [activeTab, setActiveTab] = useState<ScaleType | 'all'>('all')
   const [showInfo, setShowInfo] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Close dropdown on outside click (works on mobile too)
+  useEffect(() => {
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    document.addEventListener('touchstart', handler)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      document.removeEventListener('touchstart', handler)
+    }
+  }, [])
 
   const handleSave = useCallback((record: AssessmentRecord) => {
     setAssessments((prev) => [record, ...prev])
@@ -481,26 +498,33 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
             </a>
           )}
           {!activeForm && (
-            <div className="relative group">
-              <button className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] transition-colors">
-                <Plus className="h-3.5 w-3.5" /> Nova aplicação
-                <ChevronDown className="h-3 w-3 ml-0.5" />
+            <div ref={dropdownRef} className="relative">
+              <button
+                onClick={() => setDropdownOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] active:bg-[#162d4a] transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Nova aplicação</span>
+                <span className="sm:hidden">Aplicar</span>
+                <ChevronDown className={`h-3 w-3 ml-0.5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
-              <div className="absolute right-0 top-full mt-1 w-52 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg z-10 hidden group-hover:block">
-                {SCALE_LIST.map((s) => (
-                  <button
-                    key={s.type}
-                    onClick={() => setActiveForm(s.type)}
-                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-lg last:rounded-b-lg transition-colors"
-                  >
-                    <ScaleIcon type={s.type} size="sm" />
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{s.name}</p>
-                      <p className="text-xs text-gray-400">{s.questionCount} questões</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              {dropdownOpen && (
+                <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-20">
+                  {SCALE_LIST.map((s) => (
+                    <button
+                      key={s.type}
+                      onClick={() => { setActiveForm(s.type); setDropdownOpen(false) }}
+                      className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-xl last:rounded-b-xl transition-colors"
+                    >
+                      <ScaleIcon type={s.type} size="sm" />
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{s.name}</p>
+                        <p className="text-xs text-gray-400">{s.questionCount} questões · score 0–{s.maxScore}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

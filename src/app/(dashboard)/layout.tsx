@@ -10,10 +10,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      {/* Desktop sidebar */}
       <Sidebar user={session.user} />
-      <div className="flex flex-1 flex-col overflow-hidden">
+
+      <div className="flex flex-1 flex-col overflow-hidden min-w-0">
+        {/* TopBar receives user so it can render MobileNav inside */}
         <TopBar user={session.user} />
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
           <ClinicalDisclaimer />
           {children}
         </main>

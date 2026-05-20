@@ -60,46 +60,49 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   const age = patient.dateOfBirth ? calculateAge(patient.dateOfBirth) : patient.age
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/patients" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
-          <ArrowLeft className="h-4 w-4" /> Pacientes
-        </Link>
-      </div>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Back link */}
+      <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+        <ArrowLeft className="h-4 w-4" /> Pacientes
+      </Link>
 
-      <div className="flex items-start justify-between">
+      {/* Patient header — stacks on mobile */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{patient.name || patient.code}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{patient.name || patient.code}</h1>
           {patient.name && <p className="text-gray-400 text-sm">{patient.code}</p>}
           {patient.isAnonymized && (
             <span className="mt-1 inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">Anonimizado</span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        {/* Action buttons — scrollable row on mobile, wrapped on sm+ */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
           <Link href={`/patients/${patient.id}/edit`}
-            className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-            <Pencil className="h-4 w-4" /> Editar perfil
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <Pencil className="h-4 w-4" />
+            <span className="hidden sm:inline">Editar perfil</span>
           </Link>
           {patient.analyses.length > 0 && (
             <Link href={`/patients/${patient.id}/history`}
-              className="flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              <History className="h-4 w-4" /> Histórico
+              className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">Histórico</span>
             </Link>
           )}
           {patient.analyses.length > 0 && (
             <ExportMenu mode="prms-only" patientId={patient.id} variant="icon" />
           )}
           <Link href={`/analysis/new?patientId=${patient.id}`}
-            className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
-            <FlaskConical className="h-4 w-4" /> Nova análise PRM
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+            <FlaskConical className="h-4 w-4" />
+            <span>Nova análise</span>
           </Link>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left column — patient info */}
-        <div className="space-y-4 lg:col-span-1">
+        <div className="space-y-3 sm:space-y-4 lg:col-span-1">
           {/* Demographics */}
           <div className="rounded-xl border bg-white p-5 shadow-sm">
             <h2 className="mb-4 font-semibold text-gray-900 flex items-center gap-2">
@@ -172,7 +175,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         </div>
 
         {/* Right column — medications & analyses */}
-        <div className="space-y-4 lg:col-span-2">
+        <div className="space-y-3 sm:space-y-4 lg:col-span-2">
           {/* Medications */}
           <div className="rounded-xl border bg-white shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">

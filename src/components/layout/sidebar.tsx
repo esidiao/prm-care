@@ -1,9 +1,11 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
-  Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight, Calculator
+  Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
+  Calculator, X, Menu,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -37,22 +39,28 @@ const adminItems = [
   { href: '/admin/tokens', label: 'Pacotes', icon: Coins },
 ]
 
-export function Sidebar({ user }: SidebarProps) {
+// ── Shared nav content ────────────────────────────────────────────────────────
+
+function SidebarContent({
+  user,
+  onNavClick,
+}: {
+  user: SidebarProps['user']
+  onNavClick?: () => void
+}) {
   const pathname = usePathname()
   const isAdmin = user.role === 'ADMIN'
-
   const isActive = (href: string) =>
     href === '/dashboard' ? pathname === href : pathname.startsWith(href)
-
   const tokenPct = Math.min((user.tokenBalance / 50) * 100, 100)
   const tokenColor =
     user.tokenBalance <= 3 ? 'bg-red-400' :
     user.tokenBalance <= 10 ? 'bg-amber-400' : 'bg-emerald-400'
 
   return (
-    <aside className="flex h-full w-60 flex-col bg-[#0f2744] text-white">
+    <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
           <Pill className="h-5 w-5 text-white" />
         </div>
@@ -62,12 +70,12 @@ export function Sidebar({ user }: SidebarProps) {
         </div>
       </div>
 
-      {/* Token balance — oculto para plano institucional */}
-      {user.plan !== 'INSTITUTIONAL' && (
+      {/* Token balance */}
+      {user.plan !== 'INSTITUTIONAL' ? (
         <div className="mx-3 mt-3 mb-1 rounded-xl bg-white/5 border border-white/10 px-4 py-3">
           <div className="flex items-center justify-between mb-1.5">
             <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider">Tokens</p>
-            <Link href="/tokens" className="text-[10px] text-blue-300 hover:text-blue-200 transition-colors">
+            <Link href="/tokens" onClick={onNavClick} className="text-[10px] text-blue-300 hover:text-blue-200 transition-colors">
               + Comprar
             </Link>
           </div>
@@ -76,8 +84,7 @@ export function Sidebar({ user }: SidebarProps) {
             <div className={cn('h-full rounded-full transition-all', tokenColor)} style={{ width: `${tokenPct}%` }} />
           </div>
         </div>
-      )}
-      {user.plan === 'INSTITUTIONAL' && (
+      ) : (
         <div className="mx-3 mt-3 mb-1 rounded-xl bg-white/5 border border-white/10 px-4 py-3">
           <p className="text-[11px] font-medium text-white/50 uppercase tracking-wider mb-1">Acesso</p>
           <p className="text-sm font-semibold text-emerald-400">Institucional — Ilimitado</p>
@@ -86,46 +93,60 @@ export function Sidebar({ user }: SidebarProps) {
       )}
 
       {/* Main nav */}
-      <nav className="flex-1 space-y-0.5 px-3 py-3 overflow-y-auto">
-        {navItems.filter(item => !(item.href === '/tokens' && user.plan === 'INSTITUTIONAL')).map(({ href, label, icon: Icon, highlight }) => {
-          const active = isActive(href)
-          return (
-            <Link key={href} href={href}
-              className={cn(
-                'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                active
-                  ? 'bg-white/15 text-white shadow-sm'
-                  : highlight
-                  ? 'text-blue-300 hover:bg-white/10 hover:text-white'
-                  : 'text-white/60 hover:bg-white/10 hover:text-white'
-              )}>
-              <Icon className={cn(
-                'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
-                active ? 'text-white' : highlight ? 'text-blue-300' : 'text-white/50'
-              )} />
-              <span className="flex-1">{label}</span>
-              {active && <ChevronRight className="h-3 w-3 text-white/40" />}
-            </Link>
-          )
-        })}
+      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-3">
+        {navItems
+          .filter((item) => !(item.href === '/tokens' && user.plan === 'INSTITUTIONAL'))
+          .map(({ href, label, icon: Icon, highlight }) => {
+            const active = isActive(href)
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onNavClick}
+                className={cn(
+                  'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                  active
+                    ? 'bg-white/15 text-white shadow-sm'
+                    : highlight
+                    ? 'text-blue-300 hover:bg-white/10 hover:text-white'
+                    : 'text-white/60 hover:bg-white/10 hover:text-white',
+                )}
+              >
+                <Icon
+                  className={cn(
+                    'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
+                    active ? 'text-white' : highlight ? 'text-blue-300' : 'text-white/50',
+                  )}
+                />
+                <span className="flex-1">{label}</span>
+                {active && <ChevronRight className="h-3 w-3 text-white/40" />}
+              </Link>
+            )
+          })}
 
         {isAdmin && (
-          <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="mt-4 border-t border-white/10 pt-4">
             <p className="mb-2 px-3 text-[10px] font-semibold uppercase tracking-widest text-white/30">
               Administração
             </p>
             {adminItems.map(({ href, label, icon: Icon }) => {
               const active = pathname.startsWith(href)
               return (
-                <Link key={href} href={href}
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={onNavClick}
                   className={cn(
                     'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                    active ? 'bg-white/15 text-white' : 'text-white/50 hover:bg-white/10 hover:text-white'
-                  )}>
-                  <Icon className={cn(
-                    'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
-                    active ? 'text-white' : 'text-white/40'
-                  )} />
+                    active ? 'bg-white/15 text-white' : 'text-white/50 hover:bg-white/10 hover:text-white',
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
+                      active ? 'text-white' : 'text-white/40',
+                    )}
+                  />
                   {label}
                 </Link>
               )
@@ -147,11 +168,82 @@ export function Sidebar({ user }: SidebarProps) {
           <button
             onClick={() => signOut({ callbackUrl: '/' })}
             title="Sair"
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:bg-white/10 hover:text-white/80 transition-colors">
+            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 hover:bg-white/10 hover:text-white/80 transition-colors"
+          >
             <LogOut className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Desktop sidebar (always visible ≥ lg) ────────────────────────────────────
+
+export function Sidebar({ user }: SidebarProps) {
+  return (
+    <aside className="hidden lg:flex h-full w-60 flex-shrink-0 flex-col bg-[#0f2744] text-white">
+      <SidebarContent user={user} />
     </aside>
+  )
+}
+
+// ── Mobile hamburger + drawer ─────────────────────────────────────────────────
+
+export function MobileNav({ user }: SidebarProps) {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  // Close drawer on route change
+  useEffect(() => {
+    setOpen(false)
+  }, [pathname])
+
+  // Prevent body scroll when open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => { document.body.style.overflow = '' }
+  }, [open])
+
+  return (
+    <>
+      {/* Hamburger button (only on mobile) */}
+      <button
+        onClick={() => setOpen(true)}
+        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+        aria-label="Menu"
+      >
+        <Menu className="h-4 w-4" />
+      </button>
+
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Drawer */}
+      <div
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-72 bg-[#0f2744] text-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden',
+          open ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        {/* Close button */}
+        <button
+          onClick={() => setOpen(false)}
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg text-white/40 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          <X className="h-4 w-4" />
+        </button>
+        <SidebarContent user={user} onNavClick={() => setOpen(false)} />
+      </div>
+    </>
   )
 }
