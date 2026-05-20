@@ -147,6 +147,7 @@ model User {
   patients          Patient[]
   analyses          PRMAnalysis[]
   reports           Report[]
+  clinicalNotes     ClinicalNote[]
   tokenTransactions TokenTransaction[]
   consents          ConsentRecord[]
   auditLogs         AuditLog[]
@@ -255,6 +256,7 @@ model Patient {
   labResults        LabResult[]
   analyses          PRMAnalysis[]
   soapRecords       SOAPRecord[]
+  clinicalNotes     ClinicalNote[]
 
   @@unique([userId, code])
   @@map("patients")
@@ -446,6 +448,24 @@ model Report {
   user     User        @relation(fields: [userId], references: [id])
 
   @@map("reports")
+}
+
+// ─── CLINICAL NOTES ──────────────────────────────────────────────────────────
+
+model ClinicalNote {
+  id        String   @id @default(cuid())
+  patientId String
+  userId    String
+  content   String   @db.Text       // Markdown
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([patientId, createdAt(sort: Desc)])
+  @@map("clinical_notes")
 }
 
 // ─── TOKENS ───────────────────────────────────────────────────────────────────

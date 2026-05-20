@@ -13,26 +13,37 @@ import {
 } from '@/lib/utils'
 import { DeleteMedicationButton } from '@/components/patients/DeleteMedicationButton'
 import { ExportMenu } from '@/components/export/ExportMenu'
+import { PatientNotes } from '@/components/patients/PatientNotes'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
   if (!session) return null
 
-  const patient = await prisma.patient.findFirst({
-    where: { id: params.id, userId: session.user.id },
-    include: {
-      comorbidities: true,
-      allergies: true,
-      diagnoses: true,
-      medications: { where: { isActive: true }, orderBy: { createdAt: 'asc' } },
-      labResults: { orderBy: { collectedAt: 'desc' }, take: 10 },
-      analyses: {
-        include: { findings: true },
-        orderBy: { createdAt: 'desc' },
-        take: 5,
+  const [patient, initialNotes] = await Promise.all([
+    prisma.patient.findFirst({
+      where: { id: params.id, userId: session.user.id },
+      include: {
+        comorbidities: true,
+        allergies: true,
+        diagnoses: true,
+        medications: { where: { isActive: true }, orderBy: { createdAt: 'asc' } },
+        labResults: { orderBy: { collectedAt: 'desc' }, take: 10 },
+        analyses: {
+          include: { findings: true },
+          orderBy: { createdAt: 'desc' },
+          take: 5,
+        },
       },
-    },
-  })
+    }),
+    prisma.clinicalNote.findMany({
+      where: { patientId: params.id },
+      orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
+      select: {
+        id: true, content: true, isPinned: true, createdAt: true, updatedAt: true,
+        user: { select: { name: true, email: true } },
+      },
+    }),
+  ])
 
   if (!patient) notFound()
 
@@ -241,6 +252,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               </div>
             </div>
           )}
+
+          {/* Clinical Notes */}
+          <PatientNotes
+            patientId={patient.id}
+            initialNotes={initialNotes.map(n => ({
+              ...n,
+              createdAt: n.createdAt.toISOString(),
+              updatedAt: n.updatedAt.toISOString(),
+            }))}
+          />
 
           {/* Recent analyses */}
           <div className="rounded-xl border bg-white shadow-sm">
