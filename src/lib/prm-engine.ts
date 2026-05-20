@@ -128,6 +128,127 @@ const KNOWN_INTERACTIONS: KnownInteraction[] = [
   { drug1: 'carbamazepina', drug2: 'claritromicina', severity: 'major', mechanism: 'Inibição de CYP3A4 eleva nível de carbamazepina', clinicalEffect: 'Toxicidade: diplopia, ataxia, confusão mental', management: 'Monitorar nível sérico. Considerar alternativa ao antibiótico.' },
   { drug1: 'clopidogrel', drug2: 'omeprazol', severity: 'moderate', mechanism: 'Omeprazol inibe CYP2C19, reduzindo ativação do clopidogrel', clinicalEffect: 'Redução do efeito antiagregante e maior risco de eventos cardiovasculares', management: 'Preferir pantoprazol ou rabeprazol se IBP necessário.' },
   { drug1: 'quetiapina', drug2: 'fluconazol', severity: 'major', mechanism: 'Inibição de CYP3A4 eleva quetiapina', clinicalEffect: 'Prolongamento de QT e sedação excessiva', management: 'Monitorar ECG. Reduzir dose de quetiapina.' },
+
+  // ── CYP2D6 ─────────────────────────────────────────────────────────────────
+  { drug1: 'paroxetina', drug2: 'tamoxifeno', severity: 'major', mechanism: 'Paroxetina inibe CYP2D6, reduzindo conversão de tamoxifeno em endoxifeno (metabólito ativo)', clinicalEffect: 'Redução de até 65% do efeito antiestrogênico do tamoxifeno — risco de falha terapêutica no câncer de mama', management: 'Contraindicado. Substituir por sertralina, venlafaxina ou mirtazapina, que têm menor impacto no CYP2D6.' },
+  { drug1: 'fluoxetina', drug2: 'tamoxifeno', severity: 'major', mechanism: 'Fluoxetina inibe CYP2D6 — mesma interação da paroxetina', clinicalEffect: 'Falha terapêutica no tratamento do câncer de mama', management: 'Evitar combinação. Usar antidepressivo alternativo (sertralina, venlafaxina).' },
+  { drug1: 'paroxetina', drug2: 'codeina', severity: 'moderate', mechanism: 'Inibição de CYP2D6 reduz conversão de codeína em morfina (metabólito ativo)', clinicalEffect: 'Analgesia reduzida — falha terapêutica da codeína', management: 'Usar analgésico alternativo (tramadol com cautela, morfina em doses reduzidas).' },
+  { drug1: 'bupropiona', drug2: 'tramadol', severity: 'major', mechanism: 'Inibição de CYP2D6 + rebaixamento do limiar convulsivo por ambos os medicamentos', clinicalEffect: 'Risco significativo de convulsões', management: 'Evitar combinação. Monitorar rigorosamente se inevitável. Não usar em epilépticos.' },
+  { drug1: 'amiodarona', drug2: 'flecainida', severity: 'major', mechanism: 'Inibição de CYP2D6 pela amiodarona eleva níveis de flecainida', clinicalEffect: 'Toxicidade por flecainida: arritmias proarrítmicas e bloqueio de condução', management: 'Reduzir dose de flecainida em 50%. Monitorar ECG rigorosamente.' },
+  { drug1: 'haloperidol', drug2: 'paroxetina', severity: 'moderate', mechanism: 'Paroxetina inibe CYP2D6, elevando nível de haloperidol', clinicalEffect: 'Toxicidade por haloperidol: efeitos extrapiramidais, sedação excessiva, QT longo', management: 'Monitorar nível plasmático de haloperidol e ECG. Reduzir dose se necessário.' },
+
+  // ── CYP3A4 — novos pares ────────────────────────────────────────────────────
+  { drug1: 'rifampicina', drug2: 'varfarina', severity: 'major', mechanism: 'Rifampicina é potente indutor de CYP2C9 e CYP3A4 — aumenta metabolismo da warfarina', clinicalEffect: 'Redução drástica do INR e falha anticoagulante — risco tromboembólico', management: 'Monitorar INR 2x por semana. Geralmente necessário aumentar dose de warfarina em 2-5x.' },
+  { drug1: 'rifampicina', drug2: 'sinvastatina', severity: 'major', mechanism: 'Rifampicina induz CYP3A4 fortemente', clinicalEffect: 'Redução de até 90% nos níveis de sinvastatina — falha terapêutica', management: 'Monitorar lipidograma. Considerar dobrar ou triplicar dose da estatina durante rifampicina.' },
+  { drug1: 'rifampicina', drug2: 'atorvastatina', severity: 'major', mechanism: 'Indução de CYP3A4', clinicalEffect: 'Redução marcante dos níveis de atorvastatina', management: 'Monitorar lipidograma e ajustar dose.' },
+  { drug1: 'fluconazol', drug2: 'sildenafila', severity: 'major', mechanism: 'Inibição de CYP3A4 e CYP2C9 eleva nível de sildenafila', clinicalEffect: 'Hipotensão grave, priapismo e toxicidade sistêmica', management: 'Reduzir dose de sildenafila para 25 mg. Monitorar PA.' },
+  { drug1: 'itraconazol', drug2: 'sinvastatina', severity: 'major', mechanism: 'Inibição intensa de CYP3A4', clinicalEffect: 'Elevação > 10x dos níveis de sinvastatina — rabdomiólise', management: 'Contraindicado. Suspender sinvastatina durante itraconazol.' },
+  { drug1: 'claritromicina', drug2: 'midazolam', severity: 'major', mechanism: 'Inibição de CYP3A4', clinicalEffect: 'Sedação profunda e apneia', management: 'Contraindicado com midazolam oral. Reduzir dose IV e monitorar.' },
+  { drug1: 'eritromicina', drug2: 'sinvastatina', severity: 'major', mechanism: 'Inibição de CYP3A4', clinicalEffect: 'Miopatia grave e rabdomiólise', management: 'Suspender sinvastatina durante eritromicina. Usar azitromicina como alternativa.' },
+  { drug1: 'cetoconazol', drug2: 'sinvastatina', severity: 'major', mechanism: 'Inibição potente de CYP3A4', clinicalEffect: 'Rabdomiólise', management: 'Contraindicado. Suspender estatina.' },
+  { drug1: 'verapamil', drug2: 'sinvastatina', severity: 'moderate', mechanism: 'Inibição de CYP3A4', clinicalEffect: 'Aumento dos níveis de sinvastatina — miopatia', management: 'Limitar sinvastatina a 10 mg/dia com verapamil.' },
+  { drug1: 'diltiazem', drug2: 'sinvastatina', severity: 'moderate', mechanism: 'Inibição de CYP3A4', clinicalEffect: 'Aumento moderado dos níveis de sinvastatina', management: 'Limitar sinvastatina a 10 mg/dia. Monitorar sintomas musculares.' },
+
+  // ── CYP1A2 ─────────────────────────────────────────────────────────────────
+  { drug1: 'ciprofloxacino', drug2: 'clozapina', severity: 'major', mechanism: 'Inibição de CYP1A2 eleva nível de clozapina', clinicalEffect: 'Toxicidade por clozapina: sedação extrema, convulsões, agranulocitose', management: 'Evitar combinação. Monitorar nível sérico de clozapina e hemograma.' },
+  { drug1: 'fluvoxamina', drug2: 'olanzapina', severity: 'major', mechanism: 'Inibição potente de CYP1A2', clinicalEffect: 'Aumento dos níveis de olanzapina — sedação e toxicidade', management: 'Reduzir dose de olanzapina em 50%. Monitorar sinais de toxicidade.' },
+  { drug1: 'fluvoxamina', drug2: 'teofilina', severity: 'major', mechanism: 'Inibição de CYP1A2 reduz metabolismo da teofilina', clinicalEffect: 'Toxicidade por teofilina: arritmias, convulsões, náusea', management: 'Monitorar nível sérico de teofilina. Reduzir dose em 50%.' },
+  { drug1: 'fluvoxamina', drug2: 'clozapina', severity: 'major', mechanism: 'Potente inibidor de CYP1A2', clinicalEffect: 'Toxicidade grave por clozapina', management: 'Combinação de alto risco. Monitorar nível sérico intensivamente.' },
+
+  // ── QT longo — pares de alto risco ─────────────────────────────────────────
+  { drug1: 'haloperidol', drug2: 'ciprofloxacino', severity: 'major', mechanism: 'Ambos prolongam intervalo QT por mecanismos distintos', clinicalEffect: 'Torsades de pointes e morte súbita', management: 'Monitorar ECG. Evitar combinação ou usar alternativas para QT.' },
+  { drug1: 'amiodarona', drug2: 'ciprofloxacino', severity: 'major', mechanism: 'Efeito aditivo no prolongamento do QT', clinicalEffect: 'Torsades de pointes', management: 'Monitorar QTc. Preferir outro antibiótico.' },
+  { drug1: 'quetiapina', drug2: 'ciprofloxacino', severity: 'major', mechanism: 'Ambos prolongam QT', clinicalEffect: 'Arritmia ventricular grave', management: 'Monitorar ECG. Preferir amoxicilina ou cefalexina.' },
+  { drug1: 'domperidona', drug2: 'claritromicina', severity: 'major', mechanism: 'Bloqueio de canal hERG aditivo — ambos prolongam QT', clinicalEffect: 'Torsades de pointes', management: 'Contraindicado. Suspender domperidona ou usar metoclopramida com cautela.' },
+  { drug1: 'domperidona', drug2: 'fluconazol', severity: 'major', mechanism: 'Inibição de CYP3A4 eleva domperidona + bloqueio aditivo de canal de potássio', clinicalEffect: 'Torsades de pointes', management: 'Evitar combinação. Monitorar ECG se inevitável.' },
+  { drug1: 'ondansetrona', drug2: 'amiodarona', severity: 'major', mechanism: 'Prolongamento aditivo do QT', clinicalEffect: 'Arritmia ventricular e Torsades de pointes', management: 'Monitorar QTc. Preferir metoclopramida em pacientes com amiodarona.' },
+  { drug1: 'risperidona', drug2: 'ciprofloxacino', severity: 'moderate', mechanism: 'Ambos prolongam QT', clinicalEffect: 'Arritmia ventricular', management: 'Monitorar ECG. Preferir antibiótico alternativo.' },
+  { drug1: 'metadona', drug2: 'ciprofloxacino', severity: 'major', mechanism: 'Metadona é potente prolongador de QT + inibição CYP3A4', clinicalEffect: 'Torsades de pointes de alto risco', management: 'Contraindicado. Usar amoxicilina ou cefalosporina.' },
+  { drug1: 'metadona', drug2: 'fluconazol', severity: 'major', mechanism: 'Inibição de CYP3A4 + bloqueio aditivo de canal de potássio', clinicalEffect: 'Torsades de pointes', management: 'Evitar. Monitorar ECG se inevitável. Considerar alternativa antifúngica.' },
+
+  // ── Bloqueio duplo do SRAA (IECA + BRA) ────────────────────────────────────
+  { drug1: 'enalapril', drug2: 'losartana', severity: 'major', mechanism: 'Bloqueio duplo do SRAA: IECA + BRA-II em combinação', clinicalEffect: 'Hipercalemia grave, hipotensão e insuficiência renal aguda — sem benefício cardiovascular adicional comprovado', management: 'Contraindicado pela guideline ESC 2023 e FDA. Suspender um dos agentes. Monitorar K⁺ e creatinina.' },
+  { drug1: 'enalapril', drug2: 'valsartana', severity: 'major', mechanism: 'Duplo bloqueio SRAA', clinicalEffect: 'Hipercalemia e IRA', management: 'Contraindicado exceto em situações específicas com monitoramento intensivo.' },
+  { drug1: 'captopril', drug2: 'losartana', severity: 'major', mechanism: 'Duplo bloqueio SRAA', clinicalEffect: 'Hipercalemia, hipotensão e IRA', management: 'Suspender um dos agentes. ONTARGET trial demonstrou sem benefício e maior risco renal.' },
+  { drug1: 'ramipril', drug2: 'losartana', severity: 'major', mechanism: 'Duplo bloqueio SRAA', clinicalEffect: 'Hipercalemia e IRA', management: 'Contraindicado. Usar apenas um agente bloqueador do SRAA.' },
+
+  // ── Anticoagulantes combinados ──────────────────────────────────────────────
+  { drug1: 'rivaroxabana', drug2: 'warfarina', severity: 'contraindicated', mechanism: 'Anticoagulação excessiva por mecanismos aditivos', clinicalEffect: 'Hemorragia potencialmente fatal', management: 'Contraindicado absoluto. Usar apenas um anticoagulante por vez.' },
+  { drug1: 'apixabana', drug2: 'warfarina', severity: 'contraindicated', mechanism: 'Anticoagulação dupla sem benefício adicional', clinicalEffect: 'Risco hemorrágico extremo', management: 'Contraindicado absoluto.' },
+  { drug1: 'dabigatrana', drug2: 'warfarina', severity: 'contraindicated', mechanism: 'Dupla anticoagulação', clinicalEffect: 'Hemorragia grave', management: 'Contraindicado. Transição deve ser orientada pelo médico com washout adequado.' },
+
+  // ── Hipoglicemiantes ────────────────────────────────────────────────────────
+  { drug1: 'metformina', drug2: 'furosemida', severity: 'moderate', mechanism: 'Furosemida pode elevar creatinina por desidratação, contraindicando metformina', clinicalEffect: 'Risco de acidose lática se função renal deteriorar', management: 'Monitorar função renal regularmente. Suspender metformina se ClCr < 30 mL/min.' },
+  { drug1: 'glibenclamida', drug2: 'ciprofloxacino', severity: 'moderate', mechanism: 'Fluoroquinolonas causam disglicemia (hipo e hiperglicemia)', clinicalEffect: 'Hipoglicemia intensa e prolongada, especialmente em idosos', management: 'Monitorar glicemia 3-4x/dia durante antibioticoterapia.' },
+  { drug1: 'insulina', drug2: 'corticoide', severity: 'moderate', mechanism: 'Corticosteroides elevam a glicemia por resistência insulínica e glicogenólise', clinicalEffect: 'Hiperglicemia rebelde ao tratamento com insulina', management: 'Monitorar glicemia com mais frequência. Ajustar doses de insulina.' },
+
+  // ── Outros ─────────────────────────────────────────────────────────────────
+  { drug1: 'acido valproico', drug2: 'lamotrigina', severity: 'major', mechanism: 'Ácido valpróico inibe glucuronidação da lamotrigina (UGT enzimas)', clinicalEffect: 'Aumento de até 100% nos níveis de lamotrigina — toxicidade: ataxia, diplopia, Stevens-Johnson', management: 'Reduzir dose de lamotrigina em 50% quando iniciando valproato. Monitorar nível sérico.' },
+  { drug1: 'acido valproico', drug2: 'carbamazepina', severity: 'moderate', mechanism: 'Interação farmacocinética bidirecional com variação imprevisível nos níveis', clinicalEffect: 'Toxicidade por carbamazepina ou redução do valproato', management: 'Monitorar níveis séricos de ambos os anticonvulsivantes mensalmente.' },
+  { drug1: 'lítio', drug2: 'enalapril', severity: 'major', mechanism: 'IECA reduz excreção renal de lítio', clinicalEffect: 'Toxicidade por lítio: tremor, confusão, insuficiência renal', management: 'Monitorar litemias semanalmente no início. Ajustar dose de lítio.' },
+  { drug1: 'lítio', drug2: 'hidroclorotiazida', severity: 'major', mechanism: 'Tiazídico reduz excreção renal de lítio', clinicalEffect: 'Toxicidade por lítio grave', management: 'Preferir furosemida se diurético necessário. Monitorar litemias.' },
+  { drug1: 'alopurinol', drug2: 'azatioprina', severity: 'major', mechanism: 'Alopurinol inibe xantina oxidase — impede inativação da azatioprina', clinicalEffect: 'Toxicidade grave por azatioprina: leucopenia, infecções oportunistas', management: 'Contraindicado. Se inevitável, reduzir azatioprina em 75%. Monitorar hemograma semanalmente.' },
+  { drug1: 'metotrexato', drug2: 'trimetoprima', severity: 'major', mechanism: 'Inibição aditiva do folato', clinicalEffect: 'Toxicidade hematológica grave: pancitopenia', management: 'Evitar combinação. Monitorar hemograma se impossível evitar.' },
+  { drug1: 'varfarina', drug2: 'paracetamol', severity: 'moderate', mechanism: 'Paracetamol em doses > 2g/dia inibe CYP2C9 de forma dose-dependente', clinicalEffect: 'Elevação do INR de forma proporcional à dose', management: 'Monitorar INR se uso regular de paracetamol > 2g/dia. Manter menor dose eficaz.' },
+]
+
+// ─── 1b. LISTA ISMP BRASIL — MEDICAMENTOS DE ALTO RISCO (MAR) ────────────────
+// Fonte: ISMP Brasil (Instituto para Práticas Seguras no Uso de Medicamentos)
+// Medicamentos que têm risco inerentemente elevado de causar danos graves quando
+// há erros no seu uso — requerem protocolos especiais de verificação.
+
+const ISMP_HIGH_ALERT_DRUGS: Record<string, { risk: string; monitoring: string; level: 'critical' | 'high' }> = {
+  // Anticoagulantes
+  'warfarina':    { risk: 'MAR: Anticoagulante oral com janela terapêutica estreita. Risco de hemorragia grave ou trombose.', monitoring: 'INR a cada 4-6 semanas em estável. Verificar interações alimentares (vitamina K) e medicamentosas.', level: 'critical' },
+  'varfarina':    { risk: 'MAR: Anticoagulante oral com janela terapêutica estreita. Risco de hemorragia grave ou trombose.', monitoring: 'INR a cada 4-6 semanas em estável. Verificar interações alimentares (vitamina K) e medicamentosas.', level: 'critical' },
+  'heparina':     { risk: 'MAR: Anticoagulante parenteral — erros de dose são frequentes e fatais.', monitoring: 'TTPA a cada 6h nas primeiras 24h. Monitorar sangramento e plaquetas (HITT).', level: 'critical' },
+  'enoxaparina':  { risk: 'MAR: HBPM — ajuste obrigatório em IR e peso extremo. Risco de hemorragia.', monitoring: 'Anti-Xa em obesos, gestantes e IR. Monitorar plaquetas.', level: 'critical' },
+  'rivaroxabana': { risk: 'MAR: NOAC — sem antídoto de acesso amplo no Brasil. Risco hemorrágico real.', monitoring: 'Função renal a cada 3-6 meses. Adesão rigorosa. Sem monitoramento rotineiro de INR.', level: 'high' },
+  'apixabana':    { risk: 'MAR: NOAC — sem monitoramento laboratorial de rotina, erros difíceis de detectar.', monitoring: 'Função renal semestral. Verificar interações. Orientar sobre sinais de sangramento.', level: 'high' },
+  'dabigatrana':  { risk: 'MAR: NOAC — nefrotóxico em IR. Antídoto (idarucizumab) disponível mas de alto custo.', monitoring: 'ClCr a cada 3 meses. Contraindicado se ClCr < 30 mL/min.', level: 'high' },
+  // Insulinas
+  'insulina':     { risk: 'MAR: Insulina — medicamento de alto risco para hipoglicemia grave. Erros de tipo, dose e hora são frequentes e letais.', monitoring: 'Glicemia capilar antes das refeições e ao deitar. Atenção a tipo (regular, NPH, análogos). Orientar sinais de hipoglicemia.', level: 'critical' },
+  // Opioides potentes
+  'morfina':      { risk: 'MAR: Opioide potente — risco de depressão respiratória e overdose, especialmente em IR e idosos.', monitoring: 'Monitorar FR, nível de sedação, SpO₂. Ter naloxona disponível.', level: 'critical' },
+  'fentanila':    { risk: 'MAR: Opioide altamente potente (100x morfina) — janela terapêutica mínima. Risco de sobredose fatal.', monitoring: 'Monitorar sedação e FR. Não substituir por outros opioides sem conversão de dose.', level: 'critical' },
+  'metadona':     { risk: 'MAR: Opioide de longa ação — meia-vida imprevisível (24-72h) e prolongador de QT. Acumulação perigosa.', monitoring: 'ECG (QTc), eletrólitos, FR. Risco de sedação tardia nas primeiras 72h.', level: 'critical' },
+  'oxicodona':    { risk: 'MAR: Opioide — alto potencial de abuso e dependência. Risco de depressão respiratória.', monitoring: 'Monitorar sedação, FR. Orientar sobre risco de dependência.', level: 'high' },
+  // Imunossupressores
+  'metotrexato':  { risk: 'MAR: Imunossupressor/antineoplásico — dose semanal frequentemente confundida com dose diária, causando toxicidade fatal.', monitoring: 'Hemograma e transaminases mensais. CONFIRMAR: dose SEMANAL (não diária). Suplementar ácido fólico.', level: 'critical' },
+  'azatioprina':  { risk: 'MAR: Imunossupressor — mielotoxicidade dose-dependente. Interação fatal com alopurinol.', monitoring: 'Hemograma quinzenal no início, mensal após estabilização. Verificar interação com alopurinol.', level: 'high' },
+  'ciclosporina': { risk: 'MAR: Imunossupressor com janela terapêutica estreita — nefrotóxico e com múltiplas interações CYP3A4.', monitoring: 'Nível sérico (C₀) a cada 2 semanas inicialmente. Creatinina, PA, magnésio mensais.', level: 'critical' },
+  'tacrolimus':   { risk: 'MAR: Imunossupressor com janela terapêutica estreita e alta variabilidade farmacocinética.', monitoring: 'Nível sérico (C₀) a cada 2 semanas. Creatinina, potássio, glicemia mensais.', level: 'critical' },
+  // Lítio
+  'lítio':        { risk: 'MAR: Lítio — janela terapêutica estreita. Toxicidade em desidratação, dieta hipossódica e interações (AINE, IECA, diuréticos).', monitoring: 'Litemia a cada 3-6 meses (alvo: 0,6-1,0 mEq/L). Função renal e tireoidiana semestrais.', level: 'critical' },
+  'litio':        { risk: 'MAR: Lítio — janela terapêutica estreita. Toxicidade em desidratação, dieta hipossódica e interações.', monitoring: 'Litemia a cada 3-6 meses. Função renal e tireoidiana semestrais.', level: 'critical' },
+  // Amiodarona
+  'amiodarona':   { risk: 'MAR: Antiarrítmico com toxicidade pulmonar, tireoidiana e hepática cumulativa. Meia-vida de 40-55 dias.', monitoring: 'RX tórax, TSH, TGO/TGP e ECG a cada 6 meses. Olhos (microdepósitos córneanos) anualmente.', level: 'critical' },
+  // Anticonvulsivantes com janela estreita
+  'fenitoina':    { risk: 'MAR: Anticonvulsivante com cinética não-linear — pequenas mudanças de dose causam grandes variações no nível sérico.', monitoring: 'Nível sérico (alvo: 10-20 mcg/mL) a cada 3-6 meses. Atenção a hipoalbuminemia (calcular nível livre).', level: 'high' },
+  'fenitoína':    { risk: 'MAR: Anticonvulsivante com cinética não-linear e janela terapêutica estreita.', monitoring: 'Nível sérico a cada 3-6 meses. Albumina para correção do nível livre.', level: 'high' },
+  'digoxina':     { risk: 'MAR: Glicosídeo cardíaco — janela terapêutica estreita. Toxicidade aumentada por hipocalemia, hipomagnesemia e IR.', monitoring: 'Nível sérico (alvo: 0,5-0,9 ng/mL), potássio, magnésio, creatinina mensais em estável.', level: 'critical' },
+}
+
+// ─── 1c. DROGAS COM RISCO DE PROLONGAMENTO DE QT ─────────────────────────────
+// Fonte: CredibleMeds / AHA / ANVISA
+// Detecção sistemática de combinações que aumentam risco de Torsades de Pointes
+
+const QT_HIGH_RISK: string[] = [
+  'amiodarona', 'sotalol', 'quinidina', 'procainamida', 'disopiramida',
+  'droperidol', 'metadona', 'haloperidol', 'clorpromazina', 'levomepromazina',
+  'tioridazina', 'ziprasidona', 'amisulprida',
+]
+
+const QT_MODERATE_RISK: string[] = [
+  'claritromicina', 'eritromicina', 'azitromicina', 'moxifloxacino',
+  'ciprofloxacino', 'levofloxacino',
+  'fluconazol', 'itraconazol', 'voriconazol',
+  'ondansetrona', 'granisetrona', 'domperidona', 'metoclopramida',
+  'quetiapina', 'risperidona', 'olanzapina', 'aripiprazol',
+  'amitriptilina', 'nortriptilina', 'imipramina', 'clomipramina',
+  'citalopram', 'escitalopram',
+  'hidroxicloroquina', 'cloroquina',
+  'ranolazina', 'ivabradina',
 ]
 
 // ─── 2. AJUSTE RENAL ──────────────────────────────────────────────────────────
@@ -440,6 +561,77 @@ const STOPP_CRITERIA: STOPPCriterion[] = [
     warning: 'STOPP v3: Corticoides sistêmicos crônicos agravam a osteoporose. Associar bisfosfonato + vitamina D + cálcio.',
     level: 'moderate',
   },
+  // STOPP v3 — novos critérios
+  {
+    drugs: ['pioglitazona'],
+    condition: 'Insuficiência cardíaca',
+    conditionKeywords: ['insuficiencia cardiaca', 'ic ', 'icc', 'fe reduzida', 'edema por ic'],
+    warning: 'STOPP v3: Pioglitazona contraindicada na insuficiência cardíaca — retenção de líquidos e piora do edema.',
+    level: 'high',
+  },
+  {
+    drugs: ['pioglitazona', 'rosiglitazona'],
+    condition: 'Fratura óssea',
+    conditionKeywords: ['fratura', 'osteoporose', 'risco de fratura'],
+    warning: 'STOPP v3: Glitazonas aumentam risco de fraturas ósseas, especialmente em mulheres.',
+    level: 'moderate',
+  },
+  {
+    drugs: ['tramadol', 'codeina', 'morfina', 'oxicodona', 'fentanila'],
+    condition: 'Constipação intestinal',
+    conditionKeywords: ['constipacao', 'obstipacao', 'prisao de ventre', 'intestino preso'],
+    warning: 'STOPP v3: Opioides pioram a constipação. Laxativo osmótico ou estimulante deve ser prescrito concomitantemente.',
+    level: 'moderate',
+  },
+  {
+    drugs: ['diazepam', 'alprazolam', 'clonazepam', 'lorazepam', 'bromazepam', 'midazolam'],
+    condition: 'DPOC',
+    conditionKeywords: ['dpoc', 'doenca pulmonar obstrutiva', 'enfisema', 'bronquite cronica'],
+    warning: 'STOPP v3: Benzodiazepínicos deprimem o drive respiratório em DPOC — risco de hipercapnia e insuficiência respiratória.',
+    level: 'high',
+  },
+  {
+    drugs: ['acido acetilsalicilico', 'clopidogrel'],
+    condition: 'Ausência de doença cardiovascular',
+    conditionKeywords: ['uso profilatico', 'prevencao primaria', 'sem doenca coronariana', 'sem historico cardiovascular'],
+    warning: 'STOPP v3: Dupla antiagregação sem indicação cardiovascular documentada (síndrome coronariana aguda ou stent recente) — risco hemorrágico sem benefício.',
+    level: 'moderate',
+  },
+  {
+    drugs: ['metoclopramida', 'domperidona'],
+    condition: 'Doença de Parkinson',
+    conditionKeywords: ['parkinson', 'doenca de parkinson', 'parkinsonismo'],
+    warning: 'STOPP v3: Antidopaminérgicos (metoclopramida, domperidona) agravam os sintomas motores do Parkinson.',
+    level: 'high',
+  },
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'celecoxibe', 'nimesulida'],
+    condition: 'Hipertensão arterial',
+    conditionKeywords: ['hipertensao', 'pressao alta', 'has ', 'hipertenso'],
+    warning: 'STOPP v3: AINEs elevam a pressão arterial em média 3-5 mmHg e antagonizam anti-hipertensivos. Evitar em HAS não controlada.',
+    level: 'moderate',
+  },
+  {
+    drugs: ['clorpropamida', 'glibenclamida'],
+    condition: 'Insuficiência renal',
+    conditionKeywords: ['insuficiencia renal', 'drc', 'irc', 'clcr'],
+    warning: 'STOPP v3: Sulfonilureias de longa ação (glibenclamida, clorpropamida) contraindicadas em IR — acumulação e hipoglicemia grave prolongada.',
+    level: 'high',
+  },
+  {
+    drugs: ['warfarina', 'varfarina', 'dabigatrana', 'rivaroxabana', 'apixabana', 'edoxabana'],
+    condition: 'Alto risco de queda',
+    conditionKeywords: ['alto risco de queda', 'quedas frequentes', 'instabilidade postural', 'fratura recente'],
+    warning: 'STOPP v3: Anticoagulantes em pacientes com alto risco de queda aumentam risco de hemorragia intracraniana. Avaliar risco-benefício da anticoagulação.',
+    level: 'moderate',
+  },
+  {
+    drugs: ['omeprazol', 'pantoprazol', 'lansoprazol', 'esomeprazol', 'rabeprazol'],
+    condition: 'Uso prolongado sem indicação',
+    conditionKeywords: ['sem ulcera', 'sem gerd', 'uso cronico de ibp', 'ibp sem indicacao'],
+    warning: 'STOPP v3: IBPs em uso crônico (> 8 semanas) sem indicação clara — risco de deficiência de B12, magnésio, fraturas e infecções por C. difficile.',
+    level: 'moderate',
+  },
 ]
 
 // ─── 8. CRITÉRIOS START v3 (tratamentos que deveriam ser iniciados) ───────────
@@ -511,6 +703,49 @@ const START_CRITERIA: STARTCriterion[] = [
     condition: 'DPOC ou asma com sintomas',
     conditionKeywords: ['dpoc', 'asma', 'broncoespasmo', 'dispneia obstrutiva'],
     recommendation: 'START v3: Broncodilatador inalatório (SABA ou LABA) indicado em DPOC/asma sintomática.',
+  },
+  // START v3 — novos critérios
+  {
+    missingDrugs: ['enalapril', 'lisinopril', 'captopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana'],
+    condition: 'Doença renal crônica com proteinúria',
+    conditionKeywords: ['doenca renal cronica', 'drc', 'proteinuria', 'nefropatia'],
+    recommendation: 'START v3: IECA ou BRA indicados em DRC com proteinúria para nefroproteção — independente de ser diabético.',
+  },
+  {
+    missingDrugs: ['atenolol', 'metoprolol', 'bisoprolol', 'carvedilol', 'propranolol'],
+    condition: 'Pós-infarto do miocárdio',
+    conditionKeywords: ['infarto', 'iam', 'pos-infarto', 'sindrome coronariana aguda', 'sca'],
+    recommendation: 'START v3: Betabloqueador indicado na prevenção secundária pós-IAM por pelo menos 3 anos.',
+  },
+  {
+    missingDrugs: ['warfarina', 'varfarina', 'rivaroxabana', 'apixabana', 'dabigatrana', 'edoxabana'],
+    condition: 'Fibrilação atrial',
+    conditionKeywords: ['fibrilacao atrial', 'fa ', 'flutter atrial', 'arritmia atrial'],
+    recommendation: 'START v3: Anticoagulação oral indicada em FA com CHA₂DS₂-VASc ≥ 2 (homens) ou ≥ 3 (mulheres) para prevenção de AVC.',
+  },
+  {
+    missingDrugs: ['empagliflozina', 'dapagliflozina', 'canagliflozina'],
+    condition: 'Diabetes tipo 2 com doença cardiovascular ou DRC',
+    conditionKeywords: ['diabetes tipo 2', 'dm2', 'insuficiencia cardiaca', 'doenca renal cronica'],
+    recommendation: 'START v3: iSGLT2 (empagliflozina, dapagliflozina) indicados no DM2 com DCV estabelecida ou DRC — reduzem mortalidade cardiovascular e progressão renal.',
+  },
+  {
+    missingDrugs: ['donepezila', 'rivastigmina', 'galantamina', 'memantina'],
+    condition: 'Doença de Alzheimer ou demência vascular leve-moderada',
+    conditionKeywords: ['alzheimer', 'demencia vascular', 'demencia leve', 'demencia moderada'],
+    recommendation: 'START v3: Inibidor de colinesterase (donepezila, rivastigmina) indicado em demência de Alzheimer leve a moderada.',
+  },
+  {
+    missingDrugs: ['acido folico', 'folato'],
+    condition: 'Uso de metotrexato',
+    conditionKeywords: ['metotrexato', 'mtx'],
+    recommendation: 'START v3: Ácido fólico (5 mg/semana) indicado em usuários de metotrexato para reduzir toxicidade gastrintestinal e hematológica.',
+  },
+  {
+    missingDrugs: ['colecalciferol', 'vitamina d', 'calcitriol'],
+    condition: 'Idoso institucionalizado ou com pouca exposição solar',
+    conditionKeywords: ['idoso', 'institucionalizado', 'acamado', 'hipovitaminose d', 'osteoporose'],
+    recommendation: 'START v3: Suplementação de vitamina D indicada em idosos com risco de deficiência para prevenção de quedas e fraturas.',
   },
 ]
 
@@ -1006,6 +1241,105 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
         }
       }
     }
+  }
+
+  // ── ISMP Brasil — Medicamentos de Alto Risco (MAR) ───────────────────────────
+  for (const med of context.medications) {
+    const n = norm(med.activeIngredient)
+    for (const [drug, data] of Object.entries(ISMP_HIGH_ALERT_DRUGS)) {
+      if (n.includes(norm(drug))) {
+        findings.push({
+          category: PRMCategory.SAFETY,
+          riskLevel: data.level === 'critical' ? RiskLevel.HIGH : RiskLevel.MODERATE,
+          title: `Medicamento de Alto Risco (ISMP Brasil): ${med.activeIngredient}`,
+          description: data.risk,
+          clinicalEvidence: `Lista ISMP Brasil de Medicamentos de Alto Risco. ${med.activeIngredient} requer monitoramento e verificação especiais.`,
+          potentialImpact: 'Erros no uso deste medicamento podem causar danos graves ou fatais.',
+          pharmacistConduct: `Verificar: ${data.monitoring}. Confirmar indicação, dose, via e frequência. Registrar monitoramento.`,
+          patientGuidance: 'Este medicamento requer atenção especial. Nunca altere a dose ou frequência sem orientação médica. Informe qualquer sintoma novo.',
+          needsReferral: false,
+          needsPrescriberContact: false,
+          monitoring: data.monitoring,
+          reevaluationPeriod: '30 dias',
+          confidenceLevel: 'high',
+          validationNote: 'Classificação ISMP Brasil. Aplicar protocolo de dupla verificação.',
+          interventionDeadline: 'Próxima consulta',
+          medicationId: med.id,
+        })
+        break
+      }
+    }
+  }
+
+  // ── Prolongamento de QT — combinações de risco ────────────────────────────
+  const qtHighMeds = context.medications.filter(m =>
+    QT_HIGH_RISK.some(d => norm(m.activeIngredient).includes(norm(d)))
+  )
+  const qtModerateMeds = context.medications.filter(m =>
+    !QT_HIGH_RISK.some(d => norm(m.activeIngredient).includes(norm(d))) &&
+    QT_MODERATE_RISK.some(d => norm(m.activeIngredient).includes(norm(d)))
+  )
+
+  // 2+ drogas com risco QT alto
+  if (qtHighMeds.length >= 2) {
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: RiskLevel.URGENT,
+      title: `URGENTE — Combinação de múltiplos prolongadores de QT: ${qtHighMeds.map(m => m.activeIngredient).join(' + ')}`,
+      description: 'Dois ou mais medicamentos de alto risco para prolongamento do intervalo QT em uso simultâneo — risco elevado de Torsades de Pointes e morte súbita.',
+      clinicalEvidence: `Medicamentos de alto risco QT identificados: ${qtHighMeds.map(m => m.activeIngredient).join(', ')}. Fatores agravantes: hipocalemia, hipomagnesemia, bradicardia, sexo feminino, cardiopatia prévia. Fonte: CredibleMeds / AHA.`,
+      potentialImpact: 'Torsades de pointes — arritmia ventricular potencialmente fatal.',
+      pharmacistConduct: 'Comunicar ao prescritor IMEDIATAMENTE. Solicitar ECG (QTc). Verificar e corrigir eletrólitos (K⁺, Mg²⁺). Avaliar substituição de um dos medicamentos.',
+      patientGuidance: 'Informe ao médico imediatamente. Procure atendimento se sentir palpitações, tontura ou desmaio.',
+      needsReferral: true,
+      needsPrescriberContact: true,
+      monitoring: 'ECG com QTc, K⁺, Mg²⁺ imediatos. QTc > 500 ms = suspender medicamentos.',
+      suggestedExams: 'ECG (QTc), potássio, magnésio, creatinina.',
+      reevaluationPeriod: 'Imediato',
+      confidenceLevel: 'high',
+      validationNote: 'Risco aumenta com hipocalemia, bradicardia e sexo feminino. Avaliação cardiológica recomendada.',
+      interventionDeadline: 'Imediato',
+    })
+  } else if (qtHighMeds.length === 1 && qtModerateMeds.length >= 1) {
+    // 1 droga alto risco + ≥1 droga moderado risco
+    const allQtMeds = [...qtHighMeds, ...qtModerateMeds]
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: RiskLevel.HIGH,
+      title: `Combinação de risco para prolongamento de QT: ${allQtMeds.map(m => m.activeIngredient).join(' + ')}`,
+      description: 'Combinação de medicamento de alto risco com medicamento de risco moderado para prolongamento do QT.',
+      clinicalEvidence: `Alto risco: ${qtHighMeds.map(m => m.activeIngredient).join(', ')}. Moderado risco: ${qtModerateMeds.map(m => m.activeIngredient).join(', ')}. Fonte: CredibleMeds.`,
+      potentialImpact: 'Prolongamento do QTc com risco de Torsades de pointes.',
+      pharmacistConduct: 'Solicitar ECG basal e monitoramento do QTc. Corrigir hipocalemia e hipomagnesemia. Avaliar alternativas ao medicamento de risco moderado.',
+      patientGuidance: 'Informe ao médico sobre todos os medicamentos. Relate palpitações ou tontura.',
+      needsReferral: false,
+      needsPrescriberContact: true,
+      monitoring: 'ECG (QTc), K⁺, Mg²⁺. Repetir ECG após mudanças de dose.',
+      suggestedExams: 'ECG, eletrólitos.',
+      reevaluationPeriod: '7 dias',
+      confidenceLevel: 'high',
+      validationNote: 'Risco depende de fatores individuais (eletrólitos, FC, cardiopatia).',
+      interventionDeadline: '7 dias',
+    })
+  } else if (qtModerateMeds.length >= 2) {
+    // ≥2 drogas de risco moderado
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: RiskLevel.MODERATE,
+      title: `Múltiplos medicamentos com risco moderado de QT longo: ${qtModerateMeds.map(m => m.activeIngredient).join(' + ')}`,
+      description: 'Dois ou mais medicamentos com risco moderado de prolongamento do QT em uso simultâneo.',
+      clinicalEvidence: `Medicamentos com risco moderado QT: ${qtModerateMeds.map(m => m.activeIngredient).join(', ')}.`,
+      potentialImpact: 'Prolongamento cumulativo do QT com risco de arritmia.',
+      pharmacistConduct: 'Solicitar ECG. Monitorar eletrólitos. Avaliar se todos os medicamentos são necessários.',
+      patientGuidance: 'Relate palpitações, desmaio ou tontura ao médico.',
+      needsReferral: false,
+      needsPrescriberContact: true,
+      monitoring: 'ECG (QTc), K⁺, Mg²⁺.',
+      reevaluationPeriod: '30 dias',
+      confidenceLevel: 'moderate',
+      validationNote: 'Risco individual depende de dose, eletrólitos e fatores de risco basais.',
+      interventionDeadline: 'Próxima consulta',
+    })
   }
 
   // Alergias
