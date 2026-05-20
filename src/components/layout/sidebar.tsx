@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
   Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
-  Calculator, X, Menu, UserCircle,
+  Calculator, X, Menu, UserCircle, Globe,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -28,6 +28,7 @@ const navItems = [
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
   { href: '/reports', label: 'Relatórios', icon: FileText },
   { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
+  { href: '/resources', label: 'Bases de Dados', icon: Globe },
   { href: '/calculators', label: 'Calculadoras', icon: Calculator },
   { href: '/tokens', label: 'Tokens', icon: Coins },
   { href: '/settings', label: 'Configurações', icon: Settings },

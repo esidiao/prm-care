@@ -26,6 +26,7 @@ const breadcrumbs: Record<string, string> = {
   '/admin/logs': 'Logs de Auditoria',
   '/profile': 'Meu Perfil',
   '/knowledge': 'Base Clínica',
+  '/resources': 'Bases de Dados',
 }
 
 function getBreadcrumb(pathname: string): { label: string; parent?: string } {
