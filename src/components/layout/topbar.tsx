@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation'
 import { Bell, Plus, ChevronRight } from 'lucide-react'
 import type { UserRole } from '@prisma/client'
 import { GlobalSearch } from './GlobalSearch'
+import { ThemeToggle } from './ThemeToggle'
 
 interface TopBarProps {
   user: { name?: string | null; tokenBalance: number; role: UserRole; plan: string }
@@ -37,17 +38,17 @@ export function TopBar({ user }: TopBarProps) {
   const { label, parent } = getBreadcrumb(pathname)
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-6">
+    <header className="flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-900">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm min-w-0 shrink-0">
         {parent ? (
           <>
-            <span className="text-gray-400">{parent}</span>
-            <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
-            <span className="font-semibold text-gray-800">{label}</span>
+            <span className="text-gray-400 dark:text-gray-500">{parent}</span>
+            <ChevronRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
+            <span className="font-semibold text-gray-800 dark:text-gray-100">{label}</span>
           </>
         ) : (
-          <span className="font-semibold text-gray-800">{label}</span>
+          <span className="font-semibold text-gray-800 dark:text-gray-100">{label}</span>
         )}
       </div>
 
@@ -72,7 +73,9 @@ export function TopBar({ user }: TopBarProps) {
           Nova análise
         </Link>
 
-        <button className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+        <ThemeToggle />
+
+        <button className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">
           <Bell className="h-4 w-4" />
         </button>
       </div>

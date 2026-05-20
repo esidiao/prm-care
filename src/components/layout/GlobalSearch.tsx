@@ -138,7 +138,7 @@ export function GlobalSearch() {
           onChange={e => setQuery(e.target.value)}
           onFocus={() => { if (results && query.length >= 2) setOpen(true) }}
           placeholder="Buscar paciente, PRM, medicamento…"
-          className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-8 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+          className="h-9 w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-8 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500 dark:focus:border-blue-500 dark:focus:bg-gray-800 dark:focus:ring-blue-500/20"
         />
         {loading && (
           <Loader2 className="pointer-events-none absolute right-3 h-3.5 w-3.5 animate-spin text-gray-400" />
@@ -160,32 +160,32 @@ export function GlobalSearch() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[480px] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-2xl">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 max-h-[480px] overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800">
           {!hasResults ? (
             <div className="flex flex-col items-center py-10 text-center">
-              <Search className="h-8 w-8 text-gray-200 mb-2" />
-              <p className="text-sm text-gray-400">Nenhum resultado para <strong>"{query}"</strong></p>
+              <Search className="h-8 w-8 text-gray-200 dark:text-gray-600 mb-2" />
+              <p className="text-sm text-gray-400 dark:text-gray-500">Nenhum resultado para <strong>"{query}"</strong></p>
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
               {/* Patients */}
               {results!.patients.length > 0 && (
                 <section className="p-2">
-                  <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                  <p className="px-2 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 flex items-center gap-1.5">
                     <Users className="h-3 w-3" /> Pacientes
                   </p>
                   {results!.patients.map(p => (
                     <button
                       key={p.id}
                       onClick={() => navigate(`/patients/${p.id}`)}
-                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-blue-50 transition-colors"
+                      className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                     >
                       <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10 text-xs font-bold text-[#1e3a5f]">
                         {(p.name || p.code).slice(0, 2).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-gray-800">{p.name || p.code}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">{p.name || p.code}</p>
+                        <p className="text-xs text-gray-400 dark:text-gray-500">
                           {p.code}{p.age ? ` · ${p.age} anos` : ''}{p.sex === 'MALE' ? ' · M' : p.sex === 'FEMALE' ? ' · F' : ''}
                         </p>
                       </div>
