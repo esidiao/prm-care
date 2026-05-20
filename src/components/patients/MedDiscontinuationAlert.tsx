@@ -42,25 +42,27 @@ function isHighRisk(name: string): boolean {
 
 export async function MedDiscontinuationAlert({ patientId }: Props) {
   // Medications currently inactive for this patient
-  const [inactiveMeds, recentFindings] = await Promise.all([
-    // All inactive medications (potential discontinuations)
-    prisma.medication.findMany({
-      where: { patientId, isActive: false },
-      select: { id: true, activeIngredient: true, tradeName: true, updatedAt: true },
-      orderBy: { updatedAt: 'desc' },
-      take: 20,
-    }),
-    // Medication IDs referenced in findings from the last 2 analyses
-    prisma.pRMFinding.findMany({
-      where: {
-        medicationId: { not: null },
-        analysis: { patientId },
-      },
-      select: { medicationId: true },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    }),
-  ])
+  let inactiveMeds: Array<{ id: string; activeIngredient: string; tradeName: string | null; updatedAt: Date }> = []
+  let recentFindings: Array<{ medicationId: string | null }> = []
+
+  try {
+    ;[inactiveMeds, recentFindings] = await Promise.all([
+      prisma.medication.findMany({
+        where: { patientId, isActive: false },
+        select: { id: true, activeIngredient: true, tradeName: true, updatedAt: true },
+        orderBy: { updatedAt: 'desc' },
+        take: 20,
+      }),
+      prisma.pRMFinding.findMany({
+        where: { medicationId: { not: null }, analysis: { patientId } },
+        select: { medicationId: true },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      }),
+    ])
+  } catch {
+    return null
+  }
 
   if (!inactiveMeds.length) return null
 

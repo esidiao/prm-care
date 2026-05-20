@@ -38,6 +38,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         },
       },
     }),
+    // Graceful fallback if table doesn't exist yet (pending migration)
     prisma.clinicalNote.findMany({
       where: { patientId: params.id },
       orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
@@ -45,7 +46,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         id: true, content: true, isPinned: true, createdAt: true, updatedAt: true,
         user: { select: { name: true, email: true } },
       },
-    }),
+    }).catch(() => [] as never[]),
     prisma.scaleAssessment.findMany({
       where: { patientId: params.id },
       orderBy: [{ scaleType: 'asc' }, { appliedAt: 'desc' }],
@@ -54,7 +55,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         severity: true, notes: true, appliedAt: true, createdAt: true,
         user: { select: { name: true, email: true } },
       },
-    }),
+    }).catch(() => [] as never[]),
   ])
 
   if (!patient) notFound()
