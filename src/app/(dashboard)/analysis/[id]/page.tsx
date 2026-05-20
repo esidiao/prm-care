@@ -65,9 +65,9 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
               <FileText className="h-4 w-4" /> Gerar relatório PDF
             </Link>
           ) : (
-            <a href={analysis.report.fileUrl || '#'} target="_blank"
+            <a href={`/api/reports/${analysis.report.id}/download`}
               className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 transition-colors">
-              <Printer className="h-4 w-4" /> Baixar relatório
+              <Printer className="h-4 w-4" /> Baixar PDF
             </a>
           )}
         </div>
