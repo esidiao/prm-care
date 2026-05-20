@@ -3,7 +3,7 @@ import { useState, useTransition, useMemo } from 'react'
 import {
   CheckCircle2, Circle, ChevronDown, ChevronUp,
   Filter, SlidersHorizontal, MessageSquare, X,
-  Phone, Building2, Clock, RefreshCw, Loader2
+  Phone, Building2, Clock, RefreshCw, Loader2, Sparkles
 } from 'lucide-react'
 
 // ── Tipos ────────────────────────────────────────────────────────────────────
@@ -67,6 +67,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
   const [pending, startTransition]        = useTransition()
   const [loadingId, setLoadingId]         = useState<string | null>(null)
   const [error, setError]                 = useState<string | null>(null)
+  const [aiLoadingId, setAiLoadingId]     = useState<string | null>(null)
 
   // Filtros
   const [filterRisk, setFilterRisk]       = useState<string[]>([])
@@ -147,6 +148,28 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
       n.has(id) ? n.delete(id) : n.add(id)
       return n
     })
+  }
+
+  // ── Sugerir resolução com IA ─────────────────────────────────────────────
+  const suggestResolution = async (findingId: string) => {
+    setAiLoadingId(findingId)
+    try {
+      const res = await fetch(`/api/analysis/${analysisId}/suggest-resolution`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ findingId }),
+      })
+      if (!res.ok) throw new Error('Erro')
+      const data = await res.json()
+      if (data.suggestion) {
+        setResolveNotes(prev => ({ ...prev, [findingId]: data.suggestion }))
+        setNotesOpen(prev => { const n = new Set(prev); n.add(findingId); return n })
+      }
+    } catch {
+      setError('Não foi possível gerar sugestão de IA. Tente novamente.')
+    } finally {
+      setAiLoadingId(null)
+    }
   }
 
   // ── Toggle filtro ─────────────────────────────────────────────────────────
@@ -408,28 +431,44 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
               {/* Campo de nota inline */}
               {noteOpen && !finding.isResolved && (
                 <div className="mt-3 ml-8 space-y-2">
-                  <textarea
-                    value={resolveNotes[finding.id] ?? finding.resolvedNotes ?? ''}
-                    onChange={e => setResolveNotes(prev => ({ ...prev, [finding.id]: e.target.value }))}
-                    placeholder="Descreva a conduta tomada, ajuste de dose, substituto prescrito, orientação fornecida…"
-                    rows={2}
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
-                  />
-                  <div className="flex justify-end gap-2">
+                  <div className="relative">
+                    <textarea
+                      value={resolveNotes[finding.id] ?? finding.resolvedNotes ?? ''}
+                      onChange={e => setResolveNotes(prev => ({ ...prev, [finding.id]: e.target.value }))}
+                      placeholder="Descreva a conduta tomada, ajuste de dose, substituto prescrito, orientação fornecida…"
+                      rows={3}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
                     <button
-                      onClick={() => toggleNotes(finding.id)}
-                      className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      onClick={() => suggestResolution(finding.id)}
+                      disabled={aiLoadingId === finding.id}
+                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 disabled:opacity-50 transition-colors"
+                      title="Gerar sugestão de conduta com IA"
                     >
-                      Cancelar
+                      {aiLoadingId === finding.id
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : <Sparkles className="h-3 w-3" />
+                      }
+                      {aiLoadingId === finding.id ? 'Gerando…' : 'Sugerir com IA'}
                     </button>
-                    <button
-                      onClick={() => toggleResolve(finding)}
-                      disabled={isLoading}
-                      className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-                    >
-                      {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
-                      Marcar como resolvido
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => toggleNotes(finding.id)}
+                        className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => toggleResolve(finding)}
+                        disabled={isLoading}
+                        className="flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+                      >
+                        {isLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+                        Marcar como resolvido
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

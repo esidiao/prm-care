@@ -9,6 +9,7 @@ import {
 import { formatDateTime, RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS } from '@/lib/utils'
 import { RiskLevel, PRMCategory } from '@prisma/client'
 import { FindingsPanel } from '@/components/analysis/FindingsPanel'
+import { AnalysisComparison } from '@/components/analysis/AnalysisComparison'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -34,6 +35,20 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
   })
 
   if (!analysis) notFound()
+
+  // Fetch previous analysis for same patient (for comparison)
+  const previousAnalysis = await prisma.pRMAnalysis.findFirst({
+    where: {
+      patientId: analysis.patientId,
+      userId: session.user.id,
+      id: { not: analysis.id },
+      status: 'COMPLETED',
+    },
+    orderBy: { createdAt: 'desc' },
+    include: {
+      findings: { select: { id: true, title: true, riskLevel: true, category: true, isResolved: true } },
+    },
+  }).catch(() => null)
 
   const urgentFindings = analysis.findings.filter(f => f.riskLevel === RiskLevel.URGENT)
   const highFindings = analysis.findings.filter(f => f.riskLevel === RiskLevel.HIGH)
@@ -114,6 +129,34 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
           Dados incompletos podem limitar as conclusões.
         </div>
       </div>
+
+      {/* Comparação com análise anterior */}
+      {previousAnalysis && (
+        <AnalysisComparison
+          currentAnalysisId={analysis.id}
+          previousAnalysis={{
+            id: previousAnalysis.id,
+            createdAt: previousAnalysis.createdAt.toISOString(),
+            totalPRMs: previousAnalysis.totalPRMs,
+            urgentPRMs: previousAnalysis.urgentPRMs,
+            highRiskPRMs: previousAnalysis.highRiskPRMs,
+            findings: previousAnalysis.findings.map(f => ({
+              id: f.id,
+              title: f.title,
+              riskLevel: f.riskLevel,
+              category: f.category,
+              isResolved: f.isResolved,
+            })),
+          }}
+          currentFindings={analysis.findings.map(f => ({
+            id: f.id,
+            title: f.title,
+            riskLevel: f.riskLevel,
+            category: f.category,
+            isResolved: f.isResolved,
+          }))}
+        />
+      )}
 
       {/* PRM Findings — painel interativo com filtros e resolução inline */}
       <FindingsPanel
