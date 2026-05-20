@@ -5,6 +5,7 @@ import {
   Check, X, Loader2, ChevronDown, ChevronUp, Bold,
   Italic, List, Minus,
 } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -291,6 +292,7 @@ function NoteEditor({
 // ── Main component ─────────────────────────────────────────────────────────────
 
 export function PatientNotes({ patientId, initialNotes }: Props) {
+  const { toast } = useToast()
   const [notes, setNotes] = useState<Note[]>(initialNotes)
   const [adding, setAdding] = useState(false)
   const [newContent, setNewContent] = useState('')
@@ -310,7 +312,10 @@ export function PatientNotes({ patientId, initialNotes }: Props) {
         setNotes(prev => [json.note, ...prev])
         setNewContent('')
         setAdding(false)
+        toast({ title: 'Anotação salva', variant: 'success' } as Parameters<typeof toast>[0])
       }
+    } catch {
+      toast({ title: 'Erro ao salvar anotação', variant: 'destructive' } as Parameters<typeof toast>[0])
     } finally { setSaving(false) }
   }
 

@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSession } from '@/lib/auth'
 import { Sidebar } from '@/components/layout/sidebar'
 import { TopBar } from '@/components/layout/topbar'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { ClinicalDisclaimer } from '@/components/layout/clinical-disclaimer'
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -14,13 +15,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <Sidebar user={session.user} />
 
       <div className="flex flex-1 flex-col overflow-hidden min-w-0">
-        {/* TopBar receives user so it can render MobileNav inside */}
         <TopBar user={session.user} />
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6">
+        {/* pb-16 on mobile for bottom nav clearance */}
+        <main className="flex-1 overflow-y-auto p-3 pb-20 sm:p-4 sm:pb-4 lg:p-6">
           <ClinicalDisclaimer />
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom nav */}
+      <BottomNav />
     </div>
   )
 }

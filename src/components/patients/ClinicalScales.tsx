@@ -4,6 +4,7 @@ import {
   Brain, ChevronDown, ChevronUp, Plus, Trash2, Printer,
   CheckCircle2, AlertTriangle, AlertCircle, Info, X, Loader2,
 } from 'lucide-react'
+import { useToast } from '@/components/ui/use-toast'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine,
@@ -451,10 +452,18 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
     }
   }, [])
 
+  const { toast } = useToast()
+
   const handleSave = useCallback((record: AssessmentRecord) => {
     setAssessments((prev) => [record, ...prev])
     setActiveForm(null)
-  }, [])
+    const scale = SCALES[record.scaleType as ScaleType]
+    toast({
+      title: `${scale?.name ?? 'Escala'} salva`,
+      description: `Score: ${record.totalScore} — ${scale?.getSeverityLabel(record.severity as import('@/lib/scales').SeverityLevel) ?? record.severity}`,
+      variant: 'success',
+    } as Parameters<typeof toast>[0])
+  }, [toast])
 
   const handleDelete = useCallback((id: string) => {
     setAssessments((prev) => prev.filter((r) => r.id !== id))

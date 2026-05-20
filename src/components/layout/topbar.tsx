@@ -1,11 +1,12 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Bell, Plus, ChevronRight } from 'lucide-react'
+import { Plus, ChevronRight } from 'lucide-react'
 import type { UserRole } from '@prisma/client'
 import { GlobalSearch } from './GlobalSearch'
 import { ThemeToggle } from './ThemeToggle'
 import { MobileNav } from './sidebar'
+import { AlertBadge } from './AlertBadge'
 
 interface TopBarProps {
   user: { name?: string | null; email: string; tokenBalance: number; role: UserRole; plan: string }
@@ -96,10 +97,7 @@ export function TopBar({ user }: TopBarProps) {
         </div>
 
         <ThemeToggle />
-
-        <button className="relative flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700">
-          <Bell className="h-4 w-4" />
-        </button>
+        <AlertBadge />
       </div>
     </header>
   )

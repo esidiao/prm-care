@@ -11,7 +11,7 @@ type ToasterToast = {
   action?: React.ReactElement
   open?: boolean
   onOpenChange?: (open: boolean) => void
-  variant?: 'default' | 'destructive'
+  variant?: 'default' | 'destructive' | 'success' | 'warning' | 'info'
 }
 
 let count = 0
