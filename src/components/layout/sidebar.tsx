@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
-  Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight
+  Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight, Calculator
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -25,6 +25,7 @@ const navItems = [
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
   { href: '/reports', label: 'Relatórios', icon: FileText },
+  { href: '/calculators', label: 'Calculadoras', icon: Calculator },
   { href: '/tokens', label: 'Tokens', icon: Coins },
   { href: '/settings', label: 'Configurações', icon: Settings },
 ]
