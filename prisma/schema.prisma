@@ -148,6 +148,7 @@ model User {
   analyses          PRMAnalysis[]
   reports           Report[]
   clinicalNotes     ClinicalNote[]
+  scaleAssessments  ScaleAssessment[]
   tokenTransactions TokenTransaction[]
   consents          ConsentRecord[]
   auditLogs         AuditLog[]
@@ -257,6 +258,7 @@ model Patient {
   analyses          PRMAnalysis[]
   soapRecords       SOAPRecord[]
   clinicalNotes     ClinicalNote[]
+  scaleAssessments  ScaleAssessment[]
 
   @@unique([userId, code])
   @@map("patients")
@@ -622,4 +624,25 @@ model ConsentRecord {
   user User @relation(fields: [userId], references: [id])
 
   @@map("consent_records")
+}
+
+// ─── ESCALAS CLÍNICAS ─────────────────────────────────────────────────────────
+
+model ScaleAssessment {
+  id         String   @id @default(cuid())
+  patientId  String
+  userId     String
+  scaleType  String   // "GAD7" | "PHQ9" | "AUDIT_C" | "MORISKY4"
+  answers    Json     // [{question: 1, answer: 2}, ...]
+  totalScore Int
+  severity   String   // "MINIMAL" | "MILD" | "MODERATE" | "MODERATELY_SEVERE" | "SEVERE"
+  notes      String?  @db.Text
+  appliedAt  DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([patientId, scaleType, appliedAt(sort: Desc)])
+  @@map("scale_assessments")
 }

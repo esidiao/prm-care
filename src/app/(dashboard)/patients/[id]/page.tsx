@@ -14,12 +14,13 @@ import {
 import { DeleteMedicationButton } from '@/components/patients/DeleteMedicationButton'
 import { ExportMenu } from '@/components/export/ExportMenu'
 import { PatientNotes } from '@/components/patients/PatientNotes'
+import { ClinicalScales } from '@/components/patients/ClinicalScales'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
   if (!session) return null
 
-  const [patient, initialNotes] = await Promise.all([
+  const [patient, initialNotes, initialAssessments] = await Promise.all([
     prisma.patient.findFirst({
       where: { id: params.id, userId: session.user.id },
       include: {
@@ -40,6 +41,15 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }],
       select: {
         id: true, content: true, isPinned: true, createdAt: true, updatedAt: true,
+        user: { select: { name: true, email: true } },
+      },
+    }),
+    prisma.scaleAssessment.findMany({
+      where: { patientId: params.id },
+      orderBy: [{ scaleType: 'asc' }, { appliedAt: 'desc' }],
+      select: {
+        id: true, scaleType: true, answers: true, totalScore: true,
+        severity: true, notes: true, appliedAt: true, createdAt: true,
         user: { select: { name: true, email: true } },
       },
     }),
@@ -252,6 +262,16 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               </div>
             </div>
           )}
+
+          {/* Clinical Scales */}
+          <ClinicalScales
+            patientId={patient.id}
+            initialAssessments={initialAssessments.map(a => ({
+              ...a,
+              appliedAt: a.appliedAt.toISOString(),
+              createdAt: a.createdAt.toISOString(),
+            }))}
+          />
 
           {/* Clinical Notes */}
           <PatientNotes
