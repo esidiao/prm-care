@@ -749,6 +749,261 @@ const START_CRITERIA: STARTCriterion[] = [
   },
 ]
 
+// ─── 8b. INTERAÇÕES ALIMENTO-MEDICAMENTO ─────────────────────────────────────
+// Fonte: FDA, ANVISA, Stockley's Drug Interactions, Clinical Pharmacology
+// Detectadas sempre — orientação ao paciente é obrigatória independente da dieta
+
+interface FoodDrugInteraction {
+  food: string               // nome legível do alimento
+  emoji: string
+  drugs: string[]            // princípios ativos afetados
+  severity: 'major' | 'moderate'
+  mechanism: string
+  clinicalEffect: string
+  management: string         // orientação ao farmacêutico
+  patientGuidance: string    // linguagem acessível ao paciente
+}
+
+const FOOD_DRUG_INTERACTIONS: FoodDrugInteraction[] = [
+  // ── GRAPEFRUIT (toranja) ────────────────────────────────────────────────────
+  {
+    food: 'Grapefruit (toranja) e suco de grapefruit',
+    emoji: '🍊',
+    drugs: ['sinvastatina', 'lovastatina', 'atorvastatina'],
+    severity: 'major',
+    mechanism: 'Grapefruit inibe CYP3A4 intestinal de forma irreversível por 24-72h, aumentando biodisponibilidade das estatinas',
+    clinicalEffect: 'Aumento de até 10x nos níveis de sinvastatina/lovastatina — risco de miopatia e rabdomiólise. Atorvastatina: aumento de 2-3x.',
+    management: 'Orientar evitar completamente grapefruit e suco de grapefruit. Uma única dose de 200 mL pode inibir CYP3A4 por até 72h.',
+    patientGuidance: 'Evite completamente toranja (grapefruit) e seu suco enquanto usar esta estatina — mesmo uma taça pode causar reação grave.',
+  },
+  {
+    food: 'Grapefruit (toranja)',
+    emoji: '🍊',
+    drugs: ['felodipina', 'nifedipina', 'anlodipina', 'amlodipina', 'nitrendipina', 'lercanidipina', 'lacidipina'],
+    severity: 'major',
+    mechanism: 'Inibição de CYP3A4 intestinal aumenta biodiponibilidade dos bloqueadores de canal de cálcio',
+    clinicalEffect: 'Felodipina: aumento de 3x na concentração — hipotensão intensa, taquicardia reflexa, rubor.',
+    management: 'Orientar evitar grapefruit. Felodipina é a mais afetada — a interação foi originalmente descoberta nesta droga.',
+    patientGuidance: 'Evite toranja e suco de toranja. Use suco de laranja como alternativa segura.',
+  },
+  {
+    food: 'Grapefruit (toranja)',
+    emoji: '🍊',
+    drugs: ['ciclosporina', 'tacrolimus', 'sirolimus', 'everolimus'],
+    severity: 'major',
+    mechanism: 'Inibição de CYP3A4 e P-gp eleva concentração sérica de imunossupressores',
+    clinicalEffect: 'Toxicidade por imunossupressor: nefrotoxicidade, neurotoxicidade, infecções oportunistas.',
+    management: 'CONTRAINDICADO. Instruir claramente o paciente. Monitorar nível sérico se exposição acidental.',
+    patientGuidance: 'PROIBIDO consumir toranja, grapefruit ou suco em qualquer quantidade enquanto usar este imunossupressor.',
+  },
+  {
+    food: 'Grapefruit (toranja)',
+    emoji: '🍊',
+    drugs: ['alprazolam', 'midazolam', 'triazolam', 'diazepam'],
+    severity: 'moderate',
+    mechanism: 'Inibição de CYP3A4 aumenta biodisponibilidade dos benzodiazepínicos',
+    clinicalEffect: 'Sedação excessiva, depressão respiratória — especialmente com midazolam e triazolam.',
+    management: 'Orientar evitar grapefruit. Risco maior com benzodiazepínicos de curta ação (midazolam, triazolam).',
+    patientGuidance: 'Evite toranja e suco de toranja. Pode aumentar o efeito do calmante ou sonífero.',
+  },
+  {
+    food: 'Grapefruit (toranja)',
+    emoji: '🍊',
+    drugs: ['carbamazepina', 'buspiron', 'quetiapina', 'aripiprazol'],
+    severity: 'moderate',
+    mechanism: 'Inibição de CYP3A4',
+    clinicalEffect: 'Aumento dos níveis plasmáticos — toxicidade anticonvulsivante ou antipsicótica.',
+    management: 'Orientar evitar grapefruit. Monitorar sinais de toxicidade.',
+    patientGuidance: 'Evite toranja e suco de toranja enquanto usar este medicamento.',
+  },
+
+  // ── VITAMINA K / VEGETAIS FOLHOSOS ──────────────────────────────────────────
+  {
+    food: 'Alimentos ricos em vitamina K (couve, brócolis, espinafre, alface, repolho)',
+    emoji: '🥦',
+    drugs: ['warfarina', 'varfarina'],
+    severity: 'major',
+    mechanism: 'Vitamina K é cofator da síntese de fatores de coagulação II, VII, IX, X — antagoniza o mecanismo de ação da warfarina',
+    clinicalEffect: 'Variações no consumo de vitamina K causam instabilidade do INR — risco de trombose (pouco consumo) ou sangramento (muito consumo súbito).',
+    management: 'Não é necessário eliminar alimentos com vitamina K — o fundamental é MANTER consumo CONSTANTE. Instruir o paciente sobre consistência alimentar. Monitorar INR após mudanças dietéticas.',
+    patientGuidance: 'Não elimine verduras — mantenha sempre a mesma quantidade na semana. Grandes mudanças no consumo de couve, brócolis ou espinafre podem alterar o efeito do seu anticoagulante.',
+  },
+
+  // ── TIRAMINA + IMAO ─────────────────────────────────────────────────────────
+  {
+    food: 'Alimentos ricos em tiramina (queijo curado, vinho tinto, cerveja, embutidos, molho de soja, fígado)',
+    emoji: '🧀',
+    drugs: ['fenelzina', 'tranilcipromina', 'isocarboxazida', 'selegilina', 'rasagilina', 'safinamida'],
+    severity: 'major',
+    mechanism: 'IMAOs inibem a MAO intestinal e hepática que normalmente degrada a tiramina — acumulação de tiramina leva à liberação massiva de noradrenalina',
+    clinicalEffect: 'Crise hipertensiva tiramínica: cefaleia occipital intensa, HAS grave (PA > 180/120), AVC hemorrágico, morte.',
+    management: 'DIETA RESTRITIVA OBRIGATÓRIA. Fornecer lista escrita de alimentos proibidos. Instruir sobre reconhecimento e manejo da crise. Manter o paciente com receituário de nifedipina sublingual para emergência.',
+    patientGuidance: 'ALIMENTOS PROIBIDOS: queijos curados, vinho tinto, cerveja, salsicha/linguiça, fígado, molho de soja, molho inglês, extratos de levedura. Qualquer descuido pode causar crise de pressão grave.',
+  },
+
+  // ── LATICÍNIOS / CÁLCIO ─────────────────────────────────────────────────────
+  {
+    food: 'Leite, iogurte, queijo e alimentos ricos em cálcio',
+    emoji: '🥛',
+    drugs: ['tetraciclina', 'doxiciclina', 'minociclina'],
+    severity: 'major',
+    mechanism: 'Cálcio e outros cátions divalentes (Mg²⁺, Fe²⁺, Al³⁺) formam quelatos com tetraciclinas, reduzindo drasticamente a absorção',
+    clinicalEffect: 'Redução de 50-80% na absorção da tetraciclina — falha terapêutica do antibiótico.',
+    management: 'Administrar tetraciclinas 1h antes ou 2h após laticínios, antiácidos e suplementos de ferro/cálcio.',
+    patientGuidance: 'Tome este antibiótico com estômago vazio ou somente com água. Evite leite, iogurte e queijo por pelo menos 2 horas antes e depois.',
+  },
+  {
+    food: 'Laticínios, antiácidos e alimentos ricos em cálcio',
+    emoji: '🥛',
+    drugs: ['ciprofloxacino', 'levofloxacino', 'moxifloxacino', 'norfloxacino'],
+    severity: 'moderate',
+    mechanism: 'Quelação de fluoroquinolonas por cátions divalentes (Ca²⁺, Mg²⁺, Al³⁺, Fe²⁺)',
+    clinicalEffect: 'Redução de 30-50% na absorção da fluoroquinolona — falha terapêutica.',
+    management: 'Administrar fluoroquinolona 2h antes ou 4-6h após laticínios, antiácidos e suplementos minerais.',
+    patientGuidance: 'Tome o antibiótico 2 horas antes ou 6 horas depois de laticínios, leite ou suplementos de cálcio/magnésio.',
+  },
+  {
+    food: 'Alimentos, leite e suplementos de cálcio',
+    emoji: '🥛',
+    drugs: ['alendronato', 'risedronato', 'ibandronato', 'zoledronato'],
+    severity: 'major',
+    mechanism: 'Cálcio e qualquer alimento impedem absorção dos bisfosfonatos — biodisponibilidade já é < 1%',
+    clinicalEffect: 'Absorção praticamente zero se tomado com alimentos ou bebidas (exceto água) — falha completa no tratamento da osteoporose.',
+    management: 'Orientar rigorosamente: tomar em jejum com 200 mL de água, permanecer em pé por 30 minutos, só comer após 30-60 minutos.',
+    patientGuidance: 'Tome em jejum pela manhã, só com água. Fique de pé por 30 minutos e não coma nem tome outros medicamentos por pelo menos 30 minutos.',
+  },
+  {
+    food: 'Suplementos de cálcio, antiácidos e alimentos ricos em cálcio',
+    emoji: '🥛',
+    drugs: ['levotiroxina', 'tiroxina'],
+    severity: 'moderate',
+    mechanism: 'Cálcio e ferro reduzem absorção da levotiroxina por quelação',
+    clinicalEffect: 'Hipotireoidismo por absorção inadequada — TSH elevado.',
+    management: 'Tomar levotiroxina 30-60 minutos antes do café da manhã. Separar suplementos de cálcio/ferro por pelo menos 4 horas.',
+    patientGuidance: 'Tome o hormônio tireoidiano em jejum, de estômago vazio. Aguarde pelo menos 30 minutos antes de tomar café, leite ou outros medicamentos.',
+  },
+
+  // ── ÁLCOOL ──────────────────────────────────────────────────────────────────
+  {
+    food: 'Álcool (qualquer bebida alcoólica)',
+    emoji: '🍺',
+    drugs: ['metronidazol', 'tinidazol', 'secnidazol', 'ornidazol'],
+    severity: 'major',
+    mechanism: 'Nitroimidazóis inibem aldeído desidrogenase — acumulação de acetaldeído',
+    clinicalEffect: 'Reação tipo dissulfiram: rubor intenso, cefaleia, náusea, vômito, taquicardia, hipotensão — pode ser grave.',
+    management: 'Abstinência ABSOLUTA de álcool durante e até 48-72h após o término do tratamento. Incluir álcool em produtos de higiene oral e alimentos.',
+    patientGuidance: 'PROIBIDO álcool durante o tratamento e por 3 dias depois. Evite também enxaguante bucal com álcool.',
+  },
+  {
+    food: 'Álcool',
+    emoji: '🍺',
+    drugs: ['metformina'],
+    severity: 'major',
+    mechanism: 'Álcool aumenta produção de lactato e inibe gliconeogênese hepática — potencializa risco de acidose lática',
+    clinicalEffect: 'Acidose lática potencialmente fatal — risco maior em jejum prolongado ou ingestão excessiva aguda.',
+    management: 'Orientar evitar consumo excessivo de álcool e uso em jejum. Consumo moderado ocasional durante refeições é geralmente tolerado.',
+    patientGuidance: 'Evite beber em excesso ou em jejum. O álcool pode causar uma complicação grave (acidose lática) com a metformina.',
+  },
+  {
+    food: 'Álcool',
+    emoji: '🍺',
+    drugs: ['diazepam', 'alprazolam', 'clonazepam', 'lorazepam', 'zolpidem', 'zopiclona', 'tramadol', 'codeina', 'morfina'],
+    severity: 'major',
+    mechanism: 'Depressão aditiva do sistema nervoso central',
+    clinicalEffect: 'Sedação profunda, depressão respiratória, coma e morte — especialmente com opioides.',
+    management: 'Contraindicado. Orientar abstinência alcoólica rigorosa durante uso de sedativos/opioides.',
+    patientGuidance: 'PROIBIDO álcool com este medicamento — pode causar sonolência extrema e parada respiratória.',
+  },
+  {
+    food: 'Álcool',
+    emoji: '🍺',
+    drugs: ['paracetamol', 'acetaminofeno'],
+    severity: 'moderate',
+    mechanism: 'Álcool induz CYP2E1 aumentando formação do metabólito hepatotóxico NAPQI e depleta glutationa protetora',
+    clinicalEffect: 'Hepatotoxicidade grave em alcoolistas crônicos mesmo com doses "terapêuticas" de paracetamol (≥ 2g/dia).',
+    management: 'Limitar paracetamol a < 2g/dia em usuários regulares de álcool. Alertar sobre risco mesmo com doses normais.',
+    patientGuidance: 'Se você bebe regularmente, cuidado com paracetamol — pode causar problema grave no fígado. Informe seu médico.',
+  },
+  {
+    food: 'Álcool',
+    emoji: '🍺',
+    drugs: ['warfarina', 'varfarina'],
+    severity: 'major',
+    mechanism: 'Efeito bifásico: álcool agudo inibe metabolismo da warfarina (INR sobe); uso crônico induz CYP2C9 (INR cai)',
+    clinicalEffect: 'Instabilidade do INR — risco de sangramento (agudo) ou trombose (crônico).',
+    management: 'Orientar evitar consumo excessivo e manter padrão constante. Monitorar INR em qualquer mudança do padrão.',
+    patientGuidance: 'Evite excessos alcoólicos. Se beber, mantenha sempre a mesma quantidade por semana para não desregular o anticoagulante.',
+  },
+  {
+    food: 'Álcool',
+    emoji: '🍺',
+    drugs: ['amiodarona', 'metotrexato', 'isoniazida', 'rifampicina', 'pirazinamida', 'nimesulida', 'diclofenaco'],
+    severity: 'moderate',
+    mechanism: 'Hepatotoxicidade aditiva',
+    clinicalEffect: 'Lesão hepática acelerada e mais grave.',
+    management: 'Orientar abstinência ou consumo mínimo. Monitorar TGO/TGP.',
+    patientGuidance: 'Evite bebidas alcoólicas durante o tratamento — este medicamento já sobrecarrega o fígado.',
+  },
+
+  // ── POTÁSSIO / ALIMENTOS RICOS ───────────────────────────────────────────────
+  {
+    food: 'Alimentos muito ricos em potássio (banana, abacate, feijão, batata, laranja, tomate)',
+    emoji: '🍌',
+    drugs: ['enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'espironolactona', 'losartana', 'valsartana', 'candesartana'],
+    severity: 'moderate',
+    mechanism: 'IECA, BRA e diuréticos poupadores de K⁺ retêm potássio — dieta hiperkalêmica pode precipitar hipercalemia',
+    clinicalEffect: 'Hipercalemia: fraqueza muscular, arritmias cardíacas graves, parada cardíaca.',
+    management: 'Orientar sobre dieta moderada em potássio, especialmente se ClCr < 60 mL/min ou em uso de suplementos de K⁺. Monitorar K⁺ sérico.',
+    patientGuidance: 'Não exagere em alimentos ricos em potássio (banana, abacate, feijão) enquanto usar este medicamento. Informe ao médico se tomar suplemento de potássio.',
+  },
+
+  // ── FERRO / SUPLEMENTOS ──────────────────────────────────────────────────────
+  {
+    food: 'Suplementos de ferro, zinco, magnésio e cálcio',
+    emoji: '💊',
+    drugs: ['ciprofloxacino', 'levofloxacino', 'norfloxacino', 'tetraciclina', 'doxiciclina'],
+    severity: 'major',
+    mechanism: 'Quelação de antibióticos por cátions polivalentes — formação de complexos inabsorvíveis',
+    clinicalEffect: 'Redução de 30-75% na absorção do antibiótico — falha terapêutica com risco de progressão infecciosa.',
+    management: 'Separar antibiótico dos suplementos por pelo menos 2h (antes) ou 4-6h (depois).',
+    patientGuidance: 'Não tome este antibiótico junto com suplementos de ferro, cálcio, magnésio ou zinco. Separe por pelo menos 2 horas.',
+  },
+  {
+    food: 'Suplementos de ferro',
+    emoji: '🩸',
+    drugs: ['levotiroxina', 'tiroxina'],
+    severity: 'moderate',
+    mechanism: 'Ferro forma quelato com levotiroxina reduzindo absorção',
+    clinicalEffect: 'Hipotireoidismo por absorção inadequada.',
+    management: 'Separar levotiroxina do ferro por pelo menos 4 horas.',
+    patientGuidance: 'Tome o remédio da tireoide longe do suplemento de ferro — pelo menos 4 horas de diferença.',
+  },
+
+  // ── CAFEÍNA / CHÁ PRETO ──────────────────────────────────────────────────────
+  {
+    food: 'Cafeína em excesso (café, chá preto, energéticos)',
+    emoji: '☕',
+    drugs: ['teofilina', 'aminofilina'],
+    severity: 'moderate',
+    mechanism: 'Efeitos xantínicos aditivos na inibição de fosfodiesterase',
+    clinicalEffect: 'Toxicidade por xantinas: taquicardia, tremor, insônia, convulsões em casos graves.',
+    management: 'Orientar reduzir consumo de cafeína. Monitorar nível sérico de teofilina.',
+    patientGuidance: 'Reduza café e energéticos enquanto usar este medicamento — podem causar coração acelerado e tremor.',
+  },
+
+  // ── FIBRA / ALIMENTOS ────────────────────────────────────────────────────────
+  {
+    food: 'Alta ingestão de fibras (aveia, farelo, psyllium) junto com o medicamento',
+    emoji: '🌾',
+    drugs: ['digoxina', 'levotiroxina'],
+    severity: 'moderate',
+    mechanism: 'Fibras adsorvem medicamentos no trato GI reduzindo absorção',
+    clinicalEffect: 'Redução da biodisponibilidade — falha terapêutica.',
+    management: 'Orientar não tomar com refeições ricas em fibra. Separar por pelo menos 1-2 horas.',
+    patientGuidance: 'Tome este medicamento longe de suplementos de fibra ou aveia — podem reduzir o efeito.',
+  },
+]
+
 // ─── 9. POLIFARMÁCIA / DUPLICIDADE ───────────────────────────────────────────
 
 const CLASS_KEYWORDS: Record<string, string[]> = {
@@ -1340,6 +1595,38 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
       validationNote: 'Risco individual depende de dose, eletrólitos e fatores de risco basais.',
       interventionDeadline: 'Próxima consulta',
     })
+  }
+
+  // ── Interações alimento-medicamento ──────────────────────────────────────────
+  for (const interaction of FOOD_DRUG_INTERACTIONS) {
+    for (const med of context.medications) {
+      const medN = norm(med.activeIngredient)
+      const tradeN = med.tradeName ? norm(med.tradeName) : ''
+      const matched = interaction.drugs.some(d => {
+        const dn = norm(d)
+        return medN.includes(dn) || dn.includes(medN) || (tradeN && (tradeN.includes(dn) || dn.includes(tradeN)))
+      })
+      if (matched) {
+        findings.push({
+          category: PRMCategory.SAFETY,
+          riskLevel: interaction.severity === 'major' ? RiskLevel.HIGH : RiskLevel.MODERATE,
+          title: `Interação alimento-medicamento: ${interaction.emoji} ${interaction.food} + ${med.activeIngredient}`,
+          description: `${interaction.clinicalEffect} Mecanismo: ${interaction.mechanism}.`,
+          clinicalEvidence: `Alimento: ${interaction.food} | Medicamento: ${med.activeIngredient} | Efeito: ${interaction.clinicalEffect}`,
+          potentialImpact: interaction.clinicalEffect,
+          pharmacistConduct: interaction.management,
+          patientGuidance: interaction.patientGuidance,
+          needsReferral: false,
+          needsPrescriberContact: interaction.severity === 'major',
+          monitoring: `Monitorar sinais clínicos de ${interaction.clinicalEffect.toLowerCase().slice(0, 80)}.`,
+          reevaluationPeriod: interaction.severity === 'major' ? '7 dias' : '30 dias',
+          confidenceLevel: 'high',
+          validationNote: 'Avaliar frequência de consumo e hábitos alimentares do paciente.',
+          interventionDeadline: interaction.severity === 'major' ? 'Próxima consulta' : 'Orientação imediata',
+          medicationId: med.id,
+        })
+      }
+    }
   }
 
   // Alergias
