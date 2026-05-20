@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, FlaskConical, Plus, Pill, Activity,
-  AlertTriangle, Calendar, FileText, Pencil, History
+  AlertTriangle, Calendar, FileText, Pencil, History, Send
 } from 'lucide-react'
 import {
   formatDate, formatDateTime, calculateAge,
@@ -95,6 +95,12 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           {patient.analyses.length > 0 && (
             <ExportMenu mode="prms-only" patientId={patient.id} variant="icon" />
           )}
+          <Link href={`/patients/${patient.id}/referral`}
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            title="Carta de Encaminhamento Médico">
+            <Send className="h-4 w-4" />
+            <span className="hidden sm:inline">Encaminhar</span>
+          </Link>
           <Link href={`/analysis/new?patientId=${patient.id}`}
             className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
             <FlaskConical className="h-4 w-4" />
