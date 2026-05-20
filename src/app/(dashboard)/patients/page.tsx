@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { Plus, Users, FlaskConical, Calendar, ChevronRight } from 'lucide-react'
 import { formatDate, calculateAge } from '@/lib/utils'
+import { ExportMenu } from '@/components/export/ExportMenu'
 
 async function getPatients(userId: string) {
   return prisma.patient.findMany({
@@ -34,9 +35,12 @@ export default async function PatientsPage() {
             {patients.length} paciente{patients.length !== 1 ? 's' : ''} cadastrado{patients.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Link href="/patients/new" className="btn-primary">
-          <Plus className="h-4 w-4" /> Novo paciente
-        </Link>
+        <div className="flex items-center gap-2">
+          {patients.length > 0 && <ExportMenu mode="all" />}
+          <Link href="/patients/new" className="btn-primary">
+            <Plus className="h-4 w-4" /> Novo paciente
+          </Link>
+        </div>
       </div>
 
       {patients.length === 0 ? (
