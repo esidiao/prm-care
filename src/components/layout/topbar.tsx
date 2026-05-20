@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Bell, Plus, ChevronRight } from 'lucide-react'
 import type { UserRole } from '@prisma/client'
+import { GlobalSearch } from './GlobalSearch'
 
 interface TopBarProps {
   user: { name?: string | null; tokenBalance: number; role: UserRole; plan: string }
@@ -36,9 +37,9 @@ export function TopBar({ user }: TopBarProps) {
   const { label, parent } = getBreadcrumb(pathname)
 
   return (
-    <header className="flex h-14 items-center justify-between border-b border-gray-200 bg-white px-6">
+    <header className="flex h-14 items-center gap-4 border-b border-gray-200 bg-white px-6">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm">
+      <div className="flex items-center gap-2 text-sm min-w-0 shrink-0">
         {parent ? (
           <>
             <span className="text-gray-400">{parent}</span>
@@ -50,8 +51,13 @@ export function TopBar({ user }: TopBarProps) {
         )}
       </div>
 
+      {/* Global search — center */}
+      <div className="flex-1 flex justify-center">
+        <GlobalSearch />
+      </div>
+
       {/* Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 shrink-0">
         {user.tokenBalance <= 3 && user.plan !== 'INSTITUTIONAL' && (
           <Link href="/tokens"
             className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-100 transition-colors">
