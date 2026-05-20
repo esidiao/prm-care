@@ -16,6 +16,30 @@ export const metadata: Metadata = {
     'Plataforma SaaS para identificação, análise e orientação sobre Problemas Relacionados aos Medicamentos baseada no Método Dáder.',
   keywords: ['farmácia clínica', 'PRM', 'seguimento farmacoterapêutico', 'Método Dáder', 'atenção farmacêutica'],
   authors: [{ name: 'PRM Care' }],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'PRM Care',
+  },
+  formatDetection: { telephone: false },
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0f2744' },
+    { media: '(prefers-color-scheme: dark)', color: '#0f2744' },
+  ],
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: 'cover',
+  },
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'PRM Care',
     description: 'Plataforma de seguimento farmacoterapêutico baseada no Método Dáder',

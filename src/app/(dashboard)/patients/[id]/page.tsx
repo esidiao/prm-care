@@ -15,6 +15,8 @@ import { DeleteMedicationButton } from '@/components/patients/DeleteMedicationBu
 import { ExportMenu } from '@/components/export/ExportMenu'
 import { PatientNotes } from '@/components/patients/PatientNotes'
 import { ClinicalScales } from '@/components/patients/ClinicalScales'
+import { PatientEvolution } from '@/components/patients/PatientEvolution'
+import { MedDiscontinuationAlert } from '@/components/patients/MedDiscontinuationAlert'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -32,7 +34,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         analyses: {
           include: { findings: true },
           orderBy: { createdAt: 'desc' },
-          take: 5,
+          take: 12,
         },
       },
     }),
@@ -99,6 +101,24 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           </Link>
         </div>
       </div>
+
+      {/* Medication discontinuation alert */}
+      <MedDiscontinuationAlert patientId={patient.id} />
+
+      {/* Evolution chart — only when 2+ analyses */}
+      {patient.analyses.length >= 2 && (
+        <PatientEvolution
+          patientId={patient.id}
+          analyses={patient.analyses.map(a => ({
+            id: a.id,
+            createdAt: a.createdAt.toISOString(),
+            totalPRMs: a.totalPRMs,
+            urgentPRMs: a.urgentPRMs,
+            highRiskPRMs: a.highRiskPRMs,
+            moderatePRMs: a.moderatePRMs,
+          }))}
+        />
+      )}
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         {/* Left column — patient info */}

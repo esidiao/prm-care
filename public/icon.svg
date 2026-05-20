@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#0f2744"/>
+  <!-- Pill left half -->
+  <path d="M148 256 L256 148 L256 364 Z" fill="rgba(255,255,255,0)" />
+  <!-- Pill shape rotated 45deg, centered -->
+  <g transform="translate(256,256) rotate(-45)">
+    <!-- Pill outline -->
+    <rect x="-130" y="-55" width="260" height="110" rx="55" fill="none"/>
+    <!-- Left half -->
+    <path d="M0,-55 L-75,-55 A55,55 0 0,0 -75,55 L0,55 Z" fill="rgba(255,255,255,0.92)"/>
+    <!-- Right half -->
+    <path d="M0,-55 L75,-55 A55,55 0 0,1 75,55 L0,55 Z" fill="#4da6ff"/>
+    <!-- Divider -->
+    <line x1="0" y1="-55" x2="0" y2="55" stroke="rgba(255,255,255,0.5)" stroke-width="4"/>
+  </g>
+</svg>
