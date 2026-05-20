@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
 import { Shield, User, Coins, Key } from 'lucide-react'
 import { ProfileForm, PasswordForm } from '@/components/settings/ProfileForm'
+import { AvatarUpload } from '@/components/settings/AvatarUpload'
 
 const PLAN_LABELS: Record<string, string> = {
   FREE: 'Gratuito', BASIC: 'Básico', PROFESSIONAL: 'Profissional', INSTITUTIONAL: 'Institucional',
@@ -25,6 +26,7 @@ export default async function SettingsPage() {
       id: true, name: true, email: true, role: true, plan: true,
       crfNumber: true, specialization: true, institution: true,
       tokenBalance: true, twoFactorEnabled: true, password: true,
+      image: true,
       createdAt: true, lastLoginAt: true,
       consents: { orderBy: { acceptedAt: 'desc' } },
     },
@@ -58,6 +60,14 @@ export default async function SettingsPage() {
             </div>
           ))}
         </dl>
+      </div>
+
+      {/* ── Foto de perfil ── */}
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Foto de perfil
+        </h2>
+        <AvatarUpload currentImage={user.image} userName={user.name} />
       </div>
 
       {/* ── Editar perfil ── */}

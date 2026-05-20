@@ -9,7 +9,7 @@ import { MobileNav } from './sidebar'
 import { AlertBadge } from './AlertBadge'
 
 interface TopBarProps {
-  user: { name?: string | null; email: string; tokenBalance: number; role: UserRole; plan: string }
+  user: { name?: string | null; email: string; tokenBalance: number; role: UserRole; plan: string; image?: string | null }
 }
 
 const breadcrumbs: Record<string, string> = {

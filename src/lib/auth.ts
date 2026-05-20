@@ -69,18 +69,20 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role
         token.plan = (user as any).plan
         token.tokenBalance = (user as any).tokenBalance
+        token.image = (user as any).image ?? null
       }
       // Refresh token data on update trigger
       if (trigger === 'update' && session) {
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { tokenBalance: true, plan: true, role: true, name: true },
+          select: { tokenBalance: true, plan: true, role: true, name: true, image: true },
         })
         if (dbUser) {
           token.tokenBalance = dbUser.tokenBalance
           token.plan = dbUser.plan
           token.role = dbUser.role
           token.name = dbUser.name
+          token.image = dbUser.image ?? null
         }
       }
       return token
@@ -91,6 +93,9 @@ export const authOptions: NextAuthOptions = {
         session.user.role = token.role as UserRole
         session.user.plan = token.plan as string
         session.user.tokenBalance = token.tokenBalance as number
+        if (token.image !== undefined) {
+          session.user.image = token.image as string | null
+        }
       }
       return session
     },
@@ -156,5 +161,6 @@ declare module 'next-auth/jwt' {
     role: UserRole
     plan: string
     tokenBalance: number
+    image?: string | null
   }
 }
