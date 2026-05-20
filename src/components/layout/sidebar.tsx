@@ -27,6 +27,7 @@ const navItems = [
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
   { href: '/reports', label: 'Relatórios', icon: FileText },
+  { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
   { href: '/calculators', label: 'Calculadoras', icon: Calculator },
   { href: '/tokens', label: 'Tokens', icon: Coins },
   { href: '/settings', label: 'Configurações', icon: Settings },
