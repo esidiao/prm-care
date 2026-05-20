@@ -437,7 +437,7 @@ const BEERS_CRITERIA_DRUGS: Record<string, { warning: string; level: 'high' | 'm
   'meperidina': { warning: 'Opioide: metabólito normeperidina é neurotóxico — convulsões e delirium em idosos. Contraindicado.', level: 'high' },
   'pentazocina': { warning: 'Opioide misto: delirium e efeitos psicotomiméticos em idosos. Evitar.', level: 'high' },
 
-  // Outros
+  // Outros — antiulcerosos e procinéticos
   'metoclopramida': { warning: 'Procinético: efeitos extrapiramidais e parkinsonismo, especialmente com uso prolongado em idosos.', level: 'high' },
   'domperidona': { warning: 'Procinético: prolongamento de QT em doses altas. Cautela em idosos com risco cardíaco.', level: 'moderate' },
   'nitrofurantoina': { warning: 'Antibiótico: evitar em idosos com ClCr < 30 mL/min — ineficácia e toxicidade pulmonar cumulativa.', level: 'high' },
@@ -449,6 +449,91 @@ const BEERS_CRITERIA_DRUGS: Record<string, { warning: string; level: 'high' | 'm
   'cimetidina': { warning: 'H2: muitas interações farmacológicas e efeitos anticolinérgicos. Evitar.', level: 'high' },
   'ergotamina': { warning: 'Vasoconstritora: risco de isquemia em idosos com doença aterosclerótica.', level: 'high' },
   'dextropropoxifeno': { warning: 'Analgésico opioide: retirado do mercado. Se ainda em uso, suspender imediatamente.', level: 'high' },
+
+  // ── Beers 2023 — ADIÇÕES (Table 2 e Table 3) ──────────────────────────────
+
+  // Anticolinérgicos — carga (ACB/ADS) — antimuscarínicos respiratórios
+  'ipratropio': { warning: 'Broncodilatador anticolinérgico: cautela em idosos com glaucoma de ângulo fechado ou retenção urinária.', level: 'moderate' },
+  'tiotrópio': { warning: 'Anticolinérgico inalatório de longa ação: risco de retenção urinária e piora de glaucoma em idosos.', level: 'moderate' },
+  'aclidínio': { warning: 'Anticolinérgico inalatório: cautela em idosos com hipertrofia prostática ou glaucoma.', level: 'moderate' },
+  'glicopirrônio': { warning: 'Anticolinérgico de longa ação: efeitos sistêmicos em idosos com polifarmácia.', level: 'moderate' },
+
+  // Anticolinérgicos — antiespasmódicos GI
+  'butilescopolamina': { warning: 'Antiespasmódico anticolinérgico: risco de delirium e retenção urinária em idosos.', level: 'high' },
+  'atropina': { warning: 'Anticolinérgico sistêmico: evitar uso não emergencial em idosos. Taquicardia, retenção urinária, delirium.', level: 'high' },
+
+  // Anticolinérgicos — antidepressivos
+  'paroxetina': { warning: 'ISRS com maior atividade anticolinérgica da classe: delirium, constipação, retenção urinária em idosos. Preferir sertralina.', level: 'moderate' },
+
+  // Anticolinérgicos — antieméticos
+  'dimenidrinato': { warning: 'Antiemético antihistamínico: alta atividade anticolinérgica — sedação e delirium em idosos.', level: 'high' },
+  'meclizina': { warning: 'Antihistamínico H1 anticolinérgico: evitar em idosos. Risco de sedação e queda.', level: 'high' },
+
+  // Hipnóticos não BDZ adicionais
+  'melatonina': { warning: 'Uso de melatonina > 0,5 mg em idosos pode causar sedação diurna residual e interações com anticoagulantes.', level: 'moderate' },
+  'doxilamina': { warning: 'Antihistamínico hipnótico: sedação excessiva e efeito anticolinérgico. Evitar em idosos.', level: 'high' },
+
+  // Cardiovasculares adicionais
+  'disopiramida': { warning: 'Antiarrítmico com forte atividade anticolinérgica e inotrópico negativo. Contraindicado em idosos com ICC.', level: 'high' },
+  'reserpina': { warning: 'Anti-hipertensivo central: depressão, sedação e hipotensão ortostática. Contraindicado.', level: 'high' },
+  'guanetidina': { warning: 'Anti-hipertensivo de ação periférica: hipotensão ortostática grave em idosos.', level: 'high' },
+  'hidralazina': { warning: 'Em monoterapia como anti-hipertensivo em idosos: não recomendado pela baixa eficácia e risco de lúpus farmacológico.', level: 'moderate' },
+  'propranolol': { warning: 'Betabloqueador não seletivo: bradicardia, hipoglicemia mascarada e broncoespasmo. Preferir metoprolol ou carvedilol em idosos.', level: 'moderate' },
+  'atenolol': { warning: 'Betabloqueador: cautela em idosos — bradicardia e fadiga. Associado a pior desfecho em hipertensão não complicada.', level: 'moderate' },
+
+  // Hipoglicemiantes adicionais
+  'insulina nph': { warning: 'Insulina intermediária: perfil de ação imprevisível em idosos — maior risco de hipoglicemia noturna. Considerar análogos de longa ação.', level: 'high' },
+  'insulina regular': { warning: 'Insulina de ação rápida em idosos: risco elevado de hipoglicemia. Monitorar glicemia com frequência.', level: 'moderate' },
+  'glipizida': { warning: 'Sulfonilureia: risco de hipoglicemia em idosos, especialmente em jejum. Titular com cuidado.', level: 'moderate' },
+  'gliclazida': { warning: 'Sulfonilureia: menor risco de hipoglicemia que glibenclamida, mas cautela em idosos com IR.', level: 'moderate' },
+
+  // Antiepiléticos / estabilizadores de humor
+  'fenitoína': { warning: 'Antiepiléptico: janela terapêutica estreita, metabolismo saturável não linear — toxicidade imprevisível em idosos. Monitorar nível sérico.', level: 'high' },
+  'fenobarbital': { warning: 'Barbitúrico antiepiléptico: sedação, dependência e interações graves. Preferir antiepilépticos de nova geração em idosos.', level: 'high' },
+  'carbamazepina': { warning: 'Antiepiléptico: indutor enzimático potente, hiponatremia (SIADH), diplopia e ataxia em idosos. Monitorar sódio.', level: 'high' },
+  'ácido valproico': { warning: 'Estabilizador de humor: trombocitopenia, hiperamonemia e encefalopatia em idosos. Monitorar amônia em confusão aguda.', level: 'moderate' },
+  'lítio': { warning: 'Estabilizador de humor: janela terapêutica estreita — toxicidade aumentada em idosos com IR, desidratação ou diuréticos.', level: 'high' },
+  'gabapentina': { warning: 'Antiepiléptico/neuropático: sedação, tontura e quedas em idosos. Ajuste de dose obrigatório com ClCr < 60 mL/min.', level: 'moderate' },
+  'pregabalina': { warning: 'Antiepiléptico/neuropático: sedação, edema e quedas em idosos. Evitar doses altas com IR.', level: 'moderate' },
+
+  // Analgésicos adicionais
+  'tramadol': { warning: 'Opioide fraco: risco de convulsões, síndrome serotoninérgica, hiponatremia e delirium em idosos. Precaução redobrada.', level: 'high' },
+  'codeína': { warning: 'Pró-fármaco opioide: metabolismo variável por CYP2D6 — risco de toxicidade opioide em metabolizadores ultrarrápidos.', level: 'moderate' },
+  'morfina': { warning: 'Opioide: titulação cautelosa em idosos. Reduzir dose inicial em 25-50%. Risco de acumulação de metabólito ativo (M6G) em IR.', level: 'moderate' },
+
+  // Corticosteroides sistêmicos — uso crônico
+  'prednisona': { warning: 'Corticosteroide oral: uso crônico em idosos aumenta risco de osteoporose, hiperglicemia, cataratas, imunossupressão e miopatia. Usar a menor dose eficaz.', level: 'moderate' },
+  'prednisolona': { warning: 'Corticosteroide: riscos idênticos à prednisona. Suplementar cálcio e vitamina D se uso > 3 meses.', level: 'moderate' },
+  'deflazacorte': { warning: 'Corticosteroide: menor impacto ósseo, mas ainda relevante em idosos. Avaliar densitometria óssea.', level: 'moderate' },
+  'dexametasona': { warning: 'Corticosteroide potente: hiperglicemia intensa, psicose esteroidal e imunossupressão grave em idosos.', level: 'high' },
+
+  // Antimicrobianos de cautela
+  'ciprofloxacino': { warning: 'Fluoroquinolona: risco de tendinopatia/ruptura de tendão, neuropatia periférica e delirium em idosos. Reservar para infecções sem alternativa.', level: 'moderate' },
+  'levofloxacino': { warning: 'Fluoroquinolona: mesmos riscos do ciprofloxacino. Prolongamento de QT e hipoglicemia em idosos diabéticos.', level: 'moderate' },
+
+  // Vitaminas/suplementos em dose excessiva
+  'vitamina e': { warning: 'Suplementação de vitamina E > 400 UI/dia em idosos: sem benefício comprovado e possível aumento de mortalidade cardiovascular. Evitar.', level: 'moderate' },
+  'vitamina a': { warning: 'Vitamina A em altas doses: hepatotóxico, teratogênico e risco de fraturas osteoporóticas em idosos. Não suplementar sem indicação.', level: 'moderate' },
+
+  // Anticoagulantes — janela estreita
+  'varfarina': { warning: 'Anticoagulante: monitorar INR rigorosamente em idosos. Risco de sangramento 2-3x maior. Avaliar NOACs como alternativa mais segura.', level: 'moderate' },
+
+  // Urológicos — alfa-bloqueadores (já há alguns, adicionar)
+  'tansulosina': { warning: 'Alfa-bloqueador seletivo: hipotensão ortostática e síndrome da íris flácida intraoperatória (IFIS) em cirurgia de catarata. Informar oftalmologista.', level: 'moderate' },
+  'alfuzosina': { warning: 'Alfa-bloqueador: hipotensão ortostática em idosos. Cuidado com hipotensores concomitantes.', level: 'moderate' },
+
+  // Antidepressivos — ISRS (hipona tremia / SIADH)
+  'fluoxetina': { warning: 'ISRS: hiponatremia (SIADH) em idosos, especialmente nas primeiras semanas. Monitorar sódio. Meia-vida muito longa — acumulação.', level: 'moderate' },
+  'escitalopram': { warning: 'ISRS: hiponatremia e prolongamento de QT em altas doses em idosos. Dose máxima recomendada: 10 mg/dia em > 65 anos.', level: 'moderate' },
+  'citalopram': { warning: 'ISRS: prolongamento de QT dose-dependente. Dose máxima em idosos: 20 mg/dia (FDA). Monitorar ECG.', level: 'high' },
+  'venlafaxina': { warning: 'IRSN: hipertensão, hiponatremia e descontinuação abrupta problemática em idosos. Reduzir dose gradualmente.', level: 'moderate' },
+
+  // Antiparkinsoniano
+  'levodopa': { warning: 'Antiparkinsoniano: hipotensão ortostática, alucinações e psicose em idosos. Titular lentamente e monitorar PA ortostática.', level: 'moderate' },
+  'pramipexol': { warning: 'Agonista dopaminérgico: comportamento compulsivo (jogo, hipersexualidade), sonolência súbita e hipotensão em idosos.', level: 'high' },
+  'ropinirol': { warning: 'Agonista dopaminérgico: mesmo perfil de risco do pramipexol. Cautela em idosos.', level: 'high' },
+  'biperideno': { warning: 'Anticolinérgico antiparkinsoniano: delirium, constipação grave e retenção urinária em idosos.', level: 'high' },
+  'tri-hexifenidil': { warning: 'Anticolinérgico antiparkinsoniano: alta atividade anticolinérgica central — delirium. Evitar em idosos.', level: 'high' },
 }
 
 // ─── 7. CRITÉRIOS STOPP v3 (2023) ─────────────────────────────────────────────
@@ -631,6 +716,105 @@ const STOPP_CRITERIA: STOPPCriterion[] = [
     conditionKeywords: ['sem ulcera', 'sem gerd', 'uso cronico de ibp', 'ibp sem indicacao'],
     warning: 'STOPP v3: IBPs em uso crônico (> 8 semanas) sem indicação clara — risco de deficiência de B12, magnésio, fraturas e infecções por C. difficile.',
     level: 'moderate',
+  },
+
+  // ── Beers 2023 Table 2 — Drug-Disease Interactions (novos critérios) ─────────
+
+  // Demência / comprometimento cognitivo
+  {
+    drugs: ['difenidramina', 'dimenidrinato', 'prometazina', 'hidroxizina', 'meclizina', 'clorfeniramina', 'escopolamina', 'hioscina', 'oxibutinina', 'solifenacina', 'tolterodina', 'amitriptilina', 'imipramina', 'clomipramina', 'nortriptilina', 'paroxetina', 'tri-hexifenidil', 'biperideno', 'carisoprodol', 'ciclobenzaprina', 'orfenadrina'],
+    condition: 'Demência ou comprometimento cognitivo',
+    conditionKeywords: ['demencia', 'alzheimer', 'comprometimento cognitivo', 'delirium', 'deficit cognitivo', 'disfuncao cognitiva'],
+    warning: 'Beers 2023 (Table 2): Medicamentos anticolinérgicos estão associados a piora cognitiva, delirium e aceleração da progressão da demência. Contraindicados.',
+    level: 'high',
+  },
+  // Parkinson
+  {
+    drugs: ['haloperidol', 'clorpromazina', 'levomepromazina', 'risperidona', 'olanzapina', 'quetiapina', 'metoclopramida', 'domperidona'],
+    condition: 'Doença de Parkinson',
+    conditionKeywords: ['parkinson', 'doenca de parkinson', 'sindrome parkinsoniana'],
+    warning: 'Beers 2023 (Table 2): Bloqueadores dopaminérgicos agravam o Parkinson — rigidez, bradicinesia e quedas. Evitar. Se necessário antipsicótico, usar clozapina ou quetiapina em doses mínimas.',
+    level: 'high',
+  },
+  // Incontinência urinária / bexiga hiperativa (em mulheres)
+  {
+    drugs: ['diuréticos de alça', 'furosemida', 'bumetanida', 'torasemida'],
+    condition: 'Incontinência urinária',
+    conditionKeywords: ['incontinencia urinaria', 'bexiga hiperativa', 'urge-incontinencia'],
+    warning: 'Beers 2023 (Table 2): Diuréticos de alça aumentam urgência e frequência urinária, piorando incontinência. Avaliar necessidade e horário de administração.',
+    level: 'moderate',
+  },
+  // Epilepsia / convulsão
+  {
+    drugs: ['tramadol', 'bupropiona', 'clozapina', 'meperidina', 'teofilina'],
+    condition: 'Epilepsia ou história de convulsão',
+    conditionKeywords: ['epilepsia', 'convulsao', 'crise epileptica', 'historia de convulsao'],
+    warning: 'Beers 2023 (Table 2): Estes medicamentos reduzem o limiar convulsivo. Contraindicados ou de uso cauteloso em pacientes com epilepsia.',
+    level: 'high',
+  },
+  // Glaucoma de ângulo fechado
+  {
+    drugs: ['difenidramina', 'dimenidrinato', 'prometazina', 'hidroxizina', 'escopolamina', 'hioscina', 'atropina', 'oxibutinina', 'solifenacina', 'tolterodina', 'amitriptilina', 'imipramina', 'biperideno', 'tri-hexifenidil'],
+    condition: 'Glaucoma de ângulo fechado',
+    conditionKeywords: ['glaucoma angulo fechado', 'glaucoma angular', 'glaucoma'],
+    warning: 'Beers 2023 (Table 2): Medicamentos anticolinérgicos precipitam crise aguda de glaucoma de ângulo fechado. Contraindicados. Verificar tipo de glaucoma antes de prescrever.',
+    level: 'high',
+  },
+  // Hipertrofia prostática benigna / retenção urinária
+  {
+    drugs: ['difenidramina', 'dimenidrinato', 'prometazina', 'hidroxizina', 'escopolamina', 'hioscina', 'atropina', 'oxibutinina', 'solifenacina', 'tolterodina', 'amitriptilina', 'imipramina', 'disopiramida'],
+    condition: 'Hipertrofia prostática benigna ou retenção urinária',
+    conditionKeywords: ['hipertrofia prostatica', 'hpb', 'retencao urinaria', 'prostatismo', 'bexiga neurogena'],
+    warning: 'Beers 2023 (Table 2): Anticolinérgicos causam retenção urinária aguda em homens com HPB ou comprometimento do esvaziamento vesical.',
+    level: 'high',
+  },
+  // Síncope / quedas recorrentes
+  {
+    drugs: ['haloperidol', 'clorpromazina', 'levomepromazina', 'risperidona', 'olanzapina', 'quetiapina', 'doxazosina', 'prazosina', 'terazosina', 'tansulosina', 'alfuzosina', 'metildopa', 'clonidina', 'nifedipina'],
+    condition: 'Síncope ou quedas recorrentes',
+    conditionKeywords: ['sincope', 'queda recorrente', 'quedas frequentes', 'hipotensao ortosta', 'ortostase'],
+    warning: 'Beers 2023 (Table 2): Medicamentos com ação hipotensora ou sedativa em pacientes com síncope/quedas recorrentes aumentam risco de hospitalização por trauma.',
+    level: 'high',
+  },
+  // Insuficiência cardíaca
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'cetorolaco', 'piroxicam', 'nimesulida', 'celecoxibe'],
+    condition: 'Insuficiência cardíaca',
+    conditionKeywords: ['insuficiencia cardiaca', 'icc', 'ic sistolica', 'ic diastolica', 'feve reduzida'],
+    warning: 'Beers 2023 (Table 2): AINEs causam retenção de sódio e água, agravando a ICC e aumentando risco de hospitalização. Contraindicados na ICC.',
+    level: 'high',
+  },
+  // Doença ulcerosa péptica / sangramento GI
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'cetorolaco', 'piroxicam', 'nimesulida', 'aspirina', 'ácido acetilsalicílico'],
+    condition: 'Úlcera péptica ou sangramento GI',
+    conditionKeywords: ['ulcera peptica', 'sangramento gi', 'hemorragia digestiva', 'ulcera gastrica', 'historia de sangramento'],
+    warning: 'Beers 2023 (Table 2): AINEs e AAS em altas doses em pacientes com história de úlcera/sangramento GI — alto risco de ressangramento. Se indispensável, associar IBP.',
+    level: 'high',
+  },
+  // Insuficiência renal crônica
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'cetorolaco', 'piroxicam', 'nimesulida', 'celecoxibe'],
+    condition: 'Insuficiência renal crônica',
+    conditionKeywords: ['insuficiencia renal', 'drc', 'irc', 'creatinina elevada', 'tfg reduzida'],
+    warning: 'Beers 2023 (Table 2): AINEs causam vasoconstrição aferente renal — risco de IRA aguda sobre crônica, hipercalemia e piora da proteinúria.',
+    level: 'high',
+  },
+  // Osteoporose / risco de fratura
+  {
+    drugs: ['prednisona', 'prednisolona', 'dexametasona', 'deflazacorte', 'hidrocortisona'],
+    condition: 'Osteoporose ou risco de fratura',
+    conditionKeywords: ['osteoporose', 'osteopenia', 'fratura por fragilidade', 'densitometria alterada'],
+    warning: 'Beers 2023 (Table 2): Corticosteroides orais em uso crônico causam perda óssea acelerada. Suplementar cálcio (1200 mg/dia) + vitamina D e considerar bifosfonato se uso > 3 meses.',
+    level: 'moderate',
+  },
+  // Hiponatremia / SIADH
+  {
+    drugs: ['fluoxetina', 'sertralina', 'paroxetina', 'escitalopram', 'citalopram', 'venlafaxina', 'duloxetina', 'carbamazepina', 'oxcarbazepina', 'mirtazapina'],
+    condition: 'Hiponatremia ou SIADH',
+    conditionKeywords: ['hiponatremia', 'siadh', 'sodio baixo', 'na < 135', 'sodio menor que 135'],
+    warning: 'Beers 2023 (Table 2): Antidepressivos e antiepilépticos podem causar/agravar SIADH e hiponatremia em idosos. Monitorar sódio nas primeiras 4 semanas e após aumentos de dose.',
+    level: 'high',
   },
 ]
 
