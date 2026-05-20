@@ -272,13 +272,12 @@ export default async function ScaleReportPage({ params }: { params: { id: string
         </div>
       </div>
 
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           @page { margin: 1.5cm; }
-          .print\\:hidden { display: none !important; }
           .page-break-inside-avoid { page-break-inside: avoid; }
         }
-      `}</style>
+      ` }} />
     </div>
   )
 }
