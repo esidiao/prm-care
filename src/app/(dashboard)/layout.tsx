@@ -11,11 +11,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session) redirect('/login')
 
   // Fetch image directly from DB so it reflects updates without requiring re-login
+  // Wrapped in try/catch — DB connectivity issues must not crash the entire layout
   const dbUser = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { image: true },
-  })
-  const userWithImage = { ...session.user, image: dbUser?.image ?? null }
+  }).catch(() => null)
+  const userWithImage = { ...session.user, image: dbUser?.image ?? session.user.image ?? null }
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
