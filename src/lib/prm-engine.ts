@@ -1188,6 +1188,331 @@ const FOOD_DRUG_INTERACTIONS: FoodDrugInteraction[] = [
   },
 ]
 
+// ─── 8c. INTERAÇÕES MEDICAMENTO-CONDIÇÃO CLÍNICA ─────────────────────────────
+// Fonte: KDIGO, ESC/ESH, ADA Standards, ABCDE-Farma, UpToDate, Micromedex
+// Detectam contraindicações e precauções absolutas por comorbidade específica
+// Diferem dos critérios STOPP por cobrir populações além de idosos
+
+interface DrugDiseaseInteraction {
+  drugs: string[]                      // princípios ativos contraindicados/restritos
+  conditions: string[]                 // palavras-chave que identificam a condição
+  conditionLabel: string               // nome amigável da condição
+  severity: 'contraindicated' | 'major' | 'moderate'
+  mechanism: string                    // mecanismo farmacológico/fisiopatológico
+  clinicalRisk: string                 // consequência clínica esperada
+  pharmacistConduct: string
+  patientGuidance: string
+  monitoringRequired: string
+  alternative?: string                 // alternativa terapêutica, quando aplicável
+}
+
+const DRUG_DISEASE_INTERACTIONS: DrugDiseaseInteraction[] = [
+
+  // ── INSUFICIÊNCIA RENAL / DRC ─────────────────────────────────────────────
+
+  {
+    drugs: ['metformina'],
+    conditions: ['insuficiencia renal grave', 'drc estadio 4', 'drc estadio 5', 'dialise', 'hemodialise', 'tfg < 30', 'clcr < 30', 'creatinina > 3'],
+    conditionLabel: 'Insuficiência renal grave (TFG < 30 mL/min)',
+    severity: 'contraindicated',
+    mechanism: 'Metformina é excretada inalterada pelos rins. Em IR grave, acumula-se e inibe a cadeia respiratória mitocondrial hepática — aumenta produção de lactato.',
+    clinicalRisk: 'Acidose lática grave (mortalidade ~50%). Risco aumenta proporcionalmente à redução da TFG.',
+    pharmacistConduct: 'CONTRAINDICADA com TFG < 30 mL/min. Suspender imediatamente e comunicar prescritor. Alternativas: iSGLT2 (com restrição de dose), iDPP-4, insulina. Dose deve ser reduzida com TFG 30-45.',
+    patientGuidance: 'Não tome metformina se seus rins não estão funcionando bem. Informe ao médico seus exames de função renal mais recentes.',
+    monitoringRequired: 'TFG/creatinina a cada 3-6 meses em DRC. Suspender antes de procedimentos com contraste iodado.',
+    alternative: 'iDPP-4 (sitagliptina com ajuste de dose), iSGLT2 com TFG ≥ 45, insulina',
+  },
+
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'cetorolaco', 'piroxicam', 'nimesulida', 'celecoxibe'],
+    conditions: ['insuficiencia renal', 'drc', 'irc', 'tfg reduzida', 'creatinina elevada', 'proteinuria', 'nefropatia', 'transplante renal'],
+    conditionLabel: 'Doença renal crônica',
+    severity: 'contraindicated',
+    mechanism: 'AINEs inibem a síntese de prostaglandinas vasodilatadoras renais (PGE2, PGI2) que mantêm a perfusão glomerular em estados de baixo fluxo. Também bloqueiam a excreção de potássio e sódio.',
+    clinicalRisk: 'IRA aguda sobre crônica, hipercalemia, retenção hidrossalina, progressão da DRC e piora da proteinúria.',
+    pharmacistConduct: 'AINEs contraindicados em DRC. Orientar substituição por paracetamol (dor leve/moderada) ou opioides fracos com ajuste de dose. Verificar outros analgésicos e discutir com prescritor.',
+    patientGuidance: 'Evite completamente anti-inflamatórios (ibuprofeno, diclofenaco, naproxeno) — prejudicam os rins. Para dor, prefira paracetamol e consulte seu médico.',
+    monitoringRequired: 'Creatinina, ureia, K⁺ antes e 7 dias após início de qualquer AINE.',
+    alternative: 'Paracetamol (até 3 g/dia em DRC), tramadol (com ajuste), fisioterapia',
+  },
+
+  {
+    drugs: ['digoxina'],
+    conditions: ['insuficiencia renal', 'drc', 'irc', 'dialise', 'tfg reduzida'],
+    conditionLabel: 'Insuficiência renal',
+    severity: 'major',
+    mechanism: 'Digoxina é eliminada ~70% por via renal inalterada. Em IR, ocorre acumulação progressiva com risco de toxicidade mesmo com doses terapêuticas.',
+    clinicalRisk: 'Intoxicação digitálica: bradicardia, bloqueios AV, arritmias ventriculares (FV), náusea, confusão — potencializada por hipocalemia e hipomagnesemia comuns na DRC.',
+    pharmacistConduct: 'Reduzir dose e aumentar intervalo de administração. Alvo de digoxinemia: 0,5-0,9 ng/mL em IC. Monitorar eletrólitos rigorosamente. Evitar diuréticos hipocalemiantes sem reposição de K⁺.',
+    patientGuidance: 'Informe ao médico se sentir batimentos lentos, irregulares, náusea ou visão turva/amarelada. Faça exames de sangue regularmente.',
+    monitoringRequired: 'Nível sérico de digoxina (coleta 6-8h após última dose), K⁺, Mg²⁺, creatinina. Dosagem sérica a cada 3 meses ou após ajuste.',
+    alternative: 'Betabloqueador ou amiodarona para controle de frequência em FA com IR',
+  },
+
+  {
+    drugs: ['espironolactona', 'eplerenona', 'canrenoato'],
+    conditions: ['insuficiencia renal grave', 'drc estadio 4', 'drc estadio 5', 'hipercalemia', 'k+ > 5', 'potassio elevado'],
+    conditionLabel: 'Insuficiência renal grave ou hipercalemia',
+    severity: 'contraindicated',
+    mechanism: 'Antagonistas de aldosterona reduzem excreção renal de K⁺. Em IR, o rim já tem capacidade reduzida de excretar K⁺ — somando os dois fatores, há risco de hipercalemia grave.',
+    clinicalRisk: 'Hipercalemia grave (K⁺ > 6,5 mEq/L): parada cardíaca por assistolia ou FV.',
+    pharmacistConduct: 'Contraindicado com TFG < 30 mL/min ou K⁺ > 5 mEq/L. Verificar combinação com IECA/BRA (aumenta risco). Comunicar prescritor imediatamente.',
+    patientGuidance: 'Faça exame de potássio regularmente. Evite suplementos de potássio, sal substituto e alimentos ricos em potássio sem orientação.',
+    monitoringRequired: 'K⁺ e creatinina em 1 semana após início, depois mensalmente por 3 meses.',
+    alternative: 'Furosemida para manejo de volume, betabloqueador para ICC',
+  },
+
+  {
+    drugs: ['nitrofurantoina'],
+    conditions: ['insuficiencia renal', 'drc', 'irc', 'tfg < 45', 'clcr < 45'],
+    conditionLabel: 'Insuficiência renal (TFG < 45 mL/min)',
+    severity: 'contraindicated',
+    mechanism: 'Nitrofurantoína depende de excreção renal para atingir concentrações bactericidas na urina. Com TFG < 45, os níveis urinários são insuficientes para efeito terapêutico e os níveis séricos causam toxicidade.',
+    clinicalRisk: 'Falha terapêutica da ITU e toxicidade sistêmica: neuropatia periférica, pneumonite, hepatite, anemia hemolítica.',
+    pharmacistConduct: 'Contraindicada com TFG < 45 mL/min. Substituir por fosfomicina (dose única) ou cefalosporina oral com ajuste de dose. Comunicar prescritor.',
+    patientGuidance: 'Informe ao médico sobre seus exames de rim antes de usar nitrofurantoína. Pode não funcionar e causar efeitos adversos.',
+    monitoringRequired: 'TFG antes de prescrever. Sintomas de neuropatia (formigamento, fraqueza).',
+    alternative: 'Fosfomicina 3g dose única, cefalexina, amoxicilina-clavulanato (com ajuste)',
+  },
+
+  {
+    drugs: ['alendronato', 'risedronato', 'ibandronato', 'zoledronato'],
+    conditions: ['insuficiencia renal grave', 'drc estadio 4', 'drc estadio 5', 'tfg < 35', 'clcr < 35'],
+    conditionLabel: 'Insuficiência renal grave (TFG < 35 mL/min)',
+    severity: 'contraindicated',
+    mechanism: 'Bisfosfonatos são excretados pelos rins sem metabolização. Em IR grave, acumulam-se no osso e causam mineralização defeituosa — osteomalácia adinâmica.',
+    clinicalRisk: 'Osteomalácia, fraturas de estresse, hipocalcemia grave.',
+    pharmacistConduct: 'Contraindicados com TFG < 35 mL/min. Para osteoporose em DRC, o tratamento deve ser guiado pela doença óssea metabólica subjacente (osteíte fibrosa x osteomalácia) — requer avaliação especializada.',
+    patientGuidance: 'Não use medicamentos para ossos como alendronato se seus rins não estão funcionando bem. Consulte seu médico.',
+    monitoringRequired: 'TFG antes de iniciar. Cálcio e fósforo séricos.',
+    alternative: 'Calcitriol, cinacalcete (DRC-doença óssea mineral), avaliação por nefrologista',
+  },
+
+  // ── INSUFICIÊNCIA CARDÍACA ────────────────────────────────────────────────
+
+  {
+    drugs: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'cetorolaco', 'piroxicam', 'nimesulida', 'celecoxibe'],
+    conditions: ['insuficiencia cardiaca', 'icc', 'ic sistolica', 'ic diastolica', 'feve reduzida', 'cardiomiopatia', 'descompensacao cardiaca'],
+    conditionLabel: 'Insuficiência cardíaca',
+    severity: 'contraindicated',
+    mechanism: 'AINEs inibem prostaglandinas vasodilatadoras renais e aumentam resistência vascular sistêmica. Promovem retenção de sódio e água, aumentando a pré e pós-carga cardíaca.',
+    clinicalRisk: 'Descompensação aguda da ICC, internação por sobrecarga hídrica, piora da função renal (síndrome cardiorrenal), aumento da mortalidade.',
+    pharmacistConduct: 'AINEs absolutamente contraindicados na ICC (todas as classes funcionais). Substituir por paracetamol. Verificar uso de corticosteroides (mesmo risco). Comunicar prescritor.',
+    patientGuidance: 'Nunca use anti-inflamatórios como ibuprofeno ou diclofenaco — causam piora do coração e inchaço. Use apenas paracetamol para dor, com orientação médica.',
+    monitoringRequired: 'Peso diário, edema, pressão arterial, função renal após qualquer AINE inadvertido.',
+    alternative: 'Paracetamol, tramadol (baixas doses), opioides com cautela',
+  },
+
+  {
+    drugs: ['verapamil', 'diltiazem'],
+    conditions: ['insuficiencia cardiaca sistolica', 'feve reduzida', 'disfuncao sistolica', 'feve < 40'],
+    conditionLabel: 'Insuficiência cardíaca com fração de ejeção reduzida (FEr)',
+    severity: 'contraindicated',
+    mechanism: 'Bloqueadores de canais de cálcio não-dihidropiridínicos têm efeito inotrópico negativo significativo — reduzem a contratilidade miocárdica já comprometida.',
+    clinicalRisk: 'Descompensação aguda da ICC, piora hemodinâmica, choque cardiogênico.',
+    pharmacistConduct: 'Verapamil e diltiazem contraindicados em ICFEr. Se objetivo é controle de frequência em FA, usar betabloqueador (carvedilol, bisoprolol, metoprolol succinato). Comunicar prescritor.',
+    patientGuidance: 'Informe ao seu médico que tem insuficiência cardíaca antes de iniciar qualquer medicamento para o coração.',
+    monitoringRequired: 'FE ecocardiográfica, frequência cardíaca, PA.',
+    alternative: 'Betabloqueador para controle de FC; anlodipino se necessário BCC em ICFEr (evidência neutra)',
+  },
+
+  {
+    drugs: ['pioglitazona', 'rosiglitazona'],
+    conditions: ['insuficiencia cardiaca', 'icc', 'ic', 'feve reduzida', 'classe funcional iii', 'classe funcional iv'],
+    conditionLabel: 'Insuficiência cardíaca classes III-IV',
+    severity: 'contraindicated',
+    mechanism: 'Glitazonas causam retenção de sódio e água por ativação de receptores PPAR-γ no ducto coletor — aumentam volemia e agravam ICC.',
+    clinicalRisk: 'Piora da ICC com retenção hídrica, edema pulmonar, internação.',
+    pharmacistConduct: 'Contraindicadas na ICC classes III-IV (NYHA). Comunicar prescritor para substituição por iSGLT2 (empagliflozina, dapagliflozina — reduzem hospitalizações por ICC) ou iDPP-4.',
+    patientGuidance: 'Informe ao médico sobre seu problema cardíaco. Há medicamentos para diabetes melhores para quem tem insuficiência cardíaca.',
+    monitoringRequired: 'Peso diário, edema, dispneia, capacidade funcional.',
+    alternative: 'Empagliflozina ou dapagliflozina (benefício cardiovascular comprovado em ICC+DM2)',
+  },
+
+  // ── DOENÇA HEPÁTICA ───────────────────────────────────────────────────────
+
+  {
+    drugs: ['metformina'],
+    conditions: ['cirrose hepatica', 'insuficiencia hepatica', 'hepatite fulminante', 'child-pugh c', 'child pugh c', 'ascite', 'encefalopatia hepatica'],
+    conditionLabel: 'Insuficiência hepática grave / Cirrose descompensada',
+    severity: 'contraindicated',
+    mechanism: 'Insuficiência hepática grave reduz a depuração de lactato (fígado é o principal órgão metabolizador de lactato). Metformina inibe a neoglicogênese hepática e aumenta produção de lactato.',
+    clinicalRisk: 'Acidose lática grave com mortalidade elevada.',
+    pharmacistConduct: 'Contraindicada em hepatopatia grave. Substituir por insulina (tratamento mais seguro em hepatopatia severa) ou iDPP-4 com cautela.',
+    patientGuidance: 'Com doença do fígado grave, a metformina não é segura. Informe ao médico e discuta alternativas.',
+    monitoringRequired: 'Transaminases, bilirrubina, albumina, INR (função hepática sintética).',
+    alternative: 'Insulina (primeira escolha em hepatopatia grave)',
+  },
+
+  {
+    drugs: ['paracetamol', 'acetaminofeno'],
+    conditions: ['cirrose hepatica', 'hepatite alcoholica', 'alcoolismo', 'uso cronico de alcool', 'hepatopatia cronica', 'insuficiencia hepatica'],
+    conditionLabel: 'Hepatopatia crônica / Alcoolismo',
+    severity: 'major',
+    mechanism: 'Paracetamol é metabolizado em NAPQI (metabólito hepatotóxico) pela CYP2E1, induzida pelo álcool. Em hepatopatia, há depleção de glutationa — o sistema tampão que detoxifica NAPQI.',
+    clinicalRisk: 'Hepatotoxicidade grave com doses menores que as tóxicas habituais. Em alcoolistas, risco já com 2g/dia.',
+    pharmacistConduct: 'Limitar a 2 g/dia em hepatopatia crônica ou alcoolismo (vs 4 g/dia para adultos saudáveis). Evitar em hepatite alcoólica aguda. Orientar abstinência alcoólica. Monitorar enzimas hepáticas.',
+    patientGuidance: 'Não tome paracetamol junto com álcool. Se tem doença do fígado, nunca ultrapasse 2 comprimidos ao dia e avise seu médico.',
+    monitoringRequired: 'TGO, TGP, bilirrubinas. Dosagem sérica de paracetamol se suspeita de superdosagem.',
+    alternative: 'Dipirona (com cautela), opioides fracos para dor intensa',
+  },
+
+  {
+    drugs: ['estatinas', 'sinvastatina', 'atorvastatina', 'rosuvastatina', 'lovastatina', 'pravastatina', 'fluvastatina', 'pitavastatina'],
+    conditions: ['hepatite ativa', 'transaminases elevadas', 'ast > 3x', 'alt > 3x', 'hepatite alcoholica', 'insuficiencia hepatica'],
+    conditionLabel: 'Hepatite ativa / Transaminases > 3× LSN',
+    severity: 'contraindicated',
+    mechanism: 'Estatinas são metabolizadas pelo fígado (CYP3A4, CYP2C9) e inibem a síntese de colesterol hepático. Em hepatite ativa, o metabolismo está comprometido e já há lesão hepatocelular em curso.',
+    clinicalRisk: 'Piora da hepatite, hepatotoxicidade grave, rabdomiólise (em coexistência com miopatia).',
+    pharmacistConduct: 'Contraindicadas em hepatite ativa ou AST/ALT > 3× LSN. Suspender até resolução. Após normalização enzimática, pode reiniciar com monitoramento.',
+    patientGuidance: 'Se tiver hepatite ativa ou exames de fígado muito alterados, informe ao médico antes de iniciar ou continuar o colesterol.',
+    monitoringRequired: 'TGO, TGP antes de iniciar e a cada 3 meses. Suspender se > 3× LSN.',
+    alternative: 'Correção de fatores de risco cardiovascular não farmacológicos até normalização hepática',
+  },
+
+  // ── DOENÇA RESPIRATÓRIA ───────────────────────────────────────────────────
+
+  {
+    drugs: ['betabloqueadores nao seletivos', 'propranolol', 'atenolol', 'nadolol', 'timolol'],
+    conditions: ['asma', 'broncoespasmo', 'dpoc grave', 'bronquite asmatiforme'],
+    conditionLabel: 'Asma / DPOC com broncoespasmo',
+    severity: 'contraindicated',
+    mechanism: 'Betabloqueadores não seletivos bloqueiam receptores β2 brônquicos, promovendo broncoconstrição por ação parassimpática não antagonizada.',
+    clinicalRisk: 'Broncoespasmo grave, crise asmática, insuficiência respiratória.',
+    pharmacistConduct: 'Betabloqueadores não seletivos contraindicados em asma. Em DPOC com broncoespasmo: usar apenas betabloqueadores cardiosseletivos (metoprolol, bisoprolol, nebivolol) com vigilância. Comunicar prescritor.',
+    patientGuidance: 'Informe SEMPRE ao médico que tem asma antes de tomar qualquer remédio para pressão ou coração.',
+    monitoringRequired: 'Espirometria, pico de fluxo, sintomas respiratórios nas primeiras semanas.',
+    alternative: 'Metoprolol succinato, bisoprolol, carvedilol (cardioseletivos) em DPOC sem broncoespasmo',
+  },
+
+  {
+    drugs: ['aspirina', 'ácido acetilsalicílico', 'aas'],
+    conditions: ['asma induzida por aspirina', 'triade samter', 'asma por aine'],
+    conditionLabel: 'Asma induzida por AAS / Tríade de Samter',
+    severity: 'contraindicated',
+    mechanism: 'AAS inibe COX-1, desviando o metabolismo do ácido araquidônico para a via dos leucotrienos (LTC4, LTD4) — potentes broncoconstritores.',
+    clinicalRisk: 'Broncoespasmo grave, rinossinusite, urticária — até anafilaxia em casos severos.',
+    pharmacistConduct: 'AAS absolutamente contraindicado em asma por AAS/tríade de Samter. Evitar também outros AINEs. Para antiagregação, usar clopidogrel. Comunicar prescritor.',
+    patientGuidance: 'NUNCA tome aspirina, ibuprofeno ou diclofenaco se já teve crise de asma ao usá-los. Informe sempre ao médico.',
+    monitoringRequired: 'Spirometria, sintomas respiratórios.',
+    alternative: 'Clopidogrel para antiagregação, paracetamol para analgesia (geralmente tolerado)',
+  },
+
+  // ── HIPERTENSÃO / CARDIOVASCULAR ─────────────────────────────────────────
+
+  {
+    drugs: ['enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'fosinopril', 'trandolapril', 'benazepril'],
+    conditions: ['estenose bilateral de arteria renal', 'estenose da arteria renal em rim unico', 'estenose renal bilateral'],
+    conditionLabel: 'Estenose bilateral de artéria renal',
+    severity: 'contraindicated',
+    mechanism: 'Em estenose bilateral, a angiotensina II mantém a filtração glomerular por vasoconstrição eferente. IECAs/BRAs bloqueiam este mecanismo compensatório — o único suporte à TFG residual.',
+    clinicalRisk: 'IRA precipitada com anúria, hipercalemia grave, necessidade de diálise de emergência.',
+    pharmacistConduct: 'IECAs/BRAs absolutamente contraindicados em estenose bilateral ou em rim único com estenose. Comunicar prescritor urgentemente. Alternativas: anlodipino, furosemida para hipertensão.',
+    patientGuidance: 'Se foi diagnosticado com estreitamento das artérias dos rins, informe ao médico — este medicamento pode parar de funcionar seus rins.',
+    monitoringRequired: 'Creatinina e K⁺ em 1-2 semanas após início de IECA/BRA (rastreio de estenose oculta).',
+    alternative: 'Anlodipino, hidralazina + nitrato, furosemida',
+  },
+
+  {
+    drugs: ['sibutramina'],
+    conditions: ['hipertensao arterial', 'has', 'pressao alta', 'doenca cardiovascular', 'arritmia', 'insuficiencia cardiaca', 'historico de avc', 'historico de infarto'],
+    conditionLabel: 'Hipertensão não controlada / Doença cardiovascular',
+    severity: 'contraindicated',
+    mechanism: 'Sibutramina inibe recaptação de noradrenalina e serotonina — aumenta PA e frequência cardíaca.',
+    clinicalRisk: 'Hipertensão grave, taquicardia, eventos cardiovasculares maiores (IAM, AVC).',
+    pharmacistConduct: 'Contraindicada em HAS não controlada, DAC, AVC prévio, ICC, arritmias. Comunicar prescritor. Retirada do mercado em vários países por aumento de risco cardiovascular (estudo SCOUT).',
+    patientGuidance: 'Informe ao médico sobre problemas do coração ou pressão antes de tomar qualquer medicamento para emagrecer.',
+    monitoringRequired: 'PA e frequência cardíaca a cada consulta.',
+    alternative: 'Liraglutida, semaglutida (benefício cardiovascular), tratamento não farmacológico',
+  },
+
+  // ── DISTÚRBIOS ENDÓCRINOS ─────────────────────────────────────────────────
+
+  {
+    drugs: ['corticosteroides sistemicos', 'prednisona', 'prednisolona', 'dexametasona', 'hidrocortisona', 'betametasona', 'deflazacorte'],
+    conditions: ['diabetes mellitus', 'dm2', 'hiperglicemia', 'diabetes descompensado'],
+    conditionLabel: 'Diabetes mellitus',
+    severity: 'major',
+    mechanism: 'Corticosteroides aumentam a neoglicogênese hepática, reduzem a captação periférica de glicose por inibição do GLUT-4 e causam resistência à insulina — hiperglicemia principalmente pós-prandial.',
+    clinicalRisk: 'Hiperglicemia intensa (pode ultrapassar 400 mg/dL), cetoacidose em DM1, estado hiperosmolar em DM2. Piora do controle glicêmico cronicamente.',
+    pharmacistConduct: 'Antecipar hiperglicemia ao iniciar corticoide em diabéticos. Aumentar frequência de monitoramento glicêmico. Ajustar antidiabéticos ou insulina com prescritor. Preferir corticoides de curta ação e menor dose eficaz.',
+    patientGuidance: 'Ao usar cortisona, monitore o açúcar no sangue com mais frequência — pode subir bastante. Informe ao médico imediatamente se o açúcar subir muito.',
+    monitoringRequired: 'Glicemia em jejum e pós-prandial diariamente durante uso de corticoide. HbA1c após ciclo prolongado.',
+    alternative: 'Menor dose eficaz; preferir corticoides tópicos/inalatórios quando possível',
+  },
+
+  {
+    drugs: ['levotiroxina', 'tiroxina'],
+    conditions: ['doenca cardiaca', 'angina', 'infarto recente', 'arritmia', 'fibrilacao atrial', 'insuficiencia cardiaca'],
+    conditionLabel: 'Doença cardíaca isquêmica / Arritmia',
+    severity: 'major',
+    mechanism: 'Levotiroxina aumenta consumo miocárdico de oxigênio, frequência cardíaca e contratilidade — pode precipitar isquemia ou arritmia em coração comprometido.',
+    clinicalRisk: 'Angina instável, IAM, FA, taquiarritmias — especialmente na fase inicial do tratamento ou com doses elevadas.',
+    pharmacistConduct: 'Iniciar com dose muito baixa (12,5-25 mcg/dia) e aumentar lentamente a cada 4-6 semanas em cardiopatas. Meta de TSH pode ser mais conservadora (1-3 mUI/L). Monitorar ECG e sintomas.',
+    patientGuidance: 'Informe ao médico sobre problemas cardíacos antes de iniciar ou aumentar a dose do hormônio da tireoide. Relate palpitações, dor no peito ou falta de ar.',
+    monitoringRequired: 'TSH, T4L a cada 4-6 semanas na fase de ajuste. ECG se sintomas cardiovasculares.',
+    alternative: 'Iniciar com doses ultrabaixas e titulação lenta',
+  },
+
+  // ── NEUROLÓGICO / PSIQUIÁTRICO ────────────────────────────────────────────
+
+  {
+    drugs: ['tramadol', 'meperidina', 'bupropiona', 'antidepressivos triciclicos', 'amitriptilina', 'imipramina', 'clomipramina'],
+    conditions: ['epilepsia', 'convulsao', 'crise epileptica', 'historico de convulsao', 'baixo limiar convulsivo'],
+    conditionLabel: 'Epilepsia / Histórico de convulsões',
+    severity: 'major',
+    mechanism: 'Tramadol e bupropiona inibem a recaptação de serotonina e noradrenalina e têm propriedades GABA-anérgicas — reduzem o limiar convulsivo. Tricíclicos também têm propriedades pro-convulsivantes em superdosagem.',
+    clinicalRisk: 'Crise convulsiva, especialmente com doses elevadas, em combinação com outros serotoninérgicos ou em pacientes com epilepsia conhecida.',
+    pharmacistConduct: 'Uso com extrema cautela em epiléticos. Tramadol: contraindicado pela maioria das diretrizes em epilepsia ativa. Bupropiona: contraindicada em transtornos alimentares e epilepsia. Comunicar prescritor.',
+    patientGuidance: 'Informe SEMPRE ao médico que tem ou teve convulsões. Alguns analgésicos e antidepressivos podem provocar crises.',
+    monitoringRequired: 'Frequência e tipo de crises, EEG se necessário, nível sérico de antiepiléptico concomitante.',
+    alternative: 'Opioides sem efeito serotonérgico (morfina, oxicodona) para dor; ISRS com menor potencial convulsivo (sertralina)',
+  },
+
+  {
+    drugs: ['haloperidol', 'clorpromazina', 'levomepromazina', 'risperidona', 'olanzapina', 'quetiapina', 'metoclopramida', 'domperidona', 'sulpirida'],
+    conditions: ['parkinson', 'doenca de parkinson', 'sindrome parkinsoniana', 'tremor essencial parkinsoniano'],
+    conditionLabel: 'Doença de Parkinson',
+    severity: 'contraindicated',
+    mechanism: 'Bloqueadores dopaminérgicos D2 antagonizam a via nigroestriatal já deficiente no Parkinson — agravam a sintomatologia motora drasticamente.',
+    clinicalRisk: 'Piora de rigidez, bradicinesia, tremor, disfagia, pneumonia aspirativa, queda com fratura.',
+    pharmacistConduct: 'Antipsicóticos típicos e metoclopramida/domperidona CONTRAINDICADOS em Parkinson. Se necessário antipsicótico: clozapina (único com evidência de não piorar Parkinson) ou quetiapina em dose mínima. Comunicar prescritor.',
+    patientGuidance: 'Informe ao médico sobre o Parkinson ANTES de tomar qualquer remédio para enjoo, refluxo ou psiquiátrico.',
+    monitoringRequired: 'Escala UPDRS, frequência de quedas, capacidade de deglutição.',
+    alternative: 'Clozapina (psicose em Parkinson), ondansetrona (náusea), domperidona com monitoramento de QT',
+  },
+
+  // ── HEMATOLÓGICO / HEMOSTASIA ─────────────────────────────────────────────
+
+  {
+    drugs: ['aspirina', 'ácido acetilsalicílico', 'aas', 'ibuprofeno', 'naproxeno', 'diclofenaco', 'clopidogrel', 'ticagrelor', 'prasugrel'],
+    conditions: ['historia de sangramento gi', 'ulcera peptica ativa', 'hemorragia digestiva', 'hemofilia', 'trombocitopenia grave', 'plaquetas < 50'],
+    conditionLabel: 'Sangramento GI ativo / Úlcera péptica / Trombocitopenia grave',
+    severity: 'contraindicated',
+    mechanism: 'AINEs inibem COX-1 e reduzem PGE2 citoprotetora gástrica. Antiagregantes inibem a função plaquetária, comprometendo a hemostasia primária.',
+    clinicalRisk: 'Ressangramento digestivo, perfuração de úlcera, hemorragia com risco de vida.',
+    pharmacistConduct: 'Contraindicados em sangramento ativo ou úlcera não tratada. Se antiagregação é indispensável (DAC, stent), associar IBP (omeprazol, pantoprazol). Tratar H. pylori antes de reiniciar. Comunicar prescritor.',
+    patientGuidance: 'Não tome aspirina nem anti-inflamatórios se tiver úlcera ou sangramento no estômago. Informe ao médico.',
+    monitoringRequired: 'Hemoglobina, hematócrito, sinais de sangramento (melena, hematêmese).',
+    alternative: 'Paracetamol para analgesia, IBP profilático se antiagregação inevitável',
+  },
+
+  // ── DOENÇA RENAL POLICÍSTICA / GOTA ──────────────────────────────────────
+
+  {
+    drugs: ['alopurinol'],
+    conditions: ['insuficiencia renal moderada', 'drc estadio 3', 'tfg 15-60', 'clcr < 60'],
+    conditionLabel: 'Insuficiência renal (TFG < 60 mL/min)',
+    severity: 'major',
+    mechanism: 'Alopurinol e seu metabólito ativo (oxipurinol) são eliminados pelos rins. Em IR, ocorre acumulação de oxipurinol — aumenta risco de reações de hipersensibilidade graves (SJS/TEN/DRESS).',
+    clinicalRisk: 'Síndrome de hipersensibilidade ao alopurinol (AHS): eritrodermia, insuficiência orgânica múltipla, mortalidade > 20%.',
+    pharmacistConduct: 'Iniciar com dose muito baixa (50-100 mg/dia) e aumentar gradualmente com monitoramento. Dose máxima proporcional ao ClCr. Considerar febuxostat (excreção predominantemente hepática). Comunicar prescritor.',
+    patientGuidance: 'Com problema nos rins, tome alopurinol em dose menor que o médico indicar. Informe qualquer erupção na pele imediatamente.',
+    monitoringRequired: 'Ácido úrico, creatinina, atenção a qualquer erupção cutânea — interromper imediatamente se surgir rash.',
+    alternative: 'Febuxostat (metabolismo hepático, menos ajuste renal necessário)',
+  },
+]
+
 // ─── 9. POLIFARMÁCIA / DUPLICIDADE ───────────────────────────────────────────
 
 const CLASS_KEYWORDS: Record<string, string[]> = {
@@ -1807,6 +2132,60 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
           confidenceLevel: 'high',
           validationNote: 'Avaliar frequência de consumo e hábitos alimentares do paciente.',
           interventionDeadline: interaction.severity === 'major' ? 'Próxima consulta' : 'Orientação imediata',
+          medicationId: med.id,
+        })
+      }
+    }
+  }
+
+  // ── Interações medicamento-condição clínica ───────────────────────────────
+  {
+    const diagText = [
+      ...context.diagnoses.map(d => norm(d.name)),
+      ...context.comorbidities.map(c => norm(c.name)),
+      norm(context.chiefComplaint || ''),
+      norm(context.renalFunction || ''),
+      context.creatinineClearance ? `clcr ${context.creatinineClearance}` : '',
+    ].join(' ')
+
+    for (const interaction of DRUG_DISEASE_INTERACTIONS) {
+      const hasCondition = interaction.conditions.some(c => diagText.includes(norm(c)))
+      if (!hasCondition) continue
+
+      for (const med of context.medications) {
+        const medN   = norm(med.activeIngredient)
+        const tradeN = med.tradeName ? norm(med.tradeName) : ''
+
+        const matched = interaction.drugs.some(d => {
+          const dn = norm(d)
+          return medN.includes(dn) || dn.includes(medN) || (tradeN && (tradeN.includes(dn) || dn.includes(tradeN)))
+        })
+        if (!matched) continue
+
+        const riskLevel = interaction.severity === 'contraindicated'
+          ? RiskLevel.URGENT
+          : interaction.severity === 'major'
+            ? RiskLevel.HIGH
+            : RiskLevel.MODERATE
+
+        findings.push({
+          category: PRMCategory.SAFETY,
+          riskLevel,
+          title: `${interaction.severity === 'contraindicated' ? '🚫 CONTRAINDICADO' : '⚠️ Precaução grave'}: ${med.activeIngredient} + ${interaction.conditionLabel}`,
+          description: `${med.activeIngredient} apresenta ${interaction.severity === 'contraindicated' ? 'contraindicação absoluta' : 'interação grave'} com a condição clínica "${interaction.conditionLabel}". ${interaction.mechanism}`,
+          clinicalEvidence: `Medicamento: ${med.activeIngredient} | Condição: ${interaction.conditionLabel} | Mecanismo: ${interaction.mechanism}`,
+          potentialImpact: interaction.clinicalRisk,
+          pharmacistConduct: interaction.pharmacistConduct,
+          patientGuidance: interaction.patientGuidance,
+          needsReferral: interaction.severity === 'contraindicated',
+          needsPrescriberContact: true,
+          monitoring: interaction.monitoringRequired,
+          reevaluationPeriod: interaction.severity === 'contraindicated' ? 'Imediato' : '7 dias',
+          confidenceLevel: 'high',
+          validationNote: interaction.alternative
+            ? `Alternativa terapêutica sugerida: ${interaction.alternative}`
+            : 'Avaliar risco-benefício individualmente com o prescritor.',
+          interventionDeadline: interaction.severity === 'contraindicated' ? 'Imediato — contato com prescritor obrigatório' : 'Próxima consulta',
           medicationId: med.id,
         })
       }
