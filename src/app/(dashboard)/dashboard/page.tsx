@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {
   FlaskConical, Users, FileText, Coins, TrendingUp,
   AlertTriangle, Plus, ArrowRight, Clock, Activity,
-  ShieldAlert, CheckCircle2, BarChart3, Target
+  ShieldAlert, CheckCircle2, BarChart3, Target, Download, History
 } from 'lucide-react'
 import { formatRelative } from '@/lib/utils'
 import { PRMCategory, RiskLevel } from '@prisma/client'
@@ -374,6 +374,28 @@ export default async function DashboardPage() {
               ))}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Export strip */}
+      <div className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 shadow-sm">
+        <div className="flex items-center gap-2">
+          <Download className="h-4 w-4 text-gray-400" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Exportar dados</span>
+        </div>
+        <div className="flex gap-2">
+          <a href="/api/export/patients"
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            ⬇️ Pacientes CSV
+          </a>
+          <a href="/api/export/prms"
+            className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            ⬇️ PRMs CSV
+          </a>
+          <Link href="/analyses"
+            className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f]/10 dark:bg-blue-950 border border-[#1e3a5f]/20 dark:border-blue-900 px-3 py-1.5 text-xs font-medium text-[#1e3a5f] dark:text-blue-400 hover:bg-[#1e3a5f]/15 transition-colors">
+            <History className="h-3.5 w-3.5" /> Histórico completo
+          </Link>
         </div>
       </div>
 
