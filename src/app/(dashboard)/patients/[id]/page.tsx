@@ -18,12 +18,13 @@ import { ClinicalScales } from '@/components/patients/ClinicalScales'
 import { PatientEvolution } from '@/components/patients/PatientEvolution'
 import { MedDiscontinuationAlert } from '@/components/patients/MedDiscontinuationAlert'
 import { PatientReviews } from '@/components/patients/PatientReviews'
+import { ActivePRMs } from '@/components/patients/ActivePRMs'
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const session = await getSession()
   if (!session) return null
 
-  const [patient, initialNotes, initialAssessments, initialReviews] = await Promise.all([
+  const [patient, initialNotes, initialAssessments, initialReviews, activeFindings] = await Promise.all([
     prisma.patient.findFirst({
       where: { id: params.id, userId: session.user.id },
       include: {
@@ -60,6 +61,21 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     prisma.patientReview.findMany({
       where: { patientId: params.id, userId: session.user.id },
       orderBy: { scheduledDate: 'asc' },
+    }).catch(() => [] as never[]),
+    // All unresolved findings across ALL analyses of this patient
+    prisma.pRMFinding.findMany({
+      where: {
+        isResolved: false,
+        analysis: { patientId: params.id, userId: session.user.id },
+      },
+      select: {
+        id: true, title: true, description: true, category: true,
+        riskLevel: true, pharmacistConduct: true, interventionDeadline: true,
+        needsPrescriberContact: true, needsReferral: true, resolvedNotes: true,
+        analysisId: true,
+        analysis: { select: { createdAt: true } },
+      },
+      orderBy: [{ riskLevel: 'asc' }, { createdAt: 'desc' }],
     }).catch(() => [] as never[]),
   ])
 
@@ -122,6 +138,27 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
       {/* Medication discontinuation alert */}
       <MedDiscontinuationAlert patientId={patient.id} />
+
+      {/* PRMs em aberto — consolidado de todas as análises */}
+      {activeFindings.length > 0 && (
+        <ActivePRMs
+          patientName={patient.name || patient.code}
+          findings={activeFindings.map(f => ({
+            id: f.id,
+            title: f.title,
+            description: f.description,
+            category: f.category,
+            riskLevel: f.riskLevel,
+            pharmacistConduct: f.pharmacistConduct,
+            interventionDeadline: f.interventionDeadline,
+            needsPrescriberContact: f.needsPrescriberContact,
+            needsReferral: f.needsReferral,
+            resolvedNotes: f.resolvedNotes,
+            analysisId: f.analysisId,
+            analysisDate: (f.analysis as any).createdAt.toISOString(),
+          }))}
+        />
+      )}
 
       {/* Evolution chart — only when 2+ analyses */}
       {patient.analyses.length >= 2 && (
