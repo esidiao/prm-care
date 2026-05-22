@@ -446,9 +446,37 @@ Se não identificar PRMs adicionais após análise cuidadosa por todos os sistem
 {"raciocinio":"Analisados os 9 passos do raciocínio por sistemas. [detalhe o que foi verificado]","prms":[],"observacao_geral":"Perfil farmacoterapêutico revisado. Nenhum PRM adicional identificado além dos detectados pelo motor de regras."}`
 }
 
+// ── KnowledgeBase injection ───────────────────────────────────────────────────
+
+export interface KnowledgeEntry {
+  title: string
+  content: string
+  type: string
+  drugNames?: string[]
+}
+
+function buildKnowledgeSection(entries: KnowledgeEntry[]): string {
+  if (!entries || entries.length === 0) return ''
+  return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROTOCOLOS E CONHECIMENTO INSTITUCIONAL (base de conhecimento da clínica)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Os seguintes protocolos clínicos foram adicionados pela equipe farmacêutica.
+Considere essas informações como complemento às diretrizes padrão.
+Se algum protocolo for relevante ao caso, mencioná-lo explicitamente no campo "evidencia".
+
+${entries.slice(0, 8).map((e, i) => `[PROTOCOLO ${i + 1}] ${e.title}${e.drugNames?.length ? ` (medicamentos: ${e.drugNames.join(', ')})` : ''}
+${e.content.slice(0, 600)}${e.content.length > 600 ? '...' : ''}`).join('\n\n')}
+`
+}
+
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export async function analyzeWithGemini(context: PatientContext, fdaData?: FDAEnrichmentResult): Promise<{
+export async function analyzeWithGemini(
+  context: PatientContext,
+  fdaData?: FDAEnrichmentResult,
+  knowledgeEntries?: KnowledgeEntry[]
+): Promise<{
   findings: PRMFindingResult[]
   observacaoGeral: string
   success: boolean
@@ -461,6 +489,12 @@ export async function analyzeWithGemini(context: PatientContext, fdaData?: FDAEn
 
   try {
     const userPrompt = buildUserPrompt(context, fdaData)
+    const knowledgeSection = buildKnowledgeSection(knowledgeEntries || [])
+
+    // Inject knowledge base into system prompt if available
+    const systemPromptWithKnowledge = knowledgeSection
+      ? SYSTEM_PROMPT + knowledgeSection
+      : SYSTEM_PROMPT
 
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
@@ -471,7 +505,7 @@ export async function analyzeWithGemini(context: PatientContext, fdaData?: FDAEn
       body: JSON.stringify({
         model: GROQ_MODEL,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPromptWithKnowledge },
           { role: 'user', content: userPrompt },
         ],
         temperature: 0.12,       // mais determinístico — raciocínio clínico não deve ter variação alta

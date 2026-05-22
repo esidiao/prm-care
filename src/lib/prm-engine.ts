@@ -933,6 +933,95 @@ const START_CRITERIA: STARTCriterion[] = [
   },
 ]
 
+// ─── 8a. CARGA ANTICOLINÉRGICA (ACB Score) ────────────────────────────────────
+// Fonte: Anticholinergic Cognitive Burden (ACB) Scale — Boustani et al., 2008
+// Scores 1 = atividade anticolinérgica possível; 2 = confirmada; 3 = severa
+// Score total ≥ 3 = comprometimento cognitivo significativo em idosos
+
+const ACB_SCORES: Record<string, number> = {
+  // Score 3 — Severo
+  'amitriptilina': 3, 'nortriptilina': 3, 'imipramina': 3, 'clomipramina': 3,
+  'difenidramina': 3, 'prometazina': 3, 'dimenidrinato': 3, 'meclizina': 3,
+  'oxibutinina': 3, 'tolterodina': 3, 'solifenacina': 3, 'fesoterodina': 3,
+  'biperideno': 3, 'tri-hexifenidil': 3, 'tri-hexifenidila': 3, 'triexifenidil': 3,
+  'escopolamina': 3, 'hioscina': 3, 'atropina': 3, 'diciclomina': 3,
+  'clorpromazina': 3, 'levomepromazina': 3, 'clozapina': 3,
+  'doxepina': 3, 'maprotilina': 3,
+  'meperidina': 3, 'carisoprodol': 3, 'ciclobenzaprina': 3, 'orfenadrina': 3,
+  'cimetidina': 3, 'ranitidina': 2, 'doxilamina': 3, 'hidroxizina': 3,
+  // Score 2 — Confirmado
+  'olanzapina': 2, 'quetiapina': 2, 'risperidona': 1, 'haloperidol': 1,
+  'paroxetina': 2, 'fluoxetina': 1, 'amantadina': 2,
+  'tioridazina': 3, 'clordiazepóxido': 1,
+  'diazepam': 1, 'alprazolam': 1,
+  'ipratropio': 1, 'tiotrópio': 1, 'aclidínio': 1,
+  'nefazodona': 1, 'mirtazapina': 1,
+  // Score 1 — Possível
+  'metoclopramida': 1, 'domperidona': 1,
+  'captopril': 1, 'enalapril': 1, 'furosemida': 1,
+  'digoxina': 1, 'prednisolona': 1, 'prednisona': 1,
+  'colchicina': 1, 'codeina': 1, 'tramadol': 1,
+  'carbamazepina': 1, 'oxcarbazepina': 1,
+  'loperamida': 1, 'warfarina': 1, 'varfarina': 1,
+  'nifedipina': 1, 'baclofeno': 1,
+  'isosorbida': 1, 'nitroglicerina': 1,
+}
+
+// ─── 8b. NORMALIZAÇÃO DE SINÔNIMOS DIAGNÓSTICOS ───────────────────────────────
+// Expande abreviações e variações comuns usadas em prontuários brasileiros
+// para garantir que STOPP/START detecte mesmo quando o farmacêutico digita diferente
+
+const DIAGNOSIS_SYNONYMS: Record<string, string[]> = {
+  // Diabetes
+  'diabetes mellitus tipo 2': ['dm2', 'dm 2', 'diabetes tipo 2', 'diabetico', 'diabetes mellitus', 'dm'],
+  'diabetes mellitus tipo 1': ['dm1', 'dm 1', 'diabetes tipo 1', 'diabetes insulinodependente'],
+  // Insuficiência cardíaca
+  'insuficiencia cardiaca': ['ic ', 'icc', 'insufficiencia cardiaca', 'insuf card', 'heart failure', 'ic com fe', 'icfer', 'icfep'],
+  // Doença renal
+  'doenca renal cronica': ['drc', 'irc', 'insuficiencia renal cronica', 'insuficiencia renal', 'ir ', 'nefropatia', 'nefropatia cronica'],
+  'insuficiencia renal aguda': ['ira ', 'aki', 'lesao renal aguda', 'lra'],
+  // Cardiovascular
+  'fibrilacao atrial': ['fa ', 'flutter atrial', 'arritmia atrial', 'fibrilação atrial'],
+  'infarto agudo do miocardio': ['iam', 'infarto', 'infarto do miocardio', 'sindrome coronariana aguda', 'sca', 'sca st', 'iamssst', 'iamcsst'],
+  'doenca arterial coronariana': ['dac', 'doenca coronariana', 'angina', 'angina estaveis', 'angina instavel', 'coronariopatia'],
+  'acidente vascular cerebral': ['avc', 'avc isquemico', 'avc hemorragico', 'avc hem', 'stroke', 'acidente vascular encefálico', 'ave'],
+  'hipertensao arterial sistemica': ['has', 'has ', 'hipertensao', 'pressao alta', 'hta', 'hiper'],
+  // Respiratório
+  'doenca pulmonar obstrutiva cronica': ['dpoc', 'enfisema', 'bronquite cronica', 'doença pulmonar obstrutiva'],
+  'asma bronquica': ['asma', 'broncoespasmo cronico', 'asma grave'],
+  // Neurológico
+  'doenca de parkinson': ['parkinson', 'sindrome parkinsoniana', 'parkinsonismo'],
+  'demencia de alzheimer': ['alzheimer', 'demencia', 'comprometimento cognitivo', 'dea', 'da ', 'doenca de alzheimer'],
+  'epilepsia': ['epilepsia', 'crise convulsiva', 'convulsao', 'crise epileptica'],
+  // Osteoarticular
+  'osteoporose': ['osteoporose', 'osteopenia', 't-score', 'fratura por fragilidade', 'fratura osteoporotica'],
+  // GI
+  'ulcera peptica': ['ulcera', 'ulcera gastrica', 'ulcera duodenal', 'gastrite erosiva', 'hemorragia digestiva'],
+  'doenca do refluxo': ['drge', 'gerd', 'refluxo gastroesofagico', 'esofagite de refluxo'],
+  // Outros
+  'hipotireoidismo': ['hipotireoidismo', 'tsh elevado', 'mixedema'],
+  'hipertireoidismo': ['hipertireoidismo', 'tireotoxicose', 'bócio', 'graves'],
+  'hipertrofia prostatica benigna': ['hpb', 'hbp', 'hipertrofia prostatica', 'prostatismo', 'hipertrofia da prostata'],
+  'gota': ['gota', 'hiperuricemia', 'artrite goutica', 'crise de gota'],
+  'insuficiencia hepatica': ['cirrose', 'hepatopatia', 'hepatite cronica', 'child-pugh', 'encefalopatia hepatica', 'ascite'],
+  'hipotensao ortostatica': ['hipotensao ortostatica', 'sincope', 'desmaio', 'queda por hipotensao', 'hipotensão postural'],
+  'quedas recorrentes': ['queda', 'quedas', 'risco de queda', 'historico de queda', 'fratura por queda'],
+}
+
+/** Expande texto de diagnósticos com sinônimos normalizados */
+function expandDiagnosesWithSynonyms(text: string): string {
+  let expanded = text
+  for (const [canonical, synonyms] of Object.entries(DIAGNOSIS_SYNONYMS)) {
+    const normCanonical = norm(canonical)
+    const hasAny = synonyms.some(s => text.includes(norm(s))) || text.includes(normCanonical)
+    if (hasAny) {
+      // Add the canonical + all synonyms to ensure cross-matching
+      expanded += ' ' + normCanonical + ' ' + synonyms.map(s => norm(s)).join(' ')
+    }
+  }
+  return expanded
+}
+
 // ─── 8b. INTERAÇÕES ALIMENTO-MEDICAMENTO ─────────────────────────────────────
 // Fonte: FDA, ANVISA, Stockley's Drug Interactions, Clinical Pharmacology
 // Detectadas sempre — orientação ao paciente é obrigatória independente da dieta
@@ -1658,8 +1747,11 @@ function findNecessityPRMs(context: PatientContext): PRMFindingResult[] {
   }
 
   // START v3 — tratamentos que deveriam ser iniciados
+  const startDiagText = expandDiagnosesWithSynonyms(
+    [...context.diagnoses.map(d => norm(d.name)), ...context.comorbidities.map(c => norm(c.name)), norm(context.chiefComplaint || '')].join(' ')
+  )
   for (const criterion of START_CRITERIA) {
-    const hasCondition = criterion.conditionKeywords.some(k => diagnosesText.includes(norm(k)))
+    const hasCondition = criterion.conditionKeywords.some(k => startDiagText.includes(norm(k)))
     if (!hasCondition) continue
     const hasTreatment = criterion.missingDrugs.some(d => medText.includes(norm(d)))
     if (!hasTreatment) {
@@ -1883,6 +1975,47 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
     }
   }
 
+  // ── Carga Anticolinérgica Total (ACB Score) ──────────────────────────────────
+  // Fonte: Anticholinergic Cognitive Burden Scale (Boustani et al. 2008)
+  // Score ≥ 3 associado a comprometimento cognitivo; ≥ 6 risco muito alto
+  {
+    let totalACB = 0
+    const acbMeds: { name: string; score: number }[] = []
+    for (const med of context.medications) {
+      const n = norm(med.activeIngredient)
+      for (const [drug, score] of Object.entries(ACB_SCORES)) {
+        if (n.includes(norm(drug))) {
+          totalACB += score
+          acbMeds.push({ name: med.activeIngredient, score })
+          break
+        }
+      }
+    }
+    if (totalACB >= 3) {
+      const isHigh = totalACB >= 6
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: isHigh ? RiskLevel.HIGH : RiskLevel.MODERATE,
+        title: `${isHigh ? '⚠️' : '🔶'} Carga Anticolinérgica Elevada (ACB Score: ${totalACB})`,
+        description: `Paciente em uso de múltiplos medicamentos com atividade anticolinérgica. Soma da carga ACB: ${totalACB} pontos${totalACB >= 6 ? ' — CARGA MUITO ALTA' : ' — carga relevante'}.`,
+        clinicalEvidence: `Medicamentos com atividade anticolinérgica: ${acbMeds.map(m => `${m.name} (ACB=${m.score})`).join(', ')}. Score total: ${totalACB}. Limite de risco: ACB ≥ 3 = comprometimento cognitivo; ≥ 6 = risco muito alto. Fonte: Anticholinergic Cognitive Burden Scale (Boustani et al., 2008).`,
+        potentialImpact: isHigh
+          ? 'Risco muito alto de delirium, déficit cognitivo agudo, quedas, retenção urinária e visão turva. Associado a aumento de mortalidade em idosos (JAGS 2008).'
+          : 'Comprometimento cognitivo, sedação, constipação, xerostomia, retenção urinária e risco de quedas aumentado.',
+        pharmacistConduct: `Revisar cada medicamento com atividade anticolinérgica e avaliar desprescrição ou substituição. Priorizar os de ACB=3 (${acbMeds.filter(m => m.score === 3).map(m => m.name).join(', ') || 'nenhum'}). Calcular score atualizado após mudanças. Usar ferramenta online: anticholinergicburden.com`,
+        patientGuidance: 'Peça uma revisão completa dos seus medicamentos ao médico. Alguns podem estar causando confusão, tontura ou dificuldade de urinar.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'MEEM ou MoCA para cognição. Avaliação de risco de quedas. Função urinária. Constipação.',
+        suggestedExams: 'Avaliação cognitiva (MEEM), risco de quedas (TUG test), sintomas anticolinérgicos periféricos.',
+        reevaluationPeriod: '30 dias',
+        confidenceLevel: 'high',
+        validationNote: `ACB Score total: ${totalACB}. Scores individuais: ${acbMeds.map(m => `${m.name}=${m.score}`).join(', ')}. Fonte: Anticholinergic Cognitive Burden Scale. Limites: ≥3 = risco, ≥6 = alto risco.`,
+        interventionDeadline: isHigh ? '7 dias' : 'Próxima consulta',
+      })
+    }
+  }
+
   // Beers 2023 — idosos
   if (context.isElderly) {
     for (const med of context.medications) {
@@ -1914,7 +2047,11 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
     }
 
     // STOPP v3 — idosos com condições específicas
-    const diagnosesText = context.diagnoses.map(d => norm(d.name)).join(' ') + ' ' + norm(context.chiefComplaint || '')
+    const diagnosesText = expandDiagnosesWithSynonyms(
+      context.diagnoses.map(d => norm(d.name)).join(' ') + ' ' +
+      context.comorbidities.map(c => norm(c.name)).join(' ') + ' ' +
+      norm(context.chiefComplaint || '')
+    )
     for (const criterion of STOPP_CRITERIA) {
       const hasCondition = criterion.conditionKeywords.some(k => diagnosesText.includes(norm(k)))
       if (!hasCondition) continue
@@ -2140,13 +2277,13 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
 
   // ── Interações medicamento-condição clínica ───────────────────────────────
   {
-    const diagText = [
+    const diagText = expandDiagnosesWithSynonyms([
       ...context.diagnoses.map(d => norm(d.name)),
       ...context.comorbidities.map(c => norm(c.name)),
       norm(context.chiefComplaint || ''),
       norm(context.renalFunction || ''),
       context.creatinineClearance ? `clcr ${context.creatinineClearance}` : '',
-    ].join(' ')
+    ].join(' '))
 
     for (const interaction of DRUG_DISEASE_INTERACTIONS) {
       const hasCondition = interaction.conditions.some(c => diagText.includes(norm(c)))
