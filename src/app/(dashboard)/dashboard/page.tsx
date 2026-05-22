@@ -11,6 +11,9 @@ import { PRMCategory, RiskLevel } from '@prisma/client'
 import { DashboardCharts } from '@/components/dashboard/DashboardCharts'
 import { HighRiskPatients } from '@/components/dashboard/HighRiskPatients'
 import { UpcomingReviews } from '@/components/dashboard/UpcomingReviews'
+import { WelcomeBanner } from '@/components/onboarding/WelcomeBanner'
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist'
+import { GuidedTour } from '@/components/onboarding/GuidedTour'
 
 async function getDashboardData(userId: string) {
   const thirtyDaysAgo = new Date()
@@ -35,7 +38,7 @@ async function getDashboardData(userId: string) {
   ] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
-      select: { tokenBalance: true, plan: true, demonstrationUsed: true },
+      select: { tokenBalance: true, plan: true, demonstrationUsed: true, crfNumber: true },
     }),
     prisma.pRMAnalysis.findMany({
       where: { userId },
@@ -239,13 +242,32 @@ export default async function DashboardPage() {
     },
   ]
 
+  const isNewUser = totalPatients === 0 && recentAnalyses.length === 0
+
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Olá, {firstName} 👋</h1>
-        <p className="mt-1 text-sm text-gray-500">Painel de seguimento farmacoterapêutico — Método Dáder</p>
-      </div>
+      {/* Header — welcome banner para novos, header simples para usuários existentes */}
+      {isNewUser ? (
+        <WelcomeBanner firstName={firstName} tokenBalance={user?.tokenBalance ?? 0} />
+      ) : (
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Olá, {firstName} 👋</h1>
+            <p className="mt-1 text-sm text-gray-500">Painel de seguimento farmacoterapêutico — Método Dáder</p>
+          </div>
+          <GuidedTour />
+        </div>
+      )}
+
+      {/* Checklist de primeiros passos */}
+      {!isNewUser && (
+        <OnboardingChecklist
+          hasPatient={totalPatients > 0}
+          hasAnalysis={recentAnalyses.length > 0}
+          hasReport={totalReports > 0}
+          hasProfile={!!user?.crfNumber}
+        />
+      )}
 
       {/* Urgent alert */}
       {urgentFindings > 0 && (
