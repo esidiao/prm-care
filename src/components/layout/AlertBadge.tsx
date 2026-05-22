@@ -59,7 +59,7 @@ function getDismissed(): Set<string> {
 
 function saveDismissed(set: Set<string>) {
   try {
-    localStorage.setItem(DISMISSED_KEY, JSON.stringify([...set].slice(-200)))
+    localStorage.setItem(DISMISSED_KEY, JSON.stringify(Array.from(set).slice(-200)))
   } catch {}
 }
 

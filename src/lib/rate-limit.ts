@@ -38,9 +38,9 @@ export function rateLimit(key: string, opts: RateLimitOptions): RateLimitResult 
 
   // Prune stale entries periodically (every ~500 checks)
   if (Math.random() < 0.002) {
-    for (const [k, v] of store.entries()) {
+    store.forEach((v, k) => {
       if (v.resetAt < now) store.delete(k)
-    }
+    })
   }
 
   return {

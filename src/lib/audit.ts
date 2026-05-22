@@ -20,7 +20,7 @@ export async function logAudit(params: {
   action: AuditAction | string
   resource: string
   resourceId?: string
-  details?: Record<string, unknown>
+  details?: Record<string, unknown> | null
   ipAddress?: string
   userAgent?: string
 }): Promise<void> {
@@ -31,7 +31,7 @@ export async function logAudit(params: {
         action:     params.action,
         resource:   params.resource,
         resourceId: params.resourceId,
-        details:    params.details ?? {},
+        details:    (params.details ?? {}) as any,
         ipAddress:  params.ipAddress,
         userAgent:  params.userAgent,
       },

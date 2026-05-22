@@ -133,7 +133,7 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         </div>
         {/* Split summary into sentences for readability */}
         <div className="space-y-1.5">
-          {analysis.summary.split(/(?<=[.!?])\s+/).filter(Boolean).map((sentence, i) => (
+          {(analysis.summary ?? '').split(/(?<=[.!?])\s+/).filter(Boolean).map((sentence, i) => (
             <p key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
               <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#1e3a5f]/30 flex-shrink-0" />
               {sentence}

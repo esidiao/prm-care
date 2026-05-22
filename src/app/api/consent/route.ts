@@ -24,7 +24,7 @@ export async function GET() {
   const given = new Set(records.map(r => r.type))
   const allGiven = required.every(t => given.has(t as any))
 
-  return NextResponse.json({ allGiven, given: [...given], required })
+  return NextResponse.json({ allGiven, given: Array.from(given), required })
 }
 
 /** POST — record consent for one or all types */
