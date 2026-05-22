@@ -384,9 +384,12 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     )}
                   </div>
 
-                  {/* Título */}
-                  <h3 className={`font-semibold text-gray-900 ${finding.isResolved ? 'line-through text-gray-400' : ''}`}>
-                    {finding.title}
+                  {/* Título — remove prefixo [IA] e exibe como badge */}
+                  <h3 className={`font-semibold text-gray-900 flex items-center gap-2 flex-wrap ${finding.isResolved ? 'line-through text-gray-400' : ''}`}>
+                    {finding.title.replace(/^\[IA\]\s*/i, '')}
+                    {finding.title.startsWith('[IA]') && (
+                      <span className="text-[10px] font-normal bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full not-italic no-underline">IA</span>
+                    )}
                   </h3>
 
                   {/* Descrição curta */}
@@ -476,70 +479,70 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
             {/* Detalhes expandidos */}
             {isOpen && (
-              <div className="border-t border-gray-100 bg-white px-5 py-4 space-y-4">
-                <p className="text-sm text-gray-600">{finding.description}</p>
+              <div className="border-t border-gray-100 bg-gray-50/50 px-5 py-4 space-y-3">
+                {/* Descrição */}
+                <p className="text-sm text-gray-600 leading-relaxed">{finding.description}</p>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-lg bg-blue-50 p-3">
-                    <p className="text-xs font-semibold text-blue-700 mb-1">📋 Evidência clínica</p>
-                    <p className="text-sm text-gray-700">{finding.clinicalEvidence}</p>
-                  </div>
-                  <div className="rounded-lg bg-orange-50 p-3">
-                    <p className="text-xs font-semibold text-orange-700 mb-1">⚠️ Impacto potencial</p>
-                    <p className="text-sm text-gray-700">{finding.potentialImpact}</p>
-                  </div>
-                  <div className="rounded-lg bg-green-50 p-3">
-                    <p className="text-xs font-semibold text-green-700 mb-1">💊 Conduta farmacêutica</p>
-                    <p className="text-sm text-gray-700">{finding.pharmacistConduct}</p>
-                  </div>
-                  <div className="rounded-lg bg-purple-50 p-3">
-                    <p className="text-xs font-semibold text-purple-700 mb-1">🗣 Orientação ao paciente</p>
-                    <p className="text-sm text-gray-700">{finding.patientGuidance}</p>
-                  </div>
+                {/* Grid de condutas — compacto */}
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {[
+                    { icon: '📋', label: 'Evidência', text: finding.clinicalEvidence, color: 'border-blue-200 bg-blue-50/70 text-blue-800' },
+                    { icon: '⚠️', label: 'Impacto', text: finding.potentialImpact, color: 'border-orange-200 bg-orange-50/70 text-orange-800' },
+                    { icon: '💊', label: 'Conduta', text: finding.pharmacistConduct, color: 'border-green-200 bg-green-50/70 text-green-800' },
+                    { icon: '🗣', label: 'Orientação', text: finding.patientGuidance, color: 'border-purple-200 bg-purple-50/70 text-purple-800' },
+                  ].map(({ icon, label, text, color }) => text ? (
+                    <div key={label} className={`rounded-lg border p-3 ${color}`}>
+                      <p className="text-[10px] font-bold uppercase tracking-wide mb-1 opacity-70">{icon} {label}</p>
+                      <p className="text-xs text-gray-700 leading-relaxed">{text}</p>
+                    </div>
+                  ) : null)}
                 </div>
 
-                {/* Tags de ação */}
-                <div className="flex flex-wrap gap-2 text-xs">
-                  {finding.needsPrescriberContact && (
-                    <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-blue-700">
-                      <Phone className="h-3 w-3" /> Contato com prescritor
-                    </span>
-                  )}
-                  {finding.needsReferral && (
-                    <span className="flex items-center gap-1 rounded-full border border-red-200 bg-red-50 px-3 py-1 text-red-700">
-                      <Building2 className="h-3 w-3" /> Encaminhamento
-                    </span>
-                  )}
-                  {finding.interventionDeadline && (
-                    <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-gray-600">
-                      <Clock className="h-3 w-3" /> Prazo: {finding.interventionDeadline}
-                    </span>
-                  )}
-                  {finding.reevaluationPeriod && (
-                    <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-gray-600">
-                      <RefreshCw className="h-3 w-3" /> Reavaliação: {finding.reevaluationPeriod}
-                    </span>
-                  )}
-                </div>
-
-                {finding.monitoring && (
-                  <div className="rounded-lg border border-gray-200 p-3 text-xs text-gray-600">
-                    <span className="font-semibold text-gray-800">Monitoramento: </span>
-                    {finding.monitoring}
+                {/* Tags de ação + monitoramento inline */}
+                {(finding.needsPrescriberContact || finding.needsReferral || finding.interventionDeadline || finding.reevaluationPeriod || finding.monitoring) && (
+                  <div className="flex flex-wrap gap-1.5 text-[11px]">
+                    {finding.needsPrescriberContact && (
+                      <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-white px-2.5 py-1 text-blue-700">
+                        <Phone className="h-3 w-3" /> Contato c/ prescritor
+                      </span>
+                    )}
+                    {finding.needsReferral && (
+                      <span className="flex items-center gap-1 rounded-full border border-red-200 bg-white px-2.5 py-1 text-red-700">
+                        <Building2 className="h-3 w-3" /> Encaminhamento necessário
+                      </span>
+                    )}
+                    {finding.interventionDeadline && (
+                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600">
+                        <Clock className="h-3 w-3" /> {finding.interventionDeadline}
+                      </span>
+                    )}
+                    {finding.reevaluationPeriod && (
+                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600">
+                        <RefreshCw className="h-3 w-3" /> Reavaliação: {finding.reevaluationPeriod}
+                      </span>
+                    )}
+                    {finding.monitoring && (
+                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600 max-w-xs truncate" title={finding.monitoring}>
+                        👁 {finding.monitoring}
+                      </span>
+                    )}
                   </div>
                 )}
 
-                <div className="rounded-lg border border-amber-100 bg-amber-50 p-2.5 text-xs text-amber-700">
-                  <strong>Nota de validação:</strong> {finding.validationNote}
-                </div>
+                {/* Nota de validação — discreta */}
+                {finding.validationNote && (
+                  <p className="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded px-3 py-2">
+                    <strong>Validação:</strong> {finding.validationNote}
+                  </p>
+                )}
 
                 {/* Nota de resolução quando expandido */}
                 {finding.isResolved && finding.resolvedNotes && (
                   <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-xs">
-                    <p className="font-semibold text-green-700 mb-1">✓ Resolução registrada</p>
+                    <p className="font-semibold text-green-700 mb-0.5">✓ Resolução registrada</p>
                     <p className="text-green-800">{finding.resolvedNotes}</p>
                     {finding.resolvedAt && (
-                      <p className="text-green-600 mt-1">
+                      <p className="text-green-600 mt-1 text-[10px]">
                         {new Date(finding.resolvedAt).toLocaleString('pt-BR')}
                       </p>
                     )}

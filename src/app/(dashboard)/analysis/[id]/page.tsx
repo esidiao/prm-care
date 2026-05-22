@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, AlertTriangle, CheckCircle, FileText,
-  User, Pill, Activity, BookOpen, Printer
+  User, Pill, Activity, BookOpen, Printer, Send, ChevronDown, ChevronUp
 } from 'lucide-react'
 import { formatDateTime, RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS } from '@/lib/utils'
 import { RiskLevel, PRMCategory } from '@prisma/client'
@@ -69,16 +69,21 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         </Link>
       </div>
 
-      <div className="flex items-start justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Resultado da Análise PRM</h1>
           <p className="text-gray-500 text-sm">{formatDateTime(analysis.createdAt)} · Paciente: {analysis.patient.name || analysis.patient.code}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
+          {/* Carta para o médico — acesso rápido e visível */}
+          <Link href={`/patients/${analysis.patientId}/referral`}
+            className="flex items-center gap-2 rounded-lg border border-teal-600 bg-teal-50 px-4 py-2 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors">
+            <Send className="h-4 w-4" /> Carta ao Médico
+          </Link>
           {!analysis.report ? (
             <Link href={`/reports/new?analysisId=${analysis.id}`}
               className="flex items-center gap-2 rounded-lg border border-[#1e3a5f] px-4 py-2 text-sm font-medium text-[#1e3a5f] hover:bg-[#eff6ff] transition-colors">
-              <FileText className="h-4 w-4" /> Gerar relatório PDF
+              <FileText className="h-4 w-4" /> Gerar Relatório
             </Link>
           ) : (
             <a href={`/api/reports/${analysis.report.id}/download`}
@@ -122,11 +127,22 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
 
       {/* Summary */}
       <div className="rounded-xl border bg-white p-5 shadow-sm">
-        <h2 className="font-semibold text-gray-900 mb-2">Resumo clínico</h2>
-        <p className="text-sm text-gray-700 leading-relaxed">{analysis.summary}</p>
-        <div className="mt-3 rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
-          <strong>Aviso:</strong> Esta análise é baseada nos dados informados e deve ser validada por profissional habilitado.
-          Dados incompletos podem limitar as conclusões.
+        <div className="flex items-center gap-2 mb-3">
+          <Activity className="h-4 w-4 text-[#1e3a5f]" />
+          <h2 className="font-semibold text-gray-900">Resumo clínico</h2>
+        </div>
+        {/* Split summary into sentences for readability */}
+        <div className="space-y-1.5">
+          {analysis.summary.split(/(?<=[.!?])\s+/).filter(Boolean).map((sentence, i) => (
+            <p key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#1e3a5f]/30 flex-shrink-0" />
+              {sentence}
+            </p>
+          ))}
+        </div>
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+          <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0 mt-0.5 text-amber-600" />
+          <span>Análise baseada nos dados informados. Valide com exame clínico e dados complementares antes de intervir.</span>
         </div>
       </div>
 
@@ -168,24 +184,25 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         totalPRMs={analysis.totalPRMs}
       />
 
-      {/* SOAP */}
+      {/* SOAP — compact 2-column grid */}
       {analysis.soapRecord && (
         <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-          <div className="border-b bg-[#1e3a5f] px-5 py-4">
-            <h2 className="font-semibold text-white flex items-center gap-2">
-              <BookOpen className="h-4 w-4" /> Registro SOAP
-            </h2>
+          <div className="flex items-center gap-2 border-b bg-gray-50 px-5 py-3.5">
+            <BookOpen className="h-4 w-4 text-[#1e3a5f]" />
+            <h2 className="font-semibold text-gray-800 text-sm">Registro SOAP</h2>
+            <span className="ml-auto text-[10px] text-gray-400 uppercase tracking-wide">Documentação clínica</span>
           </div>
-          <div className="grid gap-0 divide-y md:grid-cols-1">
+          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
             {[
-              { label: 'S — Subjetivo', content: analysis.soapRecord.subjective, color: 'bg-blue-50', labelColor: 'text-blue-800' },
-              { label: 'O — Objetivo', content: analysis.soapRecord.objective, color: 'bg-gray-50', labelColor: 'text-gray-800' },
-              { label: 'A — Avaliação', content: analysis.soapRecord.assessment, color: 'bg-yellow-50', labelColor: 'text-yellow-800' },
-              { label: 'P — Plano', content: analysis.soapRecord.plan, color: 'bg-green-50', labelColor: 'text-green-800' },
-            ].map(({ label, content, color, labelColor }) => (
-              <div key={label} className={`${color} p-5`}>
-                <p className={`text-sm font-bold mb-2 ${labelColor}`}>{label}</p>
-                <p className="text-sm text-gray-700 whitespace-pre-line">{content}</p>
+              { label: 'S — Subjetivo', hint: 'Queixas relatadas', content: analysis.soapRecord.subjective, accent: 'border-l-blue-400' },
+              { label: 'O — Objetivo', hint: 'Dados clínicos', content: analysis.soapRecord.objective, accent: 'border-l-gray-400' },
+              { label: 'A — Avaliação', hint: 'Impressão farmacêutica', content: analysis.soapRecord.assessment, accent: 'border-l-yellow-400' },
+              { label: 'P — Plano', hint: 'Intervenções propostas', content: analysis.soapRecord.plan, accent: 'border-l-green-400' },
+            ].map(({ label, hint, content, accent }) => (
+              <div key={label} className={`p-4 border-l-4 ${accent}`}>
+                <p className="text-xs font-bold text-gray-700 mb-0.5">{label}</p>
+                <p className="text-[10px] text-gray-400 mb-2">{hint}</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{content || '—'}</p>
               </div>
             ))}
           </div>

@@ -179,13 +179,33 @@ export async function POST(req: NextRequest) {
     try {
       const geminiResult = await analyzeWithGemini(patientContext, fdaData)
       if (geminiResult.success && geminiResult.findings.length > 0) {
-        result.findings.push(...geminiResult.findings)
-        result.totalPRMs += geminiResult.findings.length
-        result.urgentPRMs += geminiResult.findings.filter(f => f.riskLevel === 'URGENT').length
-        result.highRiskPRMs += geminiResult.findings.filter(f => f.riskLevel === 'HIGH').length
-        result.moderatePRMs += geminiResult.findings.filter(f => f.riskLevel === 'MODERATE').length
-        result.lowRiskPRMs += geminiResult.findings.filter(f => f.riskLevel === 'LOW').length
-        geminiSummaryNote = ` Análise de IA identificou ${geminiResult.findings.length} PRM(s) adicional(is).`
+        // Deduplicate: skip AI findings whose title is too similar to an existing local finding
+        const normalize = (s: string) =>
+          s.toLowerCase().replace(/\[ia\]\s*/g, '').replace(/[^a-z0-9À-ɏ]/g, '').trim()
+        const existingTitles = result.findings.map(f => normalize(f.title))
+
+        const newFindings = geminiResult.findings.filter(f => {
+          const n = normalize(f.title)
+          // Reject if any existing title shares ≥50% of tokens
+          return !existingTitles.some(et => {
+            const toks = n.split(/\s+/).filter(t => t.length > 3)
+            if (!toks.length) return false
+            const matches = toks.filter(t => et.includes(t)).length
+            return matches / toks.length >= 0.5
+          })
+        })
+
+        result.findings.push(...newFindings)
+        result.totalPRMs += newFindings.length
+        result.urgentPRMs += newFindings.filter(f => f.riskLevel === 'URGENT').length
+        result.highRiskPRMs += newFindings.filter(f => f.riskLevel === 'HIGH').length
+        result.moderatePRMs += newFindings.filter(f => f.riskLevel === 'MODERATE').length
+        result.lowRiskPRMs += newFindings.filter(f => f.riskLevel === 'LOW').length
+        const skipped = geminiResult.findings.length - newFindings.length
+        geminiSummaryNote = newFindings.length > 0
+          ? ` IA identificou ${newFindings.length} PRM(s) complementar(es).`
+          : ''
+        if (skipped > 0) console.log(`[DEDUP] ${skipped} finding(s) da IA removido(s) por duplicidade.`)
       }
       if (geminiResult.observacaoGeral) {
         geminiSummaryNote += ` Obs. IA: ${geminiResult.observacaoGeral}`
