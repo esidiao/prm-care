@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { logAudit, getClientIp } from '@/lib/audit'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,15 @@ export async function GET(req: NextRequest) {
   if (!session) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
+
+  await logAudit({
+    userId:    session.user.id,
+    action:    'EXPORT_PRMS',
+    resource:  'prm_findings',
+    ipAddress: getClientIp(req),
+    details:   { format: 'csv' },
+  })
+
 
   const { searchParams } = new URL(req.url)
   const patientId = searchParams.get('patientId') // optional filter

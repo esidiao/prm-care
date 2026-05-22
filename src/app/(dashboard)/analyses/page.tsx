@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import { FlaskConical, ArrowRight, AlertTriangle, CheckCircle2, Clock, Filter } from 'lucide-react'
 import { formatDateTime } from '@/lib/utils'
+import { ExportWithWarning } from '@/components/export/ExportWithWarning'
 
 const RISK_CONFIG: Record<string, { label: string; dot: string }> = {
   URGENT: { label: 'Urgente', dot: 'bg-red-500' },
@@ -135,12 +136,13 @@ export default async function AnalysesHistoryPage({
         </form>
       </div>
 
-      {/* Export button */}
+      {/* Export button — with LGPD warning */}
       <div className="flex justify-end">
-        <a href="/api/export/prms"
-          className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-          ⬇️ Exportar PRMs (CSV)
-        </a>
+        <ExportWithWarning
+          href="/api/export/prms"
+          label="Exportar PRMs (CSV)"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+        />
       </div>
 
       {/* Table */}

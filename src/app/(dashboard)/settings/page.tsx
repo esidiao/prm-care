@@ -1,7 +1,8 @@
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { formatDateTime } from '@/lib/utils'
-import { Shield, User, Coins, Key } from 'lucide-react'
+import { Shield, User, Coins, Key, Download } from 'lucide-react'
+import Link from 'next/link'
 import { ProfileForm, PasswordForm } from '@/components/settings/ProfileForm'
 import { AvatarUpload } from '@/components/settings/AvatarUpload'
 
@@ -166,12 +167,15 @@ export default async function SettingsPage() {
               </div>
             ))}
           </div>
-          <p className="mt-4 text-xs text-gray-400 dark:text-gray-500">
-            Para exercer seus direitos LGPD (acesso, correção, exclusão),{' '}
-            <a href="mailto:privacidade@prmcare.com.br" className="text-[#1e3a5f] dark:text-blue-400 underline">
-              entre em contato
+          <div className="mt-4 flex items-center gap-3">
+            <Link href="/settings/my-data"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-xs font-semibold text-white hover:bg-[#162d4a] transition-colors">
+              <Download className="h-3.5 w-3.5" /> Exportar / Meus Dados
+            </Link>
+            <a href="mailto:privacidade@prmcare.com.br" className="text-xs text-[#1e3a5f] dark:text-blue-400 underline">
+              Falar com o DPO
             </a>
-          </p>
+          </div>
         </div>
       )}
 
@@ -179,11 +183,13 @@ export default async function SettingsPage() {
       <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950 p-5">
         <h2 className="mb-2 font-semibold text-red-800 dark:text-red-300 text-sm">Zona de risco</h2>
         <p className="mb-4 text-sm text-red-700 dark:text-red-400">
-          A exclusão da conta é permanente e remove todos os dados, análises e relatórios. Esta ação não pode ser desfeita.
+          Solicite a exclusão de dados ou portabilidade na página de privacidade.
+          Dados clínicos são anonimizados (não excluídos) por obrigação legal (CFF/CFM).
         </p>
-        <button className="rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
-          Solicitar exclusão de conta
-        </button>
+        <Link href="/settings/my-data"
+          className="inline-flex items-center gap-2 rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
+          Gerenciar dados e exclusão (LGPD)
+        </Link>
       </div>
     </div>
   )

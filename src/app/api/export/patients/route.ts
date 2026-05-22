@@ -1,6 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { logAudit, getClientIp } from '@/lib/audit'
 
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -29,11 +30,20 @@ function calculateAge(dateOfBirth: Date | null): number | null {
 
 // ── GET /api/export/patients ──────────────────────────────────────────────────
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   }
+
+  // Audit: record who downloaded patient data and when
+  await logAudit({
+    userId:    session.user.id,
+    action:    'EXPORT_PATIENTS',
+    resource:  'patients',
+    ipAddress: getClientIp(req),
+    details:   { format: 'csv' },
+  })
 
   const patients = await prisma.patient.findMany({
     where: { userId: session.user.id, isActive: true },

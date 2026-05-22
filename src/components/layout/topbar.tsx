@@ -28,6 +28,7 @@ const breadcrumbs: Record<string, string> = {
   '/knowledge': 'Base Clínica',
   '/resources': 'Bases de Dados',
   '/analyses': 'Histórico de Análises',
+  '/settings/my-data': 'Meus Dados (LGPD)',
 }
 
 function getBreadcrumb(pathname: string): { label: string; parent?: string } {

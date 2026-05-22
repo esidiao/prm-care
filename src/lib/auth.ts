@@ -7,7 +7,7 @@ import { UserRole } from '@prisma/client'
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
-  session: { strategy: 'jwt', maxAge: 30 * 24 * 60 * 60 }, // 30 days
+  session: { strategy: 'jwt', maxAge: 8 * 60 * 60 }, // 8 hours — saúde = dados sensíveis
   pages: {
     signIn: '/login',
     error: '/login',
