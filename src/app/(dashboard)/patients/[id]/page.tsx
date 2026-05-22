@@ -122,6 +122,12 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             <ClipboardList className="h-4 w-4" />
             <span className="hidden sm:inline">Relatório</span>
           </Link>
+          <Link href={`/patients/${patient.id}/reconciliation`}
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-teal-300 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-700 hover:bg-teal-100 transition-colors"
+            title="Conciliação Farmacêutica">
+            <Pill className="h-4 w-4" />
+            <span className="hidden sm:inline">Conciliação</span>
+          </Link>
           <Link href={`/patients/${patient.id}/referral`}
             className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
             title="Carta de Encaminhamento Médico">
