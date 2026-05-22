@@ -63,13 +63,14 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
-      <div className="flex items-center gap-3 border-b border-white/10 px-5 py-4">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/20">
-          <Pill className="h-5 w-5 text-white" />
+      <div className="flex items-center gap-3 border-b border-white/[0.08] px-5 py-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl ring-1 ring-white/20"
+             style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06))' }}>
+          <Pill className="h-5 w-5 text-white drop-shadow" />
         </div>
         <div>
-          <span className="text-base font-bold tracking-tight">PRM Care</span>
-          <p className="text-[10px] text-white/40 leading-none mt-0.5">Método Dáder</p>
+          <span className="text-base font-bold tracking-tight text-white">PRM Care</span>
+          <p className="text-[10px] text-white/35 leading-none mt-0.5 font-medium tracking-wider uppercase">Método Dáder</p>
         </div>
       </div>
 
@@ -107,22 +108,26 @@ function SidebarContent({
                 href={href}
                 onClick={onNavClick}
                 className={cn(
-                  'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                  'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
                   active
-                    ? 'bg-white/15 text-white shadow-sm'
+                    ? 'bg-white/[0.12] text-white shadow-sm ring-1 ring-white/10'
                     : highlight
-                    ? 'text-blue-300 hover:bg-white/10 hover:text-white'
-                    : 'text-white/60 hover:bg-white/10 hover:text-white',
+                    ? 'text-sky-300 hover:bg-white/[0.07] hover:text-white'
+                    : 'text-white/55 hover:bg-white/[0.07] hover:text-white/90',
                 )}
               >
-                <Icon
-                  className={cn(
-                    'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
-                    active ? 'text-white' : highlight ? 'text-blue-300' : 'text-white/50',
-                  )}
-                />
-                <span className="flex-1">{label}</span>
-                {active && <ChevronRight className="h-3 w-3 text-white/40" />}
+                <span className={cn(
+                  'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg transition-all duration-150',
+                  active
+                    ? 'bg-white/15 text-white'
+                    : 'text-white/40 group-hover:text-white/80',
+                )}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="flex-1 tracking-[-0.01em]">{label}</span>
+                {active && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-sky-400 flex-shrink-0" />
+                )}
               </Link>
             )
           })}
@@ -140,16 +145,18 @@ function SidebarContent({
                   href={href}
                   onClick={onNavClick}
                   className={cn(
-                    'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150',
-                    active ? 'bg-white/15 text-white' : 'text-white/50 hover:bg-white/10 hover:text-white',
+                    'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-150',
+                    active
+                      ? 'bg-white/[0.12] text-white ring-1 ring-white/10'
+                      : 'text-white/45 hover:bg-white/[0.07] hover:text-white/80',
                   )}
                 >
-                  <Icon
-                    className={cn(
-                      'h-4 w-4 flex-shrink-0 transition-transform duration-150 group-hover:scale-110',
-                      active ? 'text-white' : 'text-white/40',
-                    )}
-                  />
+                  <span className={cn(
+                    'flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg',
+                    active ? 'bg-white/15 text-white' : 'text-white/35 group-hover:text-white/70',
+                  )}>
+                    <Icon className="h-4 w-4" />
+                  </span>
                   {label}
                 </Link>
               )
@@ -195,7 +202,13 @@ function SidebarContent({
 
 export function Sidebar({ user }: SidebarProps) {
   return (
-    <aside className="hidden lg:flex h-full w-60 flex-shrink-0 flex-col bg-[#0f2744] text-white">
+    <aside
+      className="hidden lg:flex h-full w-60 flex-shrink-0 flex-col text-white"
+      style={{
+        background: 'linear-gradient(180deg, #0f2744 0%, #0d2340 60%, #0b1f39 100%)',
+        borderRight: '1px solid rgba(255,255,255,0.06)',
+      }}
+    >
       <SidebarContent user={user} />
     </aside>
   )

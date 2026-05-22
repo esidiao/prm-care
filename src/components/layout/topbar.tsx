@@ -46,7 +46,7 @@ export function TopBar({ user }: TopBarProps) {
   const { label, parent } = getBreadcrumb(pathname)
 
   return (
-    <header className="flex h-14 items-center gap-2 sm:gap-4 border-b border-gray-200 bg-white px-3 sm:px-6 dark:border-gray-700 dark:bg-gray-900 shrink-0">
+    <header className="flex h-14 items-center gap-2 sm:gap-4 border-b border-border bg-card/95 backdrop-blur-sm px-3 sm:px-6 dark:border-border shrink-0" style={{ boxShadow: 'var(--shadow-xs)' }}>
       {/* Mobile hamburger */}
       <MobileNav user={user} />
 
@@ -90,7 +90,7 @@ export function TopBar({ user }: TopBarProps) {
         {/* Nova análise — icon-only on mobile */}
         <Link
           href="/analysis/new"
-          className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-2.5 sm:px-3.5 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors shadow-sm"
+          className="btn-primary px-2.5 sm:px-3.5 py-2 text-sm"
         >
           <Plus className="h-3.5 w-3.5 shrink-0" />
           <span className="hidden sm:inline">Nova análise</span>
