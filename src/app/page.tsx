@@ -459,8 +459,13 @@ export default function LandingPage() {
 
                 <div className="mt-6 text-center lg:text-left">
                   <h3 className="text-2xl font-bold text-gray-900">Dr. Edson Sidião de Souza Júnior</h3>
-                  <p className="text-sm text-[#1e3a5f] font-semibold mt-1">Farmacêutico · Doutor em Medicina Tropical</p>
-                  <p className="text-sm text-gray-500 mt-0.5">Especialista em Gestão, Assistência Farmacêutica e Educação em Saúde</p>
+                  <div className="mt-2 space-y-1">
+                    <p className="text-sm text-[#1e3a5f] font-semibold">Farmacêutico · Mestre e Doutor em Medicina Tropical</p>
+                    <p className="text-sm text-gray-500">Esp. em Gestão da Assistência Farmacêutica</p>
+                    <p className="text-sm text-gray-500">Esp. em Mídias Digitais e Comunicação</p>
+                    <p className="text-sm text-gray-500">Esp. em Inteligência Artificial e Data Science</p>
+                    <p className="text-sm text-gray-400 font-medium mt-2">Educador em Saúde com mais de 26 anos de experiência</p>
+                  </div>
                 </div>
               </div>
 
