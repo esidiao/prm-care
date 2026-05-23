@@ -16,6 +16,7 @@ export default withAuth(
     const token    = req.nextauth.token
     const pathname = req.nextUrl.pathname
     const ip       = getIp(req)
+    const isApi    = pathname.startsWith('/api/')
 
     // ── Rate limiting ───────────────────────────────────────────────────────────
 
@@ -62,8 +63,13 @@ export default withAuth(
 
     // ── Role-based access control ───────────────────────────────────────────────
 
-    if (pathname.startsWith('/admin')) {
+    // Proteção dupla: frontend /admin/* E API /api/admin/*
+    const isAdminRoute = pathname.startsWith('/admin') || pathname.startsWith('/api/admin')
+    if (isAdminRoute) {
       if (token?.role !== 'ADMIN') {
+        if (isApi) {
+          return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
+        }
         return NextResponse.redirect(new URL('/dashboard', req.url))
       }
     }
@@ -74,12 +80,21 @@ export default withAuth(
       }
     }
 
-    // Add security headers to all responses
+    // ── Security headers ────────────────────────────────────────────────────────
     const res = NextResponse.next()
+
+    // Proteção contra clickjacking
     res.headers.set('X-Frame-Options', 'DENY')
+    // Prevenir MIME-type sniffing
     res.headers.set('X-Content-Type-Options', 'nosniff')
+    // Política de referrer segura
     res.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+    // Desabilitar acesso a câmera, microfone e geolocalização
     res.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+    // Força HTTPS por 2 anos em produção (HSTS)
+    if (process.env.NODE_ENV === 'production') {
+      res.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
+    }
 
     return res
   },
@@ -94,7 +109,8 @@ export default withAuth(
           pathname === '/pricing' ||
           pathname === '/terms' ||
           pathname === '/privacy' ||
-          pathname.startsWith('/api/auth')
+          pathname.startsWith('/api/auth') ||
+          pathname === '/api/payments/webhook'  // Webhook do MP não precisa de autenticação de usuário
         ) return true
         return !!token
       },

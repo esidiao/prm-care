@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  if (!session || session.user.role !== 'ADMIN') return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
   const apiKey = process.env.GROQ_API_KEY
 
@@ -41,7 +41,10 @@ export async function GET() {
       response: text.trim(),
       model: 'llama-3.3-70b-versatile',
     })
-  } catch (err: any) {
-    return NextResponse.json({ status: 'error', message: err.message || 'Erro desconhecido' })
+  } catch (err: unknown) {
+    const message = process.env.NODE_ENV === 'development'
+      ? (err instanceof Error ? err.message : 'Erro desconhecido')
+      : 'Erro ao conectar com a IA'
+    return NextResponse.json({ status: 'error', message })
   }
 }

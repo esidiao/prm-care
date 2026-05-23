@@ -39,8 +39,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const { findingId, isResolved, resolvedNotes } = await req.json()
 
+  // SECURITY: verificar que o finding pertence à análise verificada (evita IDOR)
   const updated = await prisma.pRMFinding.update({
-    where: { id: findingId },
+    where: { id: findingId, analysisId: params.id },
     data: { isResolved, resolvedNotes, resolvedAt: isResolved ? new Date() : null },
   })
 

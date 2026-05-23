@@ -34,11 +34,22 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ success: true, data: pkg }, { status: 201 })
 }
 
+const patchSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(2).max(100).optional(),
+  description: z.string().max(500).optional(),
+  tokens: z.number().int().positive().optional(),
+  priceInCents: z.number().int().positive().optional(),
+  isActive: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  sortOrder: z.number().int().optional(),
+})
+
 export async function PATCH(req: NextRequest) {
   const session = await getSession()
   if (!session || session.user.role !== 'ADMIN') return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const { id, ...data } = await req.json()
+  const { id, ...data } = patchSchema.parse(await req.json())
   const pkg = await prisma.tokenPackage.update({ where: { id }, data })
   return NextResponse.json({ success: true, data: pkg })
 }

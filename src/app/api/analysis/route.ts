@@ -43,6 +43,13 @@ export async function POST(req: NextRequest) {
     const savedMeds = await Promise.all(
       (medications || []).map(async (med: any) => {
         if (med.existingId) {
+          // SECURITY: verificar que o medicamento pertence ao paciente do usuário (evita IDOR)
+          const existingMed = await prisma.medication.findFirst({
+            where: { id: med.existingId, patientId },
+          })
+          if (!existingMed) {
+            throw new Error(`Medicamento não encontrado: ${med.existingId}`)
+          }
           // Medication already in DB — update with any edits and return existing record
           return prisma.medication.update({
             where: { id: med.existingId },

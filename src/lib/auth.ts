@@ -28,11 +28,16 @@ export const authOptions: NextAuthOptions = {
           where: { email: identifier },
         })
 
-        if (!user || !user.password) return null
-        if (!user.isActive) throw new Error('Conta desativada. Entre em contato com o suporte.')
+        // SECURITY: executar bcrypt.compare sempre, mesmo quando usuário não existe,
+        // para evitar timing attack que revelaria quais e-mails estão cadastrados
+        const dummyHash = '$2b$12$LTqNvGDNlH6vFPSAcRnk3u8k2YVFXgDVGQVm2KLxNBw0KXNZJ9IqG'
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user?.password ?? dummyHash,
+        )
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
-        if (!isPasswordValid) return null
+        if (!user || !user.password || !isPasswordValid) return null
+        if (!user.isActive) throw new Error('Conta desativada. Entre em contato com o suporte.')
 
         // Update last login
         await prisma.user.update({
