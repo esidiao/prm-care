@@ -154,6 +154,7 @@ model User {
   consents          ConsentRecord[]
   auditLogs         AuditLog[]
   knowledgeEntries  KnowledgeBase[]
+  payments          Payment[]
 
   @@map("users")
 }
@@ -550,6 +551,7 @@ model Payment {
   createdAt       DateTime @default(now())
 
   subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
 
   @@map("payments")
 }
