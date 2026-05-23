@@ -78,24 +78,36 @@ function ScaleForm({
   onSave: (record: AssessmentRecord) => void
   onCancel: () => void
 }) {
-  const [answers, setAnswers] = useState<Record<number, number>>({})
+  // Usa null para distinguir "não respondida" de "respondida com valor 0"
+  const [answers, setAnswers] = useState<Record<number, number | null>>(
+    () => Object.fromEntries(scale.questions.map(q => [q.id, null]))
+  )
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const answered = Object.keys(answers).length
-  const totalScore = Object.values(answers).reduce((s, v) => s + v, 0)
+  // Conta apenas as perguntas que foram explicitamente respondidas (não null)
+  const answered = scale.questions.filter(q => answers[q.id] !== null).length
   const complete = answered === scale.questionCount
+  const totalScore = scale.questions.reduce((s, q) => s + (answers[q.id] ?? 0), 0)
   const severity = complete ? scale.getSeverity(totalScore) : null
+
+  const handleSelect = (questionId: number, value: number) => {
+    setAnswers(prev => ({ ...prev, [questionId]: value }))
+  }
 
   const handleSubmit = async () => {
     if (!complete) return
     setSaving(true)
     setError(null)
     try {
+      const answersPayload = scale.questions.map(q => ({
+        question: q.id,
+        answer: answers[q.id] ?? 0,
+      }))
       const body = {
         scaleType: scale.type,
-        answers: scale.questions.map((q) => ({ question: q.id, answer: answers[q.id] ?? 0 })),
+        answers: answersPayload,
         totalScore,
         severity: scale.getSeverity(totalScore),
         notes: notes.trim() || null,
@@ -105,11 +117,15 @@ function ScaleForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
-      if (!res.ok) throw new Error('Erro ao salvar')
       const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.error || `Erro ${res.status}`)
+      }
       onSave(data.assessment)
-    } catch {
-      setError('Não foi possível salvar. Tente novamente.')
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Erro desconhecido'
+      setError(`Não foi possível salvar: ${msg}`)
+      console.error('[ScaleForm] erro ao salvar:', err)
     } finally {
       setSaving(false)
     }
@@ -134,16 +150,25 @@ function ScaleForm({
       {/* Progress */}
       <div className="space-y-1">
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>{answered} de {scale.questionCount} respondidas</span>
+          <span>
+            {answered} de {scale.questionCount} respondidas
+            {!complete && answered > 0 && (
+              <span className="ml-1 text-amber-500">
+                — faltam {scale.questionCount - answered}
+              </span>
+            )}
+          </span>
           {complete && severity && (
-            <span className="font-medium">
+            <span className="font-medium text-[#1e3a5f] dark:text-blue-400">
               Score: <strong>{totalScore}/{scale.maxScore}</strong>
             </span>
           )}
         </div>
-        <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700">
+        <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
           <div
-            className="h-1.5 rounded-full bg-[#1e3a5f] transition-all"
+            className={`h-2 rounded-full transition-all duration-300 ${
+              complete ? 'bg-emerald-500' : 'bg-[#1e3a5f]'
+            }`}
             style={{ width: `${(answered / scale.questionCount) * 100}%` }}
           />
         </div>
@@ -158,41 +183,44 @@ function ScaleForm({
               {q.text}
             </p>
             <div className="flex flex-col gap-2">
-              {q.options.map((opt) => (
-                <label
-                  key={opt.value}
-                  className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
-                    answers[q.id] === opt.value
-                      ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-300'
-                      : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    className="sr-only"
-                    name={`q${q.id}`}
-                    value={opt.value}
-                    checked={answers[q.id] === opt.value}
-                    onChange={() => setAnswers((prev) => ({ ...prev, [q.id]: opt.value }))}
-                  />
-                  <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 flex-shrink-0 ${
-                    answers[q.id] === opt.value
-                      ? 'border-[#1e3a5f] bg-[#1e3a5f] dark:border-blue-400 dark:bg-blue-500'
-                      : 'border-gray-300 dark:border-gray-600'
-                  }`}>
-                    {answers[q.id] === opt.value && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
-                  </div>
-                  <span>{opt.label}</span>
-                  <span className="ml-auto font-mono text-xs text-gray-400">({opt.value})</span>
-                </label>
-              ))}
+              {q.options.map((opt) => {
+                const isSelected = answers[q.id] === opt.value
+                return (
+                  <label
+                    key={opt.value}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
+                      isSelected
+                        ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-300'
+                        : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      className="sr-only"
+                      name={`scale-${scale.type}-q${q.id}`}
+                      value={String(opt.value)}
+                      checked={isSelected}
+                      onChange={() => handleSelect(q.id, opt.value)}
+                    />
+                    <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 flex-shrink-0 transition-colors ${
+                      isSelected
+                        ? 'border-[#1e3a5f] bg-[#1e3a5f] dark:border-blue-400 dark:bg-blue-500'
+                        : 'border-gray-300 dark:border-gray-600'
+                    }`}>
+                      {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                    </div>
+                    <span>{opt.label}</span>
+                    <span className="ml-auto font-mono text-xs text-gray-400 shrink-0">({opt.value} pt)</span>
+                  </label>
+                )
+              })}
             </div>
           </div>
         ))}
       </div>
 
       {/* PHQ-9 Q9 alert */}
-      {scale.type === 'PHQ9' && answers[9] !== undefined && answers[9] > 0 && (
+      {scale.type === 'PHQ9' && answers[9] !== null && (answers[9] ?? 0) > 0 && (
         <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950 p-3 text-sm text-red-800 dark:text-red-300">
           <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
           <span>
@@ -241,10 +269,11 @@ function ScaleForm({
         <button
           onClick={handleSubmit}
           disabled={!complete || saving}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          title={!complete ? `Responda todas as ${scale.questionCount} questões para salvar` : ''}
+          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-          Salvar avaliação
+          {saving ? 'Salvando...' : complete ? 'Salvar avaliação' : `Faltam ${scale.questionCount - answered} questão(ões)`}
         </button>
       </div>
     </div>

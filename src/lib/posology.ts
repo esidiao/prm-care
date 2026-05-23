@@ -1,166 +1,230 @@
 /**
- * Posology engine — interpreta frequências e gera horários + alertas clínicos.
+ * Motor de Posologia — PRM Care
+ *
+ * Usa o banco de dados farmacocinético (pharma-pk-db.ts) para gerar
+ * horários baseados em evidências + alertas clínicos contextualizados.
  */
 
-// ── Faixas horárias ────────────────────────────────────────────────────────────
+import { getPKProfile, getRecommendedHours, PK_DATABASE, type PKProfile } from './pharma-pk-db'
+
+// ── Faixas horárias exibidas na grade ─────────────────────────────────────────
 
 export const TIME_SLOTS = [
-  { id: 't06', label: '6h',  period: 'Madrugada', icon: '🌙' },
-  { id: 't07', label: '7h',  period: 'Madrugada', icon: '🌙' },
-  { id: 't08', label: '8h',  period: 'Manhã',     icon: '🌅' },
-  { id: 't10', label: '10h', period: 'Manhã',     icon: '🌅' },
-  { id: 't12', label: '12h', period: 'Almoço',    icon: '☀️' },
-  { id: 't14', label: '14h', period: 'Tarde',     icon: '🌤️' },
-  { id: 't18', label: '18h', period: 'Jantar',    icon: '🌇' },
-  { id: 't20', label: '20h', period: 'Noite',     icon: '🌙' },
-  { id: 't22', label: '22h', period: 'Dormir',    icon: '😴' },
+  { id: 't06', label: '6h',  hour: 6,  period: 'Madrugada', icon: '🌙' },
+  { id: 't07', label: '7h',  hour: 7,  period: 'Manhã cedo', icon: '🌤️' },
+  { id: 't08', label: '8h',  hour: 8,  period: 'Manhã',     icon: '🌅' },
+  { id: 't10', label: '10h', hour: 10, period: 'Manhã',     icon: '🌅' },
+  { id: 't12', label: '12h', hour: 12, period: 'Almoço',    icon: '☀️' },
+  { id: 't14', label: '14h', hour: 14, period: 'Tarde',     icon: '🌤️' },
+  { id: 't16', label: '16h', hour: 16, period: 'Tarde',     icon: '🌤️' },
+  { id: 't18', label: '18h', hour: 18, period: 'Jantar',    icon: '🌇' },
+  { id: 't20', label: '20h', hour: 20, period: 'Noite',     icon: '🌙' },
+  { id: 't22', label: '22h', hour: 22, period: 'Dormir',    icon: '😴' },
 ]
 
 export type TimeSlotId = typeof TIME_SLOTS[number]['id']
 
-// ── Tipo de horário resolvido ─────────────────────────────────────────────────
+// ── Resultado de horário resolvido ────────────────────────────────────────────
 
 export interface ResolvedSchedule {
-  slots: TimeSlotId[]      // quais faixas o medicamento aparece
-  timing: string           // descrição textual (ex: "com alimento")
-  isVariable: boolean      // horário flexível / a critério médico
+  slots: TimeSlotId[]
+  timing: string
+  isVariable: boolean
+  pkBased: boolean           // true = baseado em dados farmacocinéticos
+  foodInstruction?: string   // instrução sobre alimento
+  pkRationale?: string       // justificativa clínica (resumida)
+  idealHours?: number[]      // horários recomendados em formato 24h
 }
 
-// ── Parser principal ──────────────────────────────────────────────────────────
+// ── Mapeamento hora → slot mais próximo ──────────────────────────────────────
 
-/**
- * Resolve o horário de um medicamento a partir dos campos disponíveis.
- * Prioridade: schedule > frequencyHours > frequency (string)
- */
+function hourToSlot(hour: number): TimeSlotId {
+  const h = ((hour % 24) + 24) % 24
+  if (h <= 6)  return 't06'
+  if (h === 7)  return 't07'
+  if (h <= 9)  return 't08'
+  if (h <= 11) return 't10'
+  if (h <= 13) return 't12'
+  if (h <= 15) return 't14'
+  if (h <= 17) return 't16'
+  if (h <= 19) return 't18'
+  if (h <= 21) return 't20'
+  return 't22'
+}
+
+/** Conta frequência diária a partir de texto/intervalo */
+function parseFrequencyCount(med: {
+  frequencyHours?: number | null
+  frequency?: string | null
+}): number {
+  if (med.frequencyHours && med.frequencyHours > 0) {
+    return Math.round(24 / med.frequencyHours)
+  }
+  if (med.frequency) {
+    const f = med.frequency.toLowerCase()
+    if (/1\s*[xv×]|uma\s*vez|once|1\s+vez|1x/i.test(f)) return 1
+    if (/2\s*[xv×]|duas?\s*vez|twice|bid|2\s+vez|2x/i.test(f)) return 2
+    if (/3\s*[xv×]|três\s*vez|three|tid|3\s+vez|3x/i.test(f)) return 3
+    if (/4\s*[xv×]|quatro\s*vez|four|qid|4\s+vez|4x/i.test(f)) return 4
+    if (/5\s*[xv×]|cinco|5x/i.test(f)) return 5
+    const em = f.match(/cada\s+(\d+)\s*h/i) ?? f.match(/q\.?\s*(\d+)\s*h/i)
+    if (em) return Math.round(24 / parseInt(em[1]))
+    const nm = f.match(/(\d+)\s*[xv×]/i)
+    if (nm) return parseInt(nm[1])
+  }
+  return 1
+}
+
+// ── Instrução de alimento ────────────────────────────────────────────────────
+
+const FOOD_LABELS: Record<string, string> = {
+  jejum:              'Em jejum (30–60 min antes do café)',
+  com_alimento:       'Com alimento',
+  sem_restricao:      'Com ou sem alimento',
+  antes_refeicao:     '30–60 min antes da refeição',
+  apos_refeicao:      'Após a refeição',
+  com_agua_abundante: 'Em jejum com copo cheio de água (200 mL)',
+}
+
+// ── Resolver horário ──────────────────────────────────────────────────────────
+
 export function resolveSchedule(med: {
+  activeIngredient?: string | null
   schedule?: string | null
   frequencyHours?: number | null
   frequency?: string | null
 }): ResolvedSchedule {
 
-  // 1. Campo `schedule` explícito (ex: "8h, 14h, 22h")
+  // 1. Horário explícito cadastrado — respeitar sempre
   if (med.schedule?.trim()) {
     const slots = parseScheduleString(med.schedule)
     if (slots.length > 0) {
-      return { slots, timing: '', isVariable: false }
+      const profile = med.activeIngredient ? getPKProfile(med.activeIngredient) : undefined
+      return {
+        slots,
+        timing: 'Horário cadastrado',
+        isVariable: false,
+        pkBased: false,
+        foodInstruction: profile ? FOOD_LABELS[profile.foodEffect] : undefined,
+        pkRationale: profile?.rationale,
+        idealHours: slots.map(s => parseInt(s.replace('t', ''))),
+      }
     }
   }
 
-  // 2. Intervalo em horas
-  if (med.frequencyHours && med.frequencyHours > 0) {
-    return { slots: slotsByInterval(med.frequencyHours), timing: `a cada ${med.frequencyHours}h`, isVariable: false }
+  // 2. Buscar perfil farmacocinético
+  const profile = med.activeIngredient ? getPKProfile(med.activeIngredient) : undefined
+  const freqCount = parseFrequencyCount(med)
+
+  if (profile) {
+    // Frequência especial: textos que indicam não-diário
+    const freqText = med.frequency?.toLowerCase() ?? ''
+    if (/semanal|1\s*[xv×]\s*semana|weekly/i.test(freqText)) {
+      return {
+        slots: [hourToSlot(profile.idealHours[0])],
+        timing: '1× por semana',
+        isVariable: true,
+        pkBased: true,
+        foodInstruction: FOOD_LABELS[profile.foodEffect],
+        pkRationale: profile.rationale,
+        idealHours: [profile.idealHours[0]],
+      }
+    }
+    if (/conforme|sos|prn|se\s+necessário|quando/i.test(freqText)) {
+      return {
+        slots: [],
+        timing: 'Se necessário (SOS)',
+        isVariable: true,
+        pkBased: true,
+        foodInstruction: FOOD_LABELS[profile.foodEffect],
+        pkRationale: profile.rationale,
+        idealHours: [],
+      }
+    }
+
+    const hours = getRecommendedHours(profile, freqCount)
+    const slots = Array.from(new Set(hours.map(h => hourToSlot(h))))
+
+    return {
+      slots,
+      timing: freqCount === 1 ? '1× ao dia' : `${freqCount}× ao dia (${hours.map(h => `${h}h`).join(', ')})`,
+      isVariable: false,
+      pkBased: true,
+      foodInstruction: FOOD_LABELS[profile.foodEffect],
+      pkRationale: profile.rationale,
+      idealHours: hours,
+    }
   }
 
-  // 3. Texto de frequência
+  // 3. Sem perfil FK — inferir pelo intervalo/texto
+  if (med.frequencyHours && med.frequencyHours > 0) {
+    const slots = slotsByInterval(med.frequencyHours)
+    return { slots, timing: `a cada ${med.frequencyHours}h`, isVariable: false, pkBased: false }
+  }
   if (med.frequency) {
     return parseFrequencyText(med.frequency)
   }
 
-  return { slots: [], timing: 'Horário não informado', isVariable: true }
+  return { slots: [], timing: 'Horário não informado', isVariable: true, pkBased: false }
 }
 
-/** Converte "8h, 14h, 22h" → ['t08','t14','t22'] */
+// ── Parsers auxiliares ────────────────────────────────────────────────────────
+
 function parseScheduleString(raw: string): TimeSlotId[] {
   const ids = new Set<TimeSlotId>()
   const matches = raw.match(/\d{1,2}h?/gi) ?? []
   for (const m of matches) {
-    const h = parseInt(m)
-    const slot = nearestSlot(h)
-    if (slot) ids.add(slot)
+    ids.add(hourToSlot(parseInt(m)))
   }
   return Array.from(ids)
 }
 
-/** Mapeia hora inteira para o slot mais próximo */
-function nearestSlot(hour: number): TimeSlotId | null {
-  const map: Record<number, TimeSlotId> = {
-    0: 't06', 1: 't06', 2: 't06', 3: 't06', 4: 't06', 5: 't06',
-    6: 't06', 7: 't07', 8: 't08', 9: 't08', 10: 't10',
-    11: 't12', 12: 't12', 13: 't12', 14: 't14', 15: 't14',
-    16: 't18', 17: 't18', 18: 't18', 19: 't20', 20: 't20',
-    21: 't22', 22: 't22', 23: 't22',
-  }
-  return map[hour] ?? null
-}
-
-/** Distribui doses com base no intervalo em horas */
 function slotsByInterval(hours: number): TimeSlotId[] {
-  // Inicia às 8h e distribui pelo dia
-  const startHour = 8
+  const start = 8
   const result: TimeSlotId[] = []
-  let h = startHour
-  while (h < 32) { // até 8h do dia seguinte para cobrir intervalos longos
-    const slot = nearestSlot(h % 24)
-    if (slot && !result.includes(slot)) result.push(slot)
+  let h = start
+  const count = Math.round(24 / hours)
+  for (let i = 0; i < count && i < 6; i++) {
+    const slot = hourToSlot(h % 24)
+    if (!result.includes(slot)) result.push(slot)
     h += hours
-    if (result.length >= Math.round(24 / hours)) break
   }
   return result
 }
 
-/** Interpreta string de frequência em português/inglês */
 function parseFrequencyText(freq: string): ResolvedSchedule {
   const f = freq.toLowerCase().trim()
+  const base = { pkBased: false, isVariable: false } as const
 
-  // Jejum / antes das refeições
   if (/jejum|antes.*refeição|antes.*café|pré.?prandial/i.test(f))
-    return { slots: ['t07'], timing: 'Em jejum — 30 min antes do café', isVariable: false }
+    return { ...base, slots: ['t07'], timing: 'Em jejum', foodInstruction: FOOD_LABELS.jejum }
+  if (/deitar|dormir|bedtime/i.test(f))
+    return { ...base, slots: ['t22'], timing: 'Ao deitar' }
+  if (/1\s*[xv×]|uma\s+vez|once|1x/i.test(f))
+    return { ...base, slots: ['t08'], timing: '1× ao dia' }
+  if (/2\s*[xv×]|duas?\s+vez|twice|bid|2x/i.test(f))
+    return { ...base, slots: ['t08', 't20'], timing: '2× ao dia' }
+  if (/3\s*[xv×]|três\s+vez|three|tid|3x/i.test(f))
+    return { ...base, slots: ['t08', 't14', 't20'], timing: '3× ao dia' }
+  if (/4\s*[xv×]|quatro|four|qid|4x/i.test(f))
+    return { ...base, slots: ['t08', 't12', 't18', 't22'], timing: '4× ao dia' }
+  if (/semanal|weekly/i.test(f))
+    return { ...base, slots: ['t08'], timing: '1× por semana', isVariable: true }
+  if (/necessário|sos|prn/i.test(f))
+    return { ...base, slots: [], timing: 'Se necessário (SOS)', isVariable: true }
 
-  // Ao deitar / noite
-  if (/deitar|dormir|noite|ao\s+deitar|bedtime/i.test(f))
-    return { slots: ['t22'], timing: 'Ao deitar', isVariable: false }
-
-  // Com refeições / pós-prandial
-  if (/refeição|refeic|com.*comida|aliment|pós.?prandial|with\s+food/i.test(f))
-    return { slots: ['t08', 't12', 't18'], timing: 'Com as refeições', isVariable: false }
-
-  // 1x ao dia / once daily / 1 vez
-  if (/^1\s*[xv×]|uma\s+vez|once\s+daily|1\s+vez/i.test(f))
-    return { slots: ['t08'], timing: '1× ao dia', isVariable: false }
-
-  // 2x ao dia / twice daily
-  if (/^2\s*[xv×]|duas?\s+vezes|twice\s+daily|bid|2\s+vezes/i.test(f))
-    return { slots: ['t08', 't20'], timing: '2× ao dia', isVariable: false }
-
-  // 3x ao dia / three times
-  if (/^3\s*[xv×]|três\s+vezes|three\s+times|tid|3\s+vezes/i.test(f))
-    return { slots: ['t08', 't14', 't20'], timing: '3× ao dia', isVariable: false }
-
-  // 4x ao dia / four times / qid
-  if (/^4\s*[xv×]|quatro\s+vezes|four\s+times|qid|4\s+vezes/i.test(f))
-    return { slots: ['t08', 't12', 't18', 't22'], timing: '4× ao dia', isVariable: false }
-
-  // 5x ao dia
-  if (/^5\s*[xv×]|cinco\s+vezes|5\s+vezes/i.test(f))
-    return { slots: ['t06', 't08', 't12', 't18', 't22'], timing: '5× ao dia', isVariable: false }
-
-  // A cada X horas
-  const eachMatch = f.match(/cada\s+(\d+)\s*h/i) ?? f.match(/q\.?\s*(\d+)\s*h/i)
-  if (eachMatch) {
-    const h = parseInt(eachMatch[1])
-    return { slots: slotsByInterval(h), timing: `a cada ${h}h`, isVariable: false }
+  const em = f.match(/cada\s+(\d+)\s*h/i) ?? f.match(/q\.?\s*(\d+)\s*h/i)
+  if (em) {
+    const h = parseInt(em[1])
+    return { ...base, slots: slotsByInterval(h), timing: `a cada ${h}h` }
+  }
+  const nm = f.match(/(\d+)\s*[xv×]/i)
+  if (nm) {
+    const n = parseInt(nm[1])
+    return { ...base, slots: slotsByInterval(Math.round(24 / n)), timing: `${n}× ao dia` }
   }
 
-  // Semanal / semana
-  if (/semanal|1\s*[xv×]\s*semana|weekly/i.test(f))
-    return { slots: ['t08'], timing: '1× por semana', isVariable: true }
-
-  // Quinzenal / mensal
-  if (/quinzenal|mensal|monthly/i.test(f))
-    return { slots: ['t08'], timing: freq, isVariable: true }
-
-  // Conforme necessário / SOS
-  if (/necessário|sos|prn|se\s+necessário/i.test(f))
-    return { slots: [], timing: 'Se necessário (SOS)', isVariable: true }
-
-  // Fallback: tenta extrair número de vezes
-  const nMatch = f.match(/(\d+)\s*[xv×]/i)
-  if (nMatch) {
-    const n = parseInt(nMatch[1])
-    return { slots: slotsByInterval(Math.round(24 / n)), timing: `${n}× ao dia`, isVariable: false }
-  }
-
-  return { slots: ['t08'], timing: freq, isVariable: false }
+  return { ...base, slots: ['t08'], timing: freq, isVariable: false }
 }
 
 // ── Alertas clínicos ──────────────────────────────────────────────────────────
@@ -170,15 +234,17 @@ export type AlertSeverity = 'critical' | 'warning' | 'info'
 export interface PosologyAlert {
   medicationName: string
   severity: AlertSeverity
-  type: 'timing' | 'food' | 'high_risk' | 'interaction' | 'adherence' | 'renal' | 'hepatic'
+  type: 'timing' | 'food' | 'high_risk' | 'interaction' | 'adherence' | 'renal' | 'hepatic' | 'pk'
   message: string
   recommendation: string
+  pkBased?: boolean
 }
 
 interface MedInput {
   activeIngredient: string
   tradeName?: string | null
   frequency?: string | null
+  frequencyHours?: number | null
   schedule?: string | null
   dose?: number | null
   doseUnit?: string | null
@@ -186,319 +252,184 @@ interface MedInput {
   route?: string | null
 }
 
-interface PatientContext {
+interface PatientCtx {
   renalFunction?: string | null
   hepaticFunction?: string | null
   isElderly?: boolean
   isPregnant?: boolean
 }
 
-/**
- * Gera alertas posológicos para a lista de medicamentos do paciente.
- */
-export function generatePosologyAlerts(meds: MedInput[], patient: PatientContext): PosologyAlert[] {
+export function generatePosologyAlerts(meds: MedInput[], patient: PatientCtx): PosologyAlert[] {
   const alerts: PosologyAlert[] = []
 
   for (const med of meds) {
-    const name = med.activeIngredient.toLowerCase()
-    const displayName = med.tradeName ? `${med.activeIngredient} (${med.tradeName})` : med.activeIngredient
+    const displayName = med.tradeName
+      ? `${med.activeIngredient} (${med.tradeName})`
+      : med.activeIngredient
 
-    // ── Alertas de horário / alimento ──────────────────────────────────────
+    const profile = getPKProfile(med.activeIngredient)
 
-    // IBPs / Inibidores de bomba de prótons
-    if (/omeprazol|pantoprazol|esomeprazol|lansoprazol|rabeprazol/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'timing',
-        message: 'Tomar 30–60 min ANTES da primeira refeição do dia.',
-        recommendation: 'Horário ideal: 7h (em jejum). Eficácia reduzida se tomado com alimento.',
-      })
-    }
+    // ── Alerta baseado em perfil FK ─────────────────────────────────────────
+    if (profile) {
+      const freqCount = parseFrequencyCount(med)
+      const hours = getRecommendedHours(profile, freqCount)
+      const foodLabel = FOOD_LABELS[profile.foodEffect]
+      const severity: AlertSeverity = profile.highAlert ? 'critical' : 'info'
 
-    // Bisfosfonatos
-    if (/alendronato|risedronato|ibandronato|zoledronato/i.test(name)) {
       alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'timing',
-        message: 'Tomar em jejum com copo cheio de água. Permanecer ERETO por 30 min.',
-        recommendation: 'Não deitar após tomar. Não comer por 30 min. Evitar cálcio e antiácidos.',
+        medicationName: displayName,
+        severity,
+        type: 'pk',
+        message: `${profile.class} — Horário recomendado: ${hours.map(h => `${h}h`).join(', ')}. ${foodLabel}.`,
+        recommendation: profile.patientInstruction,
+        pkBased: true,
       })
-    }
 
-    // Levotiroxina
-    if (/levotiroxina|l-tiroxina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'food',
-        message: 'Tomar em jejum rigoroso, 30–60 min antes do café da manhã.',
-        recommendation: 'Não tomar com cálcio, ferro ou antiácidos (intervalo mínimo 4h). Horário fixo todo dia.',
-      })
-    }
-
-    // Metformina
-    if (/metformina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'info', type: 'food',
-        message: 'Tomar COM alimento para reduzir desconforto gastrointestinal.',
-        recommendation: 'Dividir doses às refeições principais quando em esquema 2× ou 3× ao dia.',
-      })
-    }
-
-    // Sulfonilureias
-    if (/glibenclamida|glipizida|gliclazida|glimepirida/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'timing',
-        message: 'Tomar 30 min ANTES das refeições.',
-        recommendation: 'Monitorar hipoglicemia especialmente em idosos e pacientes com insuficiência renal.',
-      })
-    }
-
-    // Estatinas (sinvastatina e lovastatina = noite; outras = qualquer hora)
-    if (/sinvastatina|lovastatina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'info', type: 'timing',
-        message: 'Tomar preferencialmente À NOITE (maior síntese de colesterol ocorre à noite).',
-        recommendation: 'Horário ideal: 22h. Sinvastatina tem interação com toranja (grapefruit).',
-      })
-    }
-    if (/atorvastatina|rosuvastatina|fluvastatina|pravastatina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'info', type: 'timing',
-        message: 'Pode ser tomada em qualquer horário. Manter horário fixo.',
-        recommendation: 'Atorvastatina: evitar toranja. Rosuvastatina: tomar 2h antes de antiácidos.',
-      })
-    }
-
-    // Anticoagulantes
-    if (/varfarina|warfarina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'high_risk',
-        message: '⚠️ MEDICAMENTO DE ALTA VIGILÂNCIA — Tomar no mesmo horário todos os dias.',
-        recommendation: 'Manter ingestão consistente de vitamina K. Monitorar INR regularmente. Checar interações a cada nova prescrição.',
-      })
-    }
-    if (/rivaroxabana|apixabana|dabigatrana|edoxabana/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'high_risk',
-        message: '⚠️ ANTICOAGULANTE ORAL — Não interromper sem orientação médica.',
-        recommendation: 'Rivaroxabana 15/20mg: tomar COM alimento. Dabigatrana: não abrir cápsula.',
-      })
-    }
-
-    // Digoxina
-    if (/digoxina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'high_risk',
-        message: '⚠️ MARGEM TERAPÊUTICA ESTREITA — Monitorar FC e nível sérico.',
-        recommendation: 'Tomar no mesmo horário. Evitar com antiarrítmicos. Monitorar K⁺ sérico.',
-      })
-    }
-
-    // Insulina
-    if (/insulina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'timing',
-        message: '⚠️ Timing crítico conforme tipo: Regular = 30 min antes; Análogos ultrarrápidos = imediatamente antes ou com refeição.',
-        recommendation: 'Rodízio de sítios de aplicação. Armazenar frasco aberto em temperatura ambiente (28 dias max.).',
-      })
-    }
-
-    // Ferro
-    if (/sulfato\s*ferroso|ferro|fumarato\s*ferroso|gluconato\s*ferroso/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'food',
-        message: 'Tomar entre as refeições (1h antes ou 2h após) com suco de laranja (vitamina C).',
-        recommendation: 'Não tomar com cálcio, laticínios, chá, café ou leite — reduzem absorção em até 60%.',
-      })
-    }
-
-    // Cálcio
-    if (/carbonato\s*de\s*cálcio|cálcio|calcium\s*carbonate/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'info', type: 'food',
-        message: 'Carbonato de cálcio: tomar COM alimento (precisa de ácido gástrico).',
-        recommendation: 'Citrato de cálcio pode ser tomado sem alimento. Dividir doses (max 500mg por vez).',
-      })
-    }
-
-    // Diuréticos
-    if (/furosemida|hidroclorotiazida|espironolactona|indapamida|torasemida/i.test(name)) {
-      if (!/espironolactona/i.test(name)) {
-        alerts.push({
-          medicationName: displayName, severity: 'warning', type: 'timing',
-          message: 'Tomar pela MANHÃ para evitar noctúria.',
-          recommendation: 'Furosemida 2× ao dia: 8h e 14h (nunca após 16h). Monitorar K⁺, Na⁺ e creatinina.',
-        })
+      // Notas de segurança
+      if (profile.safetyNotes) {
+        for (const note of profile.safetyNotes) {
+          alerts.push({
+            medicationName: displayName,
+            severity: 'critical',
+            type: 'high_risk',
+            message: note,
+            recommendation: 'Orientar paciente e revisar na próxima consulta farmacêutica.',
+            pkBased: true,
+          })
+        }
       }
     }
 
-    // Antibióticos — espaçamento uniforme
-    if (/amoxicilina|ampicilina|azitromicina|claritromicina|ciprofloxacino|levofloxacino|metronidazol|cefalexina|ceftriaxona/i.test(name)) {
-      const sched = resolveSchedule(med)
-      if (sched.slots.length >= 2) {
-        alerts.push({
-          medicationName: displayName, severity: 'warning', type: 'timing',
-          message: 'Espaçar doses uniformemente a cada intervalo fixo para manter nível sérico constante.',
-          recommendation: `${sched.slots.length} doses/dia → intervalos de ${Math.round(24 / sched.slots.length)}h. Completar curso completo.`,
-        })
-      }
-      if (/azitromicina/i.test(name)) {
-        alerts.push({
-          medicationName: displayName, severity: 'info', type: 'food',
-          message: 'Azitromicina: pode ser tomada com ou sem alimento.',
-          recommendation: 'Tomada em jejum aumenta absorção. Ciprofloxacino: não tomar com laticínios ou antiácidos.',
-        })
-      }
-    }
-
-    // Antiepilépticos / Anticonvulsivantes
-    if (/fenitoína|carbamazepina|valproato|ácido\s*valproico|levetiracetam|lamotrigina/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'critical', type: 'adherence',
-        message: '⚠️ Não pular doses — risco de convulsões. Manter horários rigorosamente fixos.',
-        recommendation: 'Valproato: tomar com alimento. Monitorar nível sérico periodicamente.',
-      })
-    }
-
-    // Anti-hipertensivos — consistência
-    if (/losartana|enalapril|captopril|ramipril|amlodipino|anlodipino|nifedipino|propranolol|atenolol|carvedilol|bisoprolol|metoprolol/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'info', type: 'timing',
-        message: 'Manter horário fixo todos os dias para controle estável da PA.',
-        recommendation: 'Captopril: tomar em jejum (30 min antes das refeições) para melhor absorção.',
-      })
-    }
-
-    // Corticosteroides
-    if (/prednisona|prednisolona|dexametasona|hidrocortisona|betametasona/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'timing',
-        message: 'Tomar pela MANHÃ com alimento, preferencialmente entre 7h–8h.',
-        recommendation: 'Simula o pico fisiológico do cortisol. Não interromper abruptamente.',
-      })
-    }
-
-    // AINES / Ibuprofeno / Diclofenaco
-    if (/ibuprofeno|diclofenaco|naproxeno|nimesulida|cetoprofeno|meloxicam|celecoxibe/i.test(name)) {
-      alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'food',
-        message: 'Tomar COM alimento ou leite para proteger mucosa gástrica.',
-        recommendation: 'Evitar uso prolongado. Associar protetor gástrico (IBP) em idosos ou uso > 5 dias.',
-      })
-    }
-
-    // Baixa adesão documentada
+    // ── Alertas de adesão documentada ──────────────────────────────────────
     if (med.adherence === 'POOR' || med.adherence === 'MODERATE') {
       alerts.push({
-        medicationName: displayName, severity: 'warning', type: 'adherence',
+        medicationName: displayName,
+        severity: 'warning',
+        type: 'adherence',
         message: `Adesão documentada: ${med.adherence === 'POOR' ? 'Ruim' : 'Moderada'}.`,
-        recommendation: 'Considerar simplificação do esquema, uso de caixa de medicamentos semanal ou alarme de lembrete.',
+        recommendation: 'Considerar simplificação do esquema, organizador semanal de medicamentos ou aplicativo de lembretes.',
       })
     }
 
-    // Alerta renal
-    if (patient.renalFunction && ['moderate_impairment', 'severe_impairment', 'failure'].includes(patient.renalFunction)) {
-      if (/metformina|nsaid|ibuprofeno|diclofenaco|naproxeno|metronidazol/i.test(name)) {
+    // ── Alertas renais ──────────────────────────────────────────────────────
+    if (['moderate_impairment', 'severe_impairment', 'failure'].includes(patient.renalFunction ?? '')) {
+      if (/metformina|nsaid|ibuprofeno|diclofenaco|naproxeno|metronidazol|levetiracetam/i.test(med.activeIngredient)) {
         alerts.push({
-          medicationName: displayName, severity: 'critical', type: 'renal',
-          message: '⚠️ CONTRAINDICADO ou AJUSTE DE DOSE em insuficiência renal moderada/grave.',
-          recommendation: 'Revisar dose ou substituir. Calcular ClCr e consultar protocolo de ajuste renal.',
+          medicationName: displayName,
+          severity: 'critical',
+          type: 'renal',
+          message: '⚠️ AJUSTE DE DOSE ou CONTRAINDICADO em insuficiência renal moderada/grave.',
+          recommendation: 'Calcular ClCr (Cockcroft-Gault) e ajustar dose conforme protocolo. Monitorar creatinina e ureia.',
         })
       }
     }
 
-    // Alerta hepático
-    if (patient.hepaticFunction && ['moderate_impairment', 'severe_impairment'].includes(patient.hepaticFunction)) {
-      if (/paracetamol|acetaminofeno|atorvastatina|sinvastatina|metronidazol/i.test(name)) {
+    // ── Alertas hepáticos ───────────────────────────────────────────────────
+    if (['moderate_impairment', 'severe_impairment'].includes(patient.hepaticFunction ?? '')) {
+      if (/paracetamol|acetaminofeno|atorvastatina|sinvastatina|metronidazol|valproato/i.test(med.activeIngredient)) {
         alerts.push({
-          medicationName: displayName, severity: 'critical', type: 'hepatic',
+          medicationName: displayName,
+          severity: 'critical',
+          type: 'hepatic',
           message: '⚠️ AJUSTE DE DOSE necessário em disfunção hepática.',
-          recommendation: 'Hepatotoxicidade potencial. Monitorar enzimas hepáticas. Consultar bula para ajuste.',
+          recommendation: 'Monitorar AST, ALT, fosfatase alcalina. Consultar bula para ajuste posológico.',
         })
       }
     }
 
-    // Idoso — medicamentos de Beers
+    // ── Critérios de Beers em idosos ────────────────────────────────────────
     if (patient.isElderly) {
-      if (/amiodarona|glibenclamida|indometacina|diazepam|alprazolam|clonazepam|lorazepam|haloperidol|amitriptilina|nortriptilina/i.test(name)) {
+      if (/amiodarona|glibenclamida|indometacina|diazepam|alprazolam|clonazepam|lorazepam|haloperidol|amitriptilina|nortriptilina|clorfeniramina|difenidramina/i.test(med.activeIngredient)) {
         alerts.push({
-          medicationName: displayName, severity: 'critical', type: 'high_risk',
-          message: '⚠️ CRITÉRIOS DE BEERS — Medicamento potencialmente inapropriado em idosos (≥60 anos).',
-          recommendation: 'Avaliar relação risco-benefício. Considerar alternativa mais segura para a faixa etária.',
+          medicationName: displayName,
+          severity: 'critical',
+          type: 'high_risk',
+          message: '⚠️ CRITÉRIOS DE BEERS 2023 — Medicamento potencialmente inapropriado em pacientes ≥ 65 anos.',
+          recommendation: 'Avaliar relação risco-benefício. Considerar alternativa mais segura para a faixa etária. Revisão farmacêutica obrigatória.',
         })
       }
     }
   }
 
   // ── Alertas de interações por horário (entre medicamentos) ─────────────────
+  const names = meds.map(m => m.activeIngredient.toLowerCase())
 
-  const hasFerro = meds.some(m => /ferro|sulfato\s*ferroso/i.test(m.activeIngredient))
-  const hasLevotiroxina = meds.some(m => /levotiroxina/i.test(m.activeIngredient))
-  if (hasFerro && hasLevotiroxina) {
-    alerts.push({
-      medicationName: 'Ferro + Levotiroxina',
-      severity: 'critical', type: 'interaction',
-      message: '⚠️ INTERAÇÃO: Ferro reduz absorção de Levotiroxina em até 30–40%.',
-      recommendation: 'Separar horários por mínimo 4 horas. Levotiroxina: manhã em jejum. Ferro: tarde.',
-    })
+  // Varrer todas as interações de timing na base FK
+  for (const profile of PK_DATABASE) {
+    if (!profile.timingInteractions) continue
+    const hasDrug = profile.drugs.some(d => names.some(n => n.includes(d.toLowerCase()) || d.toLowerCase().includes(n)))
+    if (!hasDrug) continue
+    for (const inter of profile.timingInteractions) {
+      const hasOther = names.some(n => n.includes(inter.with.toLowerCase()) || inter.with.toLowerCase().includes(n))
+      if (!hasOther) continue
+      const drugName = profile.drugs[0]
+      alerts.push({
+        medicationName: `${drugName} + ${inter.with}`,
+        severity: 'critical',
+        type: 'interaction',
+        message: `⚠️ INTERAÇÃO DE HORÁRIO: ${inter.note}`,
+        recommendation: inter.gap > 0
+          ? `Separar os horários de administração por no mínimo ${inter.gap} horas.`
+          : 'Evitar a combinação ou revisar com o médico prescritor.',
+        pkBased: true,
+      })
+    }
   }
 
-  const hasCálcio = meds.some(m => /cálcio|carbonato/i.test(m.activeIngredient))
-  if (hasCálcio && hasLevotiroxina) {
-    alerts.push({
-      medicationName: 'Cálcio + Levotiroxina',
-      severity: 'critical', type: 'interaction',
-      message: '⚠️ INTERAÇÃO: Cálcio reduz absorção de Levotiroxina.',
-      recommendation: 'Separar por mínimo 4 horas.',
-    })
-  }
-
-  const hasAntiacido = meds.some(m => /hidróxido\s*de\s*alumínio|hidróxido\s*de\s*magnésio|antiácido|bicarbonato/i.test(m.activeIngredient))
-  const hasQuinolona = meds.some(m => /ciprofloxacino|levofloxacino|norfloxacino/i.test(m.activeIngredient))
-  if (hasAntiacido && hasQuinolona) {
-    alerts.push({
-      medicationName: 'Antiácido + Quinolona',
-      severity: 'critical', type: 'interaction',
-      message: '⚠️ INTERAÇÃO: Antiácidos reduzem absorção de quinolonas em até 90%.',
-      recommendation: 'Separar por mínimo 2 horas. Quinolona: antes do antiácido.',
-    })
-  }
-
-  // Sort: critical first
+  // Ordenar: critical → warning → info
   return alerts.sort((a, b) => {
-    const order = { critical: 0, warning: 1, info: 2 }
-    return order[a.severity] - order[b.severity]
+    const o = { critical: 0, warning: 1, info: 2 }
+    return o[a.severity] - o[b.severity]
   })
 }
 
-// ── Classe terapêutica para colorização ───────────────────────────────────────
+// ── Classe terapêutica para colorização ──────────────────────────────────────
 
 export function getTherapeuticClass(activeIngredient: string): string {
   const n = activeIngredient.toLowerCase()
+  const profile = getPKProfile(activeIngredient)
+  if (profile) {
+    const cls = profile.class.toLowerCase()
+    if (/diabetes|antidiabét|insulina|biguanida|sglt|dpp-4|glp/i.test(cls)) return 'diabetes'
+    if (/cardiovascular|hipertens|antiarr|diurét|betablo|bcc|ieca|bra|anticoag|antiagr/i.test(cls)) return 'cardiovascular'
+    if (/lipid|estatina|hipolipem/i.test(cls)) return 'lipid'
+    if (/anticoag/i.test(cls)) return 'anticoagulant'
+    if (/antibiótico|antimicrob/i.test(cls)) return 'antibiotic'
+    if (/gastro|bomba|ibp/i.test(cls)) return 'gi'
+    if (/cortico|esteroide/i.test(cls)) return 'steroid'
+    if (/aine|anti-inflam/i.test(cls)) return 'nsaid'
+    if (/tireoid/i.test(cls)) return 'thyroid'
+    if (/epilép|anticonvuls/i.test(cls)) return 'neurologic'
+    if (/antidepres|ansiolít|psiquiát|benzo|isrs|irsn/i.test(cls)) return 'psychiatric'
+    if (/suplemento|vitamin|mineral|ferro|cálcio/i.test(cls)) return 'supplement'
+  }
   if (/insulina|metformina|glibenc|glipiz|gliclaz|glimep|sitaglip|empaglifloz|dapaglifloz/i.test(n)) return 'diabetes'
-  if (/losart|enalapril|captopril|ramipril|amlodip|nifedip|propranolol|atenolol|carvedil|bisoprolol|metoprolol|hidroclo|furosem|espirono|indapam/i.test(n)) return 'cardiovascular'
+  if (/losart|enalapril|captopril|ramipril|amlodip|nifedip|propranolol|atenolol|carvedil|bisoprolol|metoprolol|furosem|espirono/i.test(n)) return 'cardiovascular'
   if (/sinvasta|atorvasta|rosuva|fluva|prava/i.test(n)) return 'lipid'
-  if (/varfarin|rivarox|apixab|dabigatr|heparina|clopidogrel|aspirina|ácido acetilsalicílico/i.test(n)) return 'anticoagulant'
-  if (/amoxicil|ampicil|azitrom|claritrom|ciproflox|levoflox|metronid|cefalex|ceftri|tetraciclina|doxiciclin/i.test(n)) return 'antibiotic'
-  if (/omeprazol|pantoprazol|esomeprazol|lansoprazol|rabeprazol|ranitidina|famotidina/i.test(n)) return 'gi'
-  if (/prednisona|prednisolona|dexameta|hidrocort|betameta/i.test(n)) return 'steroid'
-  if (/ibuprofeno|diclofenac|naproxen|nimesul|cetopr|meloxicam|celecox/i.test(n)) return 'nsaid'
+  if (/varfarin|rivarox|apixab|dabigatr|heparina|clopidogrel/i.test(n)) return 'anticoagulant'
+  if (/amoxicil|azitrom|claritrom|ciproflox|levoflox|metronid/i.test(n)) return 'antibiotic'
+  if (/omeprazol|pantoprazol|esomeprazol/i.test(n)) return 'gi'
+  if (/prednisona|dexameta|hidrocort/i.test(n)) return 'steroid'
+  if (/ibuprofeno|diclofenac|naproxen|nimesul/i.test(n)) return 'nsaid'
   if (/levotiroxin/i.test(n)) return 'thyroid'
-  if (/fenitoín|carbamazep|valproato|levetirace|lamotrigin|topiramato/i.test(n)) return 'neurologic'
-  if (/sertralina|fluoxetina|escitalopram|paroxetina|venlafaxina|amitriptil|nortriptil/i.test(n)) return 'psychiatric'
-  if (/sulfato\s*ferr|ferro|cálcio|carbonato|vitamina\s*d|vitamina\s*b/i.test(n)) return 'supplement'
+  if (/fenitoín|carbamazep|valproato|levetirace|lamotrigin/i.test(n)) return 'neurologic'
+  if (/sertralina|fluoxetina|escitalopram|paroxetina|venlafaxina|mirtazapina/i.test(n)) return 'psychiatric'
+  if (/sulfato\s*ferr|ferro|cálcio|vitamina\s*d|vitamina\s*b/i.test(n)) return 'supplement'
   return 'other'
 }
 
 export const CLASS_COLORS: Record<string, { bg: string; text: string; border: string; label: string }> = {
-  diabetes:      { bg: 'bg-blue-100',   text: 'text-blue-800',   border: 'border-blue-300',   label: 'Diabetes' },
-  cardiovascular:{ bg: 'bg-red-100',    text: 'text-red-800',    border: 'border-red-300',    label: 'Cardiovascular' },
-  lipid:         { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300', label: 'Dislipidemia' },
-  anticoagulant: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300', label: 'Anticoag.' },
-  antibiotic:    { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', label: 'Antibiótico' },
-  gi:            { bg: 'bg-teal-100',   text: 'text-teal-800',   border: 'border-teal-300',   label: 'Gastro.' },
-  steroid:       { bg: 'bg-amber-100',  text: 'text-amber-800',  border: 'border-amber-300',  label: 'Corticoide' },
-  nsaid:         { bg: 'bg-rose-100',   text: 'text-rose-800',   border: 'border-rose-300',   label: 'AINE' },
-  thyroid:       { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-300', label: 'Tireóide' },
-  neurologic:    { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-300', label: 'Neurológico' },
-  psychiatric:   { bg: 'bg-pink-100',   text: 'text-pink-800',   border: 'border-pink-300',   label: 'Psiquiátrico' },
-  supplement:    { bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300',  label: 'Suplemento' },
-  other:         { bg: 'bg-gray-100',   text: 'text-gray-700',   border: 'border-gray-300',   label: 'Outro' },
+  diabetes:       { bg: 'bg-blue-100',   text: 'text-blue-800',   border: 'border-blue-300',   label: 'Diabetes' },
+  cardiovascular: { bg: 'bg-red-100',    text: 'text-red-800',    border: 'border-red-300',    label: 'Cardiovascular' },
+  lipid:          { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-300', label: 'Dislipidemia' },
+  anticoagulant:  { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300', label: 'Anticoag.' },
+  antibiotic:     { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-300', label: 'Antibiótico' },
+  gi:             { bg: 'bg-teal-100',   text: 'text-teal-800',   border: 'border-teal-300',   label: 'Gastro.' },
+  steroid:        { bg: 'bg-amber-100',  text: 'text-amber-800',  border: 'border-amber-300',  label: 'Corticoide' },
+  nsaid:          { bg: 'bg-rose-100',   text: 'text-rose-800',   border: 'border-rose-300',   label: 'AINE' },
+  thyroid:        { bg: 'bg-indigo-100', text: 'text-indigo-800', border: 'border-indigo-300', label: 'Tireóide' },
+  neurologic:     { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-300', label: 'Neurológico' },
+  psychiatric:    { bg: 'bg-pink-100',   text: 'text-pink-800',   border: 'border-pink-300',   label: 'Psiquiátrico' },
+  supplement:     { bg: 'bg-green-100',  text: 'text-green-800',  border: 'border-green-300',  label: 'Suplemento' },
+  other:          { bg: 'bg-gray-100',   text: 'text-gray-700',   border: 'border-gray-300',   label: 'Outro' },
 }

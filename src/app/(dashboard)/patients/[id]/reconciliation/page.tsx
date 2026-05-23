@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, Pill } from 'lucide-react'
 import { calculateAge } from '@/lib/utils'
 import { resolveSchedule, generatePosologyAlerts, getTherapeuticClass, type ResolvedSchedule } from '@/lib/posology'
+import { getPKProfile } from '@/lib/pharma-pk-db'
 import { MedScheduleGrid } from '@/components/reconciliation/MedScheduleGrid'
 import { PrintButton } from '@/components/reconciliation/PrintButton'
 
@@ -13,10 +14,12 @@ import { PrintButton } from '@/components/reconciliation/PrintButton'
 export interface MedWithSchedule {
   id: string
   name: string
+  activeIngredient: string
   dosage: string | null
   frequency: string | null
   schedule: ResolvedSchedule
   therapeuticClass: string
+  pkClass?: string   // classe terapêutica detalhada do banco FK
 }
 
 export interface PosologyAlert {
@@ -65,18 +68,24 @@ export default async function ReconciliationPage({ params }: { params: { id: str
   const age = patient.dateOfBirth ? calculateAge(patient.dateOfBirth) : patient.age
 
   // Resolve schedules for each medication
-  const meds: MedWithSchedule[] = patient.medications.map(med => ({
-    id: med.id,
-    name: med.tradeName ? `${med.activeIngredient} (${med.tradeName})` : med.activeIngredient,
-    dosage: med.dose != null ? `${med.dose}${med.doseUnit ?? ''}` : null,
-    frequency: med.frequency,
-    schedule: resolveSchedule({
-      schedule: med.schedule,
-      frequencyHours: med.frequencyHours,
+  const meds: MedWithSchedule[] = patient.medications.map(med => {
+    const profile = getPKProfile(med.activeIngredient)
+    return {
+      id: med.id,
+      activeIngredient: med.activeIngredient,
+      name: med.tradeName ? `${med.activeIngredient} (${med.tradeName})` : med.activeIngredient,
+      dosage: med.dose != null ? `${med.dose}${med.doseUnit ?? ''}` : null,
       frequency: med.frequency,
-    }),
-    therapeuticClass: getTherapeuticClass(med.activeIngredient),
-  }))
+      schedule: resolveSchedule({
+        activeIngredient: med.activeIngredient,
+        schedule: med.schedule,
+        frequencyHours: med.frequencyHours,
+        frequency: med.frequency,
+      }),
+      therapeuticClass: getTherapeuticClass(med.activeIngredient),
+      pkClass: profile?.class,
+    }
+  })
 
   // Generate clinical alerts (posology engine returns its own PosologyAlert type)
   const rawAlerts = generatePosologyAlerts(patient.medications, {

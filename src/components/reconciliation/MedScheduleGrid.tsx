@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Printer, AlertTriangle, Info, ChevronDown, ChevronUp, X } from 'lucide-react'
-import { TIME_SLOTS, type ResolvedSchedule, type TimeSlotId } from '@/lib/posology'
+import { AlertTriangle, Info, ChevronDown, ChevronUp, FlaskConical, Utensils } from 'lucide-react'
+import { TIME_SLOTS, CLASS_COLORS, type ResolvedSchedule, type TimeSlotId } from '@/lib/posology'
 import type { PosologyAlert, MedWithSchedule } from '@/app/(dashboard)/patients/[id]/reconciliation/page'
 
 // ── Severity config ──────────────────────────────────────────────────────────
@@ -13,26 +13,33 @@ const SEVERITY_CONFIG = {
   low: { bg: 'bg-blue-50', border: 'border-blue-400', text: 'text-blue-600', badge: 'bg-blue-100 text-blue-600', icon: '🔵', label: 'Baixa' },
 } as const
 
-// ── Class color pill ─────────────────────────────────────────────────────────
+// ── Mapeia classe interna → cor ───────────────────────────────────────────────
 
-const CLASS_COLOR_MAP: Record<string, { bg: string; text: string; dot: string }> = {
-  'Cardiovascular':        { bg: 'bg-red-100',     text: 'text-red-800',    dot: 'bg-red-500' },
-  'Anticoagulante':        { bg: 'bg-rose-100',    text: 'text-rose-800',   dot: 'bg-rose-500' },
-  'Antidiabético':         { bg: 'bg-violet-100',  text: 'text-violet-800', dot: 'bg-violet-500' },
-  'Neurológico':           { bg: 'bg-indigo-100',  text: 'text-indigo-800', dot: 'bg-indigo-500' },
-  'Psiquiátrico':          { bg: 'bg-purple-100',  text: 'text-purple-800', dot: 'bg-purple-500' },
-  'Gastroenterológico':    { bg: 'bg-emerald-100', text: 'text-emerald-800',dot: 'bg-emerald-500' },
-  'Analgésico/AINE':       { bg: 'bg-orange-100',  text: 'text-orange-800', dot: 'bg-orange-500' },
-  'Antimicrobiano':        { bg: 'bg-teal-100',    text: 'text-teal-800',   dot: 'bg-teal-500' },
-  'Hormonal':              { bg: 'bg-pink-100',    text: 'text-pink-800',   dot: 'bg-pink-500' },
-  'Respiratório':          { bg: 'bg-sky-100',     text: 'text-sky-800',    dot: 'bg-sky-500' },
-  'Suplemento/Vitamina':   { bg: 'bg-lime-100',    text: 'text-lime-800',   dot: 'bg-lime-500' },
-  'Corticosteroide':       { bg: 'bg-yellow-100',  text: 'text-yellow-800', dot: 'bg-yellow-500' },
-  'Outros':                { bg: 'bg-gray-100',    text: 'text-gray-700',   dot: 'bg-gray-400' },
+function classColor(cls: string): { bg: string; text: string; dot: string } {
+  const map: Record<string, { bg: string; text: string; dot: string }> = {
+    diabetes:       { bg: 'bg-blue-100',   text: 'text-blue-800',   dot: 'bg-blue-500' },
+    cardiovascular: { bg: 'bg-red-100',    text: 'text-red-800',    dot: 'bg-red-500' },
+    lipid:          { bg: 'bg-orange-100', text: 'text-orange-800', dot: 'bg-orange-500' },
+    anticoagulant:  { bg: 'bg-purple-100', text: 'text-purple-800', dot: 'bg-purple-500' },
+    antibiotic:     { bg: 'bg-yellow-100', text: 'text-yellow-800', dot: 'bg-yellow-500' },
+    gi:             { bg: 'bg-teal-100',   text: 'text-teal-800',   dot: 'bg-teal-500' },
+    steroid:        { bg: 'bg-amber-100',  text: 'text-amber-800',  dot: 'bg-amber-500' },
+    nsaid:          { bg: 'bg-rose-100',   text: 'text-rose-800',   dot: 'bg-rose-500' },
+    thyroid:        { bg: 'bg-indigo-100', text: 'text-indigo-800', dot: 'bg-indigo-500' },
+    neurologic:     { bg: 'bg-violet-100', text: 'text-violet-800', dot: 'bg-violet-500' },
+    psychiatric:    { bg: 'bg-pink-100',   text: 'text-pink-800',   dot: 'bg-pink-500' },
+    supplement:     { bg: 'bg-green-100',  text: 'text-green-800',  dot: 'bg-green-500' },
+    other:          { bg: 'bg-gray-100',   text: 'text-gray-700',   dot: 'bg-gray-400' },
+  }
+  return map[cls] ?? map['other']
 }
 
-function classColor(cls: string) {
-  return CLASS_COLOR_MAP[cls] ?? CLASS_COLOR_MAP['Outros']
+const CLASS_LABELS: Record<string, string> = {
+  diabetes: 'Diabetes', cardiovascular: 'Cardiovascular', lipid: 'Dislipidemia',
+  anticoagulant: 'Anticoag.', antibiotic: 'Antibiótico', gi: 'Gastro.',
+  steroid: 'Corticoide', nsaid: 'AINE', thyroid: 'Tireóide',
+  neurologic: 'Neurológico', psychiatric: 'Psiquiátrico', supplement: 'Suplemento',
+  other: 'Outro',
 }
 
 // ── Dot cell ─────────────────────────────────────────────────────────────────
@@ -86,24 +93,6 @@ function AlertCard({ alert }: { alert: PosologyAlert }) {
           )}
         </div>
       )}
-    </div>
-  )
-}
-
-// ── Legend ───────────────────────────────────────────────────────────────────
-
-function Legend({ classes }: { classes: string[] }) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {classes.map(cls => {
-        const c = classColor(cls)
-        return (
-          <span key={cls} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${c.bg} ${c.text} font-medium`}>
-            <span className={`w-2 h-2 rounded-full ${c.dot}`} />
-            {cls}
-          </span>
-        )
-      })}
     </div>
   )
 }
@@ -212,10 +201,17 @@ export function MedScheduleGrid({ meds, alerts, patientName, patientAge }: Props
                         <div className="min-w-0">
                           <p className="font-semibold text-gray-900 truncate leading-tight">{med.name}</p>
                           {med.dosage && <p className="text-gray-400 truncate">{med.dosage}</p>}
-                          <span className={`inline-flex items-center gap-1 mt-1 text-[10px] px-1.5 py-0.5 rounded-full ${c.bg} ${c.text}`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-                            {med.therapeuticClass}
-                          </span>
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            <span className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full ${c.bg} ${c.text}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
+                              {CLASS_LABELS[med.therapeuticClass] ?? med.therapeuticClass}
+                            </span>
+                            {med.schedule.pkBased && (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <FlaskConical className="h-2.5 w-2.5" />FK
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -230,13 +226,24 @@ export function MedScheduleGrid({ meds, alerts, patientName, patientAge }: Props
                       )
                     })}
 
-                    {/* Timing note */}
-                    <td className="px-3 py-3">
-                      <p className="text-gray-500 leading-snug">
+                    {/* Timing + food instruction */}
+                    <td className="px-3 py-3 min-w-[160px]">
+                      <p className="text-gray-700 font-medium leading-snug text-[11px]">
                         {med.schedule.isVariable
-                          ? <span className="italic text-gray-400">Variável</span>
+                          ? <span className="italic text-gray-400">Variável / SOS</span>
                           : med.schedule.timing || '—'}
                       </p>
+                      {med.schedule.foodInstruction && (
+                        <p className="flex items-center gap-1 text-[10px] text-teal-700 mt-1">
+                          <Utensils className="h-2.5 w-2.5 flex-shrink-0" />
+                          {med.schedule.foodInstruction}
+                        </p>
+                      )}
+                      {med.schedule.idealHours && med.schedule.idealHours.length > 0 && med.schedule.pkBased && (
+                        <p className="text-[10px] text-emerald-600 mt-0.5">
+                          Ideal: {med.schedule.idealHours.map(h => `${h}h`).join(', ')}
+                        </p>
+                      )}
                     </td>
                   </tr>
                 )
@@ -253,9 +260,26 @@ export function MedScheduleGrid({ meds, alerts, patientName, patientAge }: Props
         </div>
 
         {/* Legend */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50">
-          <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide mb-2">Legenda — Classe Terapêutica</p>
-          <Legend classes={presentClasses} />
+        <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/50 space-y-2">
+          <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wide">Legenda — Classe Terapêutica</p>
+          <div className="flex flex-wrap gap-2">
+            {presentClasses.map(cls => {
+              const c = classColor(cls)
+              return (
+                <span key={cls} className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full ${c.bg} ${c.text} font-medium`}>
+                  <span className={`w-2 h-2 rounded-full ${c.dot}`} />
+                  {CLASS_LABELS[cls] ?? cls}
+                </span>
+              )
+            })}
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-gray-400 mt-1">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <FlaskConical className="h-2.5 w-2.5" />FK
+            </span>
+            <span>= Horário baseado em dados farmacocinéticos (Micromedex / UpToDate)</span>
+            <span className="inline-flex items-center gap-1 text-teal-600"><Utensils className="h-2.5 w-2.5" /> = Instrução de alimento</span>
+          </div>
         </div>
       </div>
 

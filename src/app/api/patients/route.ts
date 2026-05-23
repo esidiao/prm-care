@@ -96,17 +96,38 @@ export async function POST(req: NextRequest) {
         hepaticFunction: data.hepaticFunction,
         isElderly: (age || 0) >= 60,
         observations: data.observations,
-        comorbidities: { createMany: { data: data.comorbidities } },
-        allergies: { createMany: { data: data.allergies } },
-        diagnoses: {
-          createMany: {
-            data: data.diagnoses.map(d => ({
-              name: d.name || d.description || '',
-              icd10Code: d.icd10Code,
-              isPrimary: d.isPrimary,
-            })),
+        ...(data.comorbidities.length > 0 && {
+          comorbidities: {
+            createMany: {
+              data: data.comorbidities.map(c => ({
+                name: c.name,
+                icd10Code: c.icd10Code || null,
+              })),
+            },
           },
-        },
+        }),
+        ...(data.allergies.length > 0 && {
+          allergies: {
+            createMany: {
+              data: data.allergies.map(a => ({
+                substance: a.substance,
+                reaction: a.reaction || null,
+                severity: a.severity || null,
+              })),
+            },
+          },
+        }),
+        ...(data.diagnoses.length > 0 && {
+          diagnoses: {
+            createMany: {
+              data: data.diagnoses.map(d => ({
+                name: d.name || d.description || '',
+                icd10Code: d.icd10Code || null,
+                isPrimary: d.isPrimary,
+              })),
+            },
+          },
+        }),
         ...(data.labResults.length > 0 && {
           labResults: {
             createMany: {
@@ -130,6 +151,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     if (err.name === 'ZodError') return NextResponse.json({ error: 'Dados inválidos', details: err.errors }, { status: 400 })
     console.error('[CREATE_PATIENT]', err)
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+    const message = process.env.NODE_ENV === 'development' ? (err.message ?? 'Erro interno') : 'Erro interno'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

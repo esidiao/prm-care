@@ -5,7 +5,7 @@ import { Plus, ChevronRight } from 'lucide-react'
 import type { UserRole } from '@prisma/client'
 import { GlobalSearch } from './GlobalSearch'
 import { ThemeToggle } from './ThemeToggle'
-import { MobileNav } from './sidebar'
+import { MobileNav } from './Sidebar'
 import { AlertBadge } from './AlertBadge'
 
 interface TopBarProps {

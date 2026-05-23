@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, useWatch, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
@@ -10,6 +10,7 @@ import {
   ArrowLeft, Plus, Trash2, User, Heart, AlertTriangle,
   Stethoscope, FlaskConical, Save, Loader2
 } from 'lucide-react'
+import { ICD10Combobox } from '@/components/ui/ICD10Combobox'
 
 const schema = z.object({
   name: z.string().min(2, 'Nome obrigatório'),
@@ -49,13 +50,82 @@ type FormData = z.infer<typeof schema>
 
 const severityLabels = { MILD: 'Leve', MODERATE: 'Moderada', SEVERE: 'Grave' }
 
+// ── Linha de comorbidade com autocomplete CID-10 ───────────────────────────
+function ComorbidadeRow({ idx, control, setValue, errors, onRemove }: {
+  idx: number
+  control: any
+  setValue: any
+  errors: any
+  onRemove: () => void
+}) {
+  const name = useWatch({ control, name: `comorbidities.${idx}.name` }) ?? ''
+  const code = useWatch({ control, name: `comorbidities.${idx}.icd10Code` }) ?? ''
+  return (
+    <div className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="flex-1 pb-1">
+        <ICD10Combobox
+          nameValue={name}
+          codeValue={code}
+          onNameChange={v => setValue(`comorbidities.${idx}.name`, v, { shouldValidate: true })}
+          onCodeChange={v => setValue(`comorbidities.${idx}.icd10Code`, v)}
+          namePlaceholder="Ex: Hipertensão arterial"
+          nameError={errors.comorbidities?.[idx]?.name?.message}
+        />
+      </div>
+      <button type="button" onClick={onRemove}
+        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  )
+}
+
+// ── Linha de diagnóstico com autocomplete CID-10 ───────────────────────────
+function DiagnosticoRow({ idx, control, register, setValue, errors, onRemove }: {
+  idx: number
+  control: any
+  register: any
+  setValue: any
+  errors: any
+  onRemove: () => void
+}) {
+  const desc = useWatch({ control, name: `diagnoses.${idx}.description` }) ?? ''
+  const code = useWatch({ control, name: `diagnoses.${idx}.icd10Code` }) ?? ''
+  return (
+    <div className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+      <div className="flex-1 pb-1">
+        <label className="block text-xs text-gray-500 mb-1.5">Descrição e CID-10</label>
+        <ICD10Combobox
+          nameValue={desc}
+          codeValue={code}
+          onNameChange={v => setValue(`diagnoses.${idx}.description`, v, { shouldValidate: true })}
+          onCodeChange={v => setValue(`diagnoses.${idx}.icd10Code`, v)}
+          namePlaceholder="Ex: Insuficiência cardíaca congestiva"
+          nameError={errors.diagnoses?.[idx]?.description?.message}
+        />
+      </div>
+      <div className="flex flex-col items-center gap-2 pt-6 shrink-0">
+        <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
+          <input type="checkbox" {...register(`diagnoses.${idx}.isPrimary`)}
+            className="rounded border-gray-300 text-blue-600" />
+          Principal
+        </label>
+        <button type="button" onClick={onRemove}
+          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors">
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function NewPatientPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'basic' | 'comorbidities' | 'allergies' | 'diagnoses' | 'labs'>('basic')
 
-  const { register, control, handleSubmit, watch, formState: { errors } } = useForm<FormData>({
+  const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       sex: 'MALE',
@@ -284,32 +354,14 @@ export default function NewPatientPage() {
                 ) : (
                   <div className="space-y-3">
                     {comorbidities.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex-1 grid grid-cols-3 gap-3">
-                          <div className="col-span-2">
-                            <input
-                              {...register(`comorbidities.${idx}.name`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Ex: Hipertensão arterial"
-                            />
-                            {errors.comorbidities?.[idx]?.name && (
-                              <p className="mt-1 text-xs text-red-600">{errors.comorbidities[idx]?.name?.message}</p>
-                            )}
-                          </div>
-                          <input
-                            {...register(`comorbidities.${idx}.icd10Code`)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="CID-10 (Ex: I10)"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => comorbidities.remove(idx)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <ComorbidadeRow
+                        key={field.id}
+                        idx={idx}
+                        control={control}
+                        setValue={setValue}
+                        errors={errors}
+                        onRemove={() => comorbidities.remove(idx)}
+                      />
                     ))}
                   </div>
                 )}
@@ -404,43 +456,15 @@ export default function NewPatientPage() {
                 ) : (
                   <div className="space-y-3">
                     {diagnoses.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex-1 grid grid-cols-3 gap-3">
-                          <div className="col-span-2">
-                            <label className="block text-xs text-gray-500 mb-1">Descrição</label>
-                            <input
-                              {...register(`diagnoses.${idx}.description`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Ex: Insuficiência cardíaca congestiva"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-xs text-gray-500 mb-1">CID-10</label>
-                            <input
-                              {...register(`diagnoses.${idx}.icd10Code`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder="Ex: I50"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex flex-col items-center gap-2 pt-5">
-                          <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
-                            <input
-                              type="checkbox"
-                              {...register(`diagnoses.${idx}.isPrimary`)}
-                              className="rounded border-gray-300 text-blue-600"
-                            />
-                            Principal
-                          </label>
-                          <button
-                            type="button"
-                            onClick={() => diagnoses.remove(idx)}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                      <DiagnosticoRow
+                        key={field.id}
+                        idx={idx}
+                        control={control}
+                        register={register}
+                        setValue={setValue}
+                        errors={errors}
+                        onRemove={() => diagnoses.remove(idx)}
+                      />
                     ))}
                   </div>
                 )}
