@@ -1,12 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { seedDefaultPackages } from '@/lib/seed-packages'
 
 export async function GET() {
-  const packages = await prisma.tokenPackage.findMany({
+  let packages = await prisma.tokenPackage.findMany({
     where: { isActive: true },
     orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],
   })
+
+  if (packages.length === 0) {
+    await seedDefaultPackages()
+    packages = await prisma.tokenPackage.findMany({
+      where: { isActive: true },
+      orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],
+    })
+  }
+
   return NextResponse.json({ success: true, data: packages })
 }
 
