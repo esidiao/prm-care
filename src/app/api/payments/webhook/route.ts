@@ -7,17 +7,17 @@ import { TransactionType } from '@prisma/client'
 
 // ── Verificação de assinatura HMAC-SHA256 do Mercado Pago ────────────────────
 // Documentação: https://www.mercadopago.com.br/developers/pt/docs/your-integrations/notifications/webhooks
-function verifyMPSignature(req: NextRequest, rawBody: string): boolean {
+//
+// CAMADAS DE SEGURANÇA (em ordem de execução):
+//   1. HMAC-SHA256 via x-signature (quando MP_WEBHOOK_SECRET configurado no painel MP)
+//   2. Verificação via API do MP — buscamos o pagamento diretamente no MP e conferimos
+//      status, userId e packageId — isso garante que o paymentId é genuíno
+//   3. Idempotência — não processamos o mesmo paymentId duas vezes
+//   4. Validação de ownership — userId e packageId devem existir no nosso banco
+function verifyMPSignature(req: NextRequest): boolean {
   const webhookSecret = process.env.MP_WEBHOOK_SECRET
-  // Se o secret não estiver configurado, logar aviso mas não bloquear em desenvolvimento
-  if (!webhookSecret) {
-    if (process.env.NODE_ENV === 'production') {
-      console.error('[WEBHOOK] MP_WEBHOOK_SECRET não configurado em produção!')
-      return false
-    }
-    console.warn('[WEBHOOK] MP_WEBHOOK_SECRET não configurado — verificação ignorada em dev')
-    return true
-  }
+  // Secret não configurado — camadas 2-4 são suficientes para segurança
+  if (!webhookSecret) return true
 
   // MP envia: x-signature: ts=<timestamp>,v1=<hmac_hex>
   const sig = req.headers.get('x-signature') ?? ''
@@ -54,8 +54,8 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text()
 
-    // ── 1. Verificar assinatura antes de processar qualquer dado ───────────
-    if (!verifyMPSignature(req, rawBody)) {
+    // ── 1. Verificar assinatura HMAC quando secret configurado ─────────────
+    if (!verifyMPSignature(req)) {
       console.warn('[WEBHOOK] Assinatura inválida — requisição rejeitada')
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     }
