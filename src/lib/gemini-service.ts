@@ -14,6 +14,64 @@ import type { FDAEnrichmentResult } from './drug-lookup-service'
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
+// Modelo de fallback acionado quando o principal falha (rate limit/erro/timeout).
+const GROQ_FALLBACK_MODEL = 'llama-3.1-8b-instant'
+
+type GroqMessage = { role: 'system' | 'user' | 'assistant'; content: string }
+
+/**
+ * Chamada ao Groq resiliente: retry com backoff em 429/5xx/timeout e fallback
+ * automático para um 2º modelo. Retorna o conteúdo de texto ou null.
+ */
+async function callGroqWithRetry(
+  apiKey: string,
+  messages: GroqMessage[],
+  opts: { temperature?: number; maxTokens?: number; json?: boolean; timeoutMs?: number } = {},
+): Promise<string | null> {
+  const models = [GROQ_MODEL, GROQ_FALLBACK_MODEL]
+  const MAX_RETRIES = 3
+
+  for (const model of models) {
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const response = await fetch(GROQ_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+          body: JSON.stringify({
+            model,
+            messages,
+            temperature: opts.temperature ?? 0.12,
+            max_tokens: opts.maxTokens ?? 8000,
+            ...(opts.json ? { response_format: { type: 'json_object' } } : {}),
+          }),
+          signal: AbortSignal.timeout(opts.timeoutMs ?? 55000),
+        })
+
+        // Rate limit ou erro de servidor → backoff e tenta de novo
+        if (response.status === 429 || response.status >= 500) {
+          console.warn(`[GROQ] ${model} status ${response.status} (tentativa ${attempt}/${MAX_RETRIES})`)
+          await new Promise(r => setTimeout(r, Math.min(8000, 1500 * attempt)))
+          continue
+        }
+        if (!response.ok) {
+          console.error('[GROQ] HTTP', response.status, (await response.text()).slice(0, 200))
+          break // erro não recuperável neste modelo → tenta o próximo
+        }
+
+        const data = await response.json()
+        const text = data?.choices?.[0]?.message?.content
+        if (text) return text as string
+        break
+      } catch (err) {
+        // timeout/rede → backoff e retry
+        console.warn(`[GROQ] ${model} erro de rede/timeout (tentativa ${attempt}/${MAX_RETRIES}):`, err instanceof Error ? err.message : err)
+        await new Promise(r => setTimeout(r, Math.min(8000, 1500 * attempt)))
+      }
+    }
+    console.warn(`[GROQ] modelo ${model} esgotou tentativas; acionando fallback se houver.`)
+  }
+  return null
+}
 
 interface GeminiPRM {
   titulo: string
@@ -496,36 +554,18 @@ export async function analyzeWithGemini(
       ? SYSTEM_PROMPT + knowledgeSection
       : SYSTEM_PROMPT
 
-    const response = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [
-          { role: 'system', content: systemPromptWithKnowledge },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.12,       // mais determinístico — raciocínio clínico não deve ter variação alta
-        max_tokens: 8000,        // espaço extra para raciocínio por sistemas
-        response_format: { type: 'json_object' },
-      }),
-      signal: AbortSignal.timeout(55000), // 55s timeout — prompts maiores precisam de mais tempo
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('[GROQ] Erro HTTP:', response.status, errorText)
-      return { findings: [], observacaoGeral: '', success: false, error: `Erro HTTP ${response.status}` }
-    }
-
-    const data = await response.json()
-    const text = data?.choices?.[0]?.message?.content
+    // IA-1: chamada resiliente (retry + fallback de modelo)
+    const text = await callGroqWithRetry(
+      apiKey,
+      [
+        { role: 'system', content: systemPromptWithKnowledge },
+        { role: 'user', content: userPrompt },
+      ],
+      { temperature: 0.12, maxTokens: 8000, json: true, timeoutMs: 55000 },
+    )
 
     if (!text) {
-      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta vazia do Groq' }
+      return { findings: [], observacaoGeral: '', success: false, error: 'Groq indisponível após retries/fallback' }
     }
 
     let parsed: { prms: GeminiPRM[]; observacao_geral?: string; raciocinio?: string }
@@ -570,4 +610,72 @@ export async function analyzeWithGemini(
     console.error('[GROQ] Erro na análise:', err)
     return { findings: [], observacaoGeral: '', success: false, error: err.message || 'Erro desconhecido' }
   }
+}
+
+// ── IA-3: Auto-verificação de achados de alto risco ────────────────────────────
+
+/**
+ * Segundo passe de revisão para PRMs URGENT/HIGH: um revisor independente avalia
+ * se cada achado é clinicamente válido PARA ESTE paciente. Achados reprovados
+ * NÃO são removidos (segurança) — são rebaixados em confiança e anotados, para
+ * o farmacêutico decidir. Reduz falso-positivo grave sem esconder informação.
+ */
+export async function verifyHighRiskFindings(
+  findings: PRMFindingResult[],
+  context: PatientContext,
+): Promise<PRMFindingResult[]> {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) return findings
+
+  const altoRisco = findings
+    .map((f, i) => ({ f, i }))
+    .filter(({ f }) => f.riskLevel === 'URGENT' || f.riskLevel === 'HIGH')
+  if (altoRisco.length === 0) return findings
+
+  const lista = altoRisco
+    .map(({ f }, n) => `[${n}] (${f.riskLevel}) ${f.title}\n${f.description}`)
+    .join('\n\n')
+
+  const prompt = `Você é um farmacêutico clínico revisor, cético e rigoroso. Sua tarefa é VERIFICAR criticamente achados de alto risco (PRMs) gerados por outra IA, contra o quadro real do paciente abaixo. Para cada achado, decida se é clinicamente VÁLIDO e bem fundamentado PARA ESTE paciente.
+
+${buildPatientContext(context)}
+
+=== ACHADOS A VERIFICAR ===
+${lista}
+
+Responda EXCLUSIVAMENTE em JSON válido:
+{"verdicts":[{"index":0,"valido":true|false,"motivo":"justificativa curta (1 frase)"}]}
+Marque "valido": false quando o achado não se sustenta no quadro do paciente, cita dados inexistentes, é genérico demais, ou exagera o risco.`
+
+  const text = await callGroqWithRetry(
+    apiKey,
+    [{ role: 'user', content: prompt }],
+    { temperature: 0.1, maxTokens: 2000, json: true, timeoutMs: 40000 },
+  )
+  if (!text) return findings
+
+  let parsed: { verdicts?: { index: number; valido: boolean; motivo?: string }[] }
+  try {
+    parsed = JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim())
+  } catch {
+    console.warn('[GROQ] verificação: JSON inválido, mantendo achados sem alteração')
+    return findings
+  }
+
+  const out = [...findings]
+  for (const v of parsed.verdicts ?? []) {
+    if (v.valido === false && altoRisco[v.index]) {
+      const idxOriginal = altoRisco[v.index].i
+      const f = out[idxOriginal]
+      out[idxOriginal] = {
+        ...f,
+        title: f.title.startsWith('⚠️') ? f.title : `⚠️ ${f.title}`,
+        confidenceLevel: 'low',
+        validationNote:
+          `REVISÃO AUTOMÁTICA sinalizou possível inconsistência: ${v.motivo ?? 'achado não confirmado na verificação'}. ` +
+          `Validação humana criteriosa recomendada. ` + (f.validationNote ?? ''),
+      }
+    }
+  }
+  return out
 }

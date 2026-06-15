@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { analyzePRM, getTokenCostForAnalysis } from '@/lib/prm-engine'
-import { analyzeWithGemini, type KnowledgeEntry } from '@/lib/gemini-service'
+import { analyzeWithGemini, verifyHighRiskFindings, type KnowledgeEntry } from '@/lib/gemini-service'
+import { sanitizeAiFindings } from '@/lib/ai-guardrails'
 import { enrichWithFDA } from '@/lib/drug-lookup-service'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
 import { AnalysisStatus, RouteOfAdministration, AdherenceLevel, KnowledgeStatus } from '@prisma/client'
@@ -193,12 +194,22 @@ export async function POST(req: NextRequest) {
     try {
       const geminiResult = await analyzeWithGemini(patientContext, fdaData, knowledgeEntries as KnowledgeEntry[])
       if (geminiResult.success && geminiResult.findings.length > 0) {
+        // IA-2: guardrails anti-alucinação (dedupe interno + sinaliza achados que
+        // não referenciam medicamentos reais do paciente)
+        const guard = sanitizeAiFindings(geminiResult.findings, patientContext)
+        if (guard.flagged > 0 || guard.deduped > 0) {
+          console.log(`[GUARDRAILS] ${guard.flagged} achado(s) sinalizado(s), ${guard.deduped} duplicata(s) interna(s) removida(s)`)
+        }
+
+        // IA-3: auto-verificação de achados URGENT/HIGH (rebaixa os não confirmados)
+        const verified = await verifyHighRiskFindings(guard.findings, patientContext)
+
         // Deduplicate: skip AI findings whose title is too similar to an existing local finding
         const normalize = (s: string) =>
-          s.toLowerCase().replace(/\[ia\]\s*/g, '').replace(/[^a-z0-9À-ɏ]/g, '').trim()
+          s.toLowerCase().replace(/⚠️\s*/g, '').replace(/\[ia\]\s*/g, '').replace(/[^a-z0-9À-ɏ]/g, '').trim()
         const existingTitles = result.findings.map(f => normalize(f.title))
 
-        const newFindings = geminiResult.findings.filter(f => {
+        const newFindings = verified.filter(f => {
           const n = normalize(f.title)
           // Reject if any existing title shares ≥50% of tokens
           return !existingTitles.some(et => {
