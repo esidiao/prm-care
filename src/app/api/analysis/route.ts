@@ -3,7 +3,8 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { analyzePRM, getTokenCostForAnalysis } from '@/lib/prm-engine'
 import { analyzeWithGemini, verifyHighRiskFindings, type KnowledgeEntry } from '@/lib/gemini-service'
-import { sanitizeAiFindings } from '@/lib/ai-guardrails'
+import { sanitizeAiFindings, dedupeAgainstLocal } from '@/lib/ai-guardrails'
+import { hashContext, getCachedAi, setCachedAi, logAi } from '@/lib/ai-cache'
 import { enrichWithFDA } from '@/lib/drug-lookup-service'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
 import { AnalysisStatus, RouteOfAdministration, AdherenceLevel, KnowledgeStatus } from '@prisma/client'
@@ -192,33 +193,50 @@ export async function POST(req: NextRequest) {
     // Run Groq AI analysis (complementar, não bloqueia se falhar)
     let geminiSummaryNote = ''
     try {
-      const geminiResult = await analyzeWithGemini(patientContext, fdaData, knowledgeEntries as KnowledgeEntry[])
-      if (geminiResult.success && geminiResult.findings.length > 0) {
-        // IA-2: guardrails anti-alucinação (dedupe interno + sinaliza achados que
-        // não referenciam medicamentos reais do paciente)
-        const guard = sanitizeAiFindings(geminiResult.findings, patientContext)
-        if (guard.flagged > 0 || guard.deduped > 0) {
-          console.log(`[GUARDRAILS] ${guard.flagged} achado(s) sinalizado(s), ${guard.deduped} duplicata(s) interna(s) removida(s)`)
-        }
+      // IA-4: cache por hash do contexto clínico (TTL 24h). Achados de IA já
+      // passam por guardrails (IA-2) e verificação (IA-3) ANTES de serem cacheados.
+      const aiHash = hashContext(patientContext)
+      let aiFindings: typeof result.findings = []
+      let aiObs = ''
 
-        // IA-3: auto-verificação de achados URGENT/HIGH (rebaixa os não confirmados)
-        const verified = await verifyHighRiskFindings(guard.findings, patientContext)
+      const cached = await getCachedAi(aiHash)
+      if (cached) {
+        aiFindings = cached.findings
+        aiObs = cached.observacaoGeral
+        await logAi({ userId: session.user.id, model: cached.model, promptHash: aiHash, status: 'CACHED' })
+        console.log('[AI-CACHE] hit — reuso do resultado de IA para contexto idêntico')
+      } else {
+        const geminiResult = await analyzeWithGemini(patientContext, fdaData, knowledgeEntries as KnowledgeEntry[])
+        const m = geminiResult.meta
+        if (geminiResult.success) {
+          // IA-2: guardrails anti-alucinação (dedupe interno + sinaliza achados
+          // que não referenciam medicamentos reais do paciente)
+          const guard = sanitizeAiFindings(geminiResult.findings, patientContext)
+          if (guard.flagged > 0 || guard.deduped > 0) {
+            console.log(`[GUARDRAILS] ${guard.flagged} sinalizado(s), ${guard.deduped} duplicata(s) interna(s)`)
+          }
+          // IA-3: auto-verificação de achados URGENT/HIGH
+          aiFindings = await verifyHighRiskFindings(guard.findings, patientContext)
+          aiObs = geminiResult.observacaoGeral
 
-        // Deduplicate: skip AI findings whose title is too similar to an existing local finding
-        const normalize = (s: string) =>
-          s.toLowerCase().replace(/⚠️\s*/g, '').replace(/\[ia\]\s*/g, '').replace(/[^a-z0-9À-ɏ]/g, '').trim()
-        const existingTitles = result.findings.map(f => normalize(f.title))
-
-        const newFindings = verified.filter(f => {
-          const n = normalize(f.title)
-          // Reject if any existing title shares ≥50% of tokens
-          return !existingTitles.some(et => {
-            const toks = n.split(/\s+/).filter(t => t.length > 3)
-            if (!toks.length) return false
-            const matches = toks.filter(t => et.includes(t)).length
-            return matches / toks.length >= 0.5
+          // IA-4: armazena o resultado final (pós-guardrail/verificação) no cache
+          await setCachedAi(aiHash, { findings: aiFindings, observacaoGeral: aiObs }, m?.model ?? 'groq')
+          await logAi({
+            userId: session.user.id, model: m?.model ?? 'groq', promptHash: aiHash,
+            status: m?.usedFallback ? 'FALLBACK' : 'SUCCESS',
+            latencyMs: m?.latencyMs, inputTokens: m?.inputTokens, outputTokens: m?.outputTokens,
           })
-        })
+        } else {
+          await logAi({
+            userId: session.user.id, model: m?.model ?? 'groq', promptHash: aiHash,
+            status: 'FAILED', latencyMs: m?.latencyMs, error: geminiResult.error,
+          })
+        }
+      }
+
+      if (aiFindings.length > 0) {
+        // IA-7: dedup semântico contra os achados do motor determinístico
+        const newFindings = dedupeAgainstLocal(aiFindings, result.findings)
 
         result.findings.push(...newFindings)
         result.totalPRMs += newFindings.length
@@ -226,14 +244,14 @@ export async function POST(req: NextRequest) {
         result.highRiskPRMs += newFindings.filter(f => f.riskLevel === 'HIGH').length
         result.moderatePRMs += newFindings.filter(f => f.riskLevel === 'MODERATE').length
         result.lowRiskPRMs += newFindings.filter(f => f.riskLevel === 'LOW').length
-        const skipped = geminiResult.findings.length - newFindings.length
+        const skipped = aiFindings.length - newFindings.length
         geminiSummaryNote = newFindings.length > 0
           ? ` IA identificou ${newFindings.length} PRM(s) complementar(es).`
           : ''
         if (skipped > 0) console.log(`[DEDUP] ${skipped} finding(s) da IA removido(s) por duplicidade.`)
       }
-      if (geminiResult.observacaoGeral) {
-        geminiSummaryNote += ` Obs. IA: ${geminiResult.observacaoGeral}`
+      if (aiObs) {
+        geminiSummaryNote += ` Obs. IA: ${aiObs}`
       }
     } catch (geminiErr) {
       console.warn('[GEMINI] Análise IA não disponível, continuando com análise local.', geminiErr)

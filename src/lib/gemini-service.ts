@@ -11,6 +11,28 @@
 import type { PatientContext, PRMFindingResult } from '@/types'
 import { PRMCategory, RiskLevel } from '@prisma/client'
 import type { FDAEnrichmentResult } from './drug-lookup-service'
+import { z } from 'zod'
+
+// IA-6: schema de validação da resposta da IA (tolerante a campos ausentes).
+const PrmItemSchema = z.object({
+  titulo: z.string().min(1),
+  categoria: z.string().optional().default('SAFETY'),
+  risco: z.string().optional().default('MODERATE'),
+  descricao: z.string().min(1),
+  impacto_potencial: z.string().optional().default(''),
+  evidencia: z.string().optional().default(''),
+  conduta_farmaceutica: z.string().optional().default(''),
+  orientacao_paciente: z.string().optional().default(''),
+  monitoramento: z.string().optional().default(''),
+  prazo_intervencao: z.string().optional().default(''),
+  necessita_prescritor: z.boolean().optional().default(false),
+  sistema_organico: z.string().optional(),
+})
+const PrmResponseSchema = z.object({
+  prms: z.array(PrmItemSchema).optional().default([]),
+  observacao_geral: z.string().optional().default(''),
+  raciocinio: z.string().optional(),
+})
 
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
@@ -19,19 +41,31 @@ const GROQ_FALLBACK_MODEL = 'llama-3.1-8b-instant'
 
 type GroqMessage = { role: 'system' | 'user' | 'assistant'; content: string }
 
+export type GroqCallResult = {
+  text: string
+  model: string
+  usedFallback: boolean
+  latencyMs: number
+  inputTokens?: number
+  outputTokens?: number
+}
+
 /**
  * Chamada ao Groq resiliente: retry com backoff em 429/5xx/timeout e fallback
- * automático para um 2º modelo. Retorna o conteúdo de texto ou null.
+ * automático para um 2º modelo. Retorna texto + metadados (modelo, tokens,
+ * latência) ou null.
  */
 async function callGroqWithRetry(
   apiKey: string,
   messages: GroqMessage[],
   opts: { temperature?: number; maxTokens?: number; json?: boolean; timeoutMs?: number } = {},
-): Promise<string | null> {
+): Promise<GroqCallResult | null> {
   const models = [GROQ_MODEL, GROQ_FALLBACK_MODEL]
   const MAX_RETRIES = 3
+  const t0 = Date.now()
 
-  for (const model of models) {
+  for (let m = 0; m < models.length; m++) {
+    const model = models[m]
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         const response = await fetch(GROQ_API_URL, {
@@ -60,7 +94,16 @@ async function callGroqWithRetry(
 
         const data = await response.json()
         const text = data?.choices?.[0]?.message?.content
-        if (text) return text as string
+        if (text) {
+          return {
+            text: text as string,
+            model,
+            usedFallback: m > 0,
+            latencyMs: Date.now() - t0,
+            inputTokens: data?.usage?.prompt_tokens,
+            outputTokens: data?.usage?.completion_tokens,
+          }
+        }
         break
       } catch (err) {
         // timeout/rede → backoff e retry
@@ -71,6 +114,15 @@ async function callGroqWithRetry(
     console.warn(`[GROQ] modelo ${model} esgotou tentativas; acionando fallback se houver.`)
   }
   return null
+}
+
+// IA-6: extração tolerante de JSON (modelos às vezes envolvem em texto/cercas).
+function extrairJson(raw: string): string {
+  let s = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  const ini = s.indexOf('{')
+  const fim = s.lastIndexOf('}')
+  if (ini >= 0 && fim > ini) s = s.slice(ini, fim + 1)
+  return s
 }
 
 interface GeminiPRM {
@@ -539,6 +591,7 @@ export async function analyzeWithGemini(
   observacaoGeral: string
   success: boolean
   error?: string
+  meta?: { model: string; usedFallback: boolean; latencyMs: number; inputTokens?: number; outputTokens?: number }
 }> {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
@@ -555,7 +608,7 @@ export async function analyzeWithGemini(
       : SYSTEM_PROMPT
 
     // IA-1: chamada resiliente (retry + fallback de modelo)
-    const text = await callGroqWithRetry(
+    const groq = await callGroqWithRetry(
       apiKey,
       [
         { role: 'system', content: systemPromptWithKnowledge },
@@ -564,24 +617,30 @@ export async function analyzeWithGemini(
       { temperature: 0.12, maxTokens: 8000, json: true, timeoutMs: 55000 },
     )
 
-    if (!text) {
+    if (!groq) {
       return { findings: [], observacaoGeral: '', success: false, error: 'Groq indisponível após retries/fallback' }
     }
 
-    let parsed: { prms: GeminiPRM[]; observacao_geral?: string; raciocinio?: string }
-    try {
-      const cleanText = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-      parsed = JSON.parse(cleanText)
-    } catch {
-      console.error('[GROQ] Erro ao parsear JSON:', text.substring(0, 500))
-      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta inválida do Groq' }
+    const meta = {
+      model: groq.model,
+      usedFallback: groq.usedFallback,
+      latencyMs: groq.latencyMs,
+      inputTokens: groq.inputTokens,
+      outputTokens: groq.outputTokens,
     }
 
-    const findings: PRMFindingResult[] = (parsed.prms || [])
-      .filter((prm: GeminiPRM) => prm.titulo && prm.descricao) // ignora PRMs vazios
-      .map((prm: GeminiPRM) => ({
-        category: (PRMCategory[prm.categoria] || PRMCategory.SAFETY) as PRMCategory,
-        riskLevel: (RiskLevel[prm.risco] || RiskLevel.MODERATE) as RiskLevel,
+    // IA-6: extração tolerante + validação por schema Zod
+    const validacao = PrmResponseSchema.safeParse(JSON.parse(extrairJson(groq.text) || '{}'))
+    if (!validacao.success) {
+      console.error('[GROQ] JSON fora do schema:', validacao.error.issues.slice(0, 3))
+      return { findings: [], observacaoGeral: '', success: false, error: 'Resposta inválida do Groq', meta }
+    }
+    const parsed = validacao.data
+
+    const findings: PRMFindingResult[] = parsed.prms
+      .map((prm) => ({
+        category: (PRMCategory[prm.categoria as keyof typeof PRMCategory] || PRMCategory.SAFETY) as PRMCategory,
+        riskLevel: (RiskLevel[prm.risco as keyof typeof RiskLevel] || RiskLevel.MODERATE) as RiskLevel,
         title: `[IA] ${prm.titulo}`,
         description: prm.descricao,
         clinicalEvidence: prm.evidencia,
@@ -605,6 +664,7 @@ export async function analyzeWithGemini(
       findings,
       observacaoGeral: parsed.observacao_geral || '',
       success: true,
+      meta,
     }
   } catch (err: any) {
     console.error('[GROQ] Erro na análise:', err)
@@ -647,16 +707,16 @@ Responda EXCLUSIVAMENTE em JSON válido:
 {"verdicts":[{"index":0,"valido":true|false,"motivo":"justificativa curta (1 frase)"}]}
 Marque "valido": false quando o achado não se sustenta no quadro do paciente, cita dados inexistentes, é genérico demais, ou exagera o risco.`
 
-  const text = await callGroqWithRetry(
+  const groq = await callGroqWithRetry(
     apiKey,
     [{ role: 'user', content: prompt }],
     { temperature: 0.1, maxTokens: 2000, json: true, timeoutMs: 40000 },
   )
-  if (!text) return findings
+  if (!groq) return findings
 
   let parsed: { verdicts?: { index: number; valido: boolean; motivo?: string }[] }
   try {
-    parsed = JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim())
+    parsed = JSON.parse(extrairJson(groq.text))
   } catch {
     console.warn('[GROQ] verificação: JSON inválido, mantendo achados sem alteração')
     return findings

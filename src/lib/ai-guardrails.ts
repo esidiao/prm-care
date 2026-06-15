@@ -92,3 +92,25 @@ export function sanitizeAiFindings(
 
   return { findings: out, flagged, deduped }
 }
+
+/**
+ * IA-7: dedup semântico dos achados da IA contra os achados locais (motor de
+ * regras). Compara por sobreposição de tokens significativos do título (≥50%) —
+ * mais preciso que comparação por substring. Mantém o achado da IA quando não há
+ * correspondente local claro.
+ */
+export function dedupeAgainstLocal(
+  aiFindings: PRMFindingResult[],
+  localFindings: PRMFindingResult[],
+): PRMFindingResult[] {
+  const localTokenSets = localFindings.map(f => new Set(tokenize(f.title)))
+  return aiFindings.filter(f => {
+    const toks = tokenize(f.title)
+    if (toks.length === 0) return true
+    const duplicado = localTokenSets.some(lt => {
+      const matches = toks.filter(t => lt.has(t)).length
+      return matches / toks.length >= 0.5
+    })
+    return !duplicado
+  })
+}
