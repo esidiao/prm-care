@@ -283,6 +283,24 @@ describe('Interações classe×classe', () => {
     expect(hasFindingLab([med('losartana')], [lab('Digoxina', '2.6')], [], 'digoxina')).toBe(false)
   })
 
+  it('STOPP: antimuscarínico em HPB/retenção urinária (idoso)', () => {
+    const c = { ...ctx([med('oxibutinina')]), isElderly: true, age: 75, diagnoses: [diag('hiperplasia prostatica')] }
+    const ok = analyzePRM(c).findings.some(f => /stopp/i.test(f.title) && /oxibutinina/i.test(f.title))
+    expect(ok).toBe(true)
+  })
+
+  it('STOPP: anticolinérgico em glaucoma de ângulo fechado (idoso)', () => {
+    const c = { ...ctx([med('amitriptilina')]), isElderly: true, age: 75, diagnoses: [diag('glaucoma de angulo fechado')] }
+    const ok = analyzePRM(c).findings.some(f => /stopp/i.test(f.title) && /amitriptilina/i.test(f.title))
+    expect(ok).toBe(true)
+  })
+
+  it('STOPP HPB: NÃO dispara sem o anticolinérgico', () => {
+    const c = { ...ctx([med('losartana')]), isElderly: true, age: 75, diagnoses: [diag('hiperplasia prostatica')] }
+    const ok = analyzePRM(c).findings.some(f => /stopp/i.test(f.title) && /retencao urinaria|hiperplasia/i.test(f.title))
+    expect(ok).toBe(false)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })

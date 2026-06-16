@@ -731,6 +731,20 @@ const STOPP_CRITERIA: STOPPCriterion[] = [
     warning: 'STOPP v3: IBPs em uso crônico (> 8 semanas) sem indicação clara — risco de deficiência de B12, magnésio, fraturas e infecções por C. difficile.',
     level: 'moderate',
   },
+  {
+    drugs: ['oxibutinina', 'solifenacina', 'tolterodina', 'darifenacina', 'fesoterodina', 'difenidramina', 'amitriptilina', 'imipramina', 'clomipramina', 'biperideno', 'tri-hexifenidil', 'escopolamina', 'hioscina'],
+    condition: 'Hiperplasia prostática benigna / retenção urinária',
+    conditionKeywords: ['hiperplasia prostatica', 'hpb', 'prostatismo', 'retencao urinaria', 'bexiga neurogenica', 'esvaziamento vesical incompleto'],
+    warning: 'STOPP v3: Anticolinérgicos/antimuscarínicos em HPB ou retenção urinária pioram o esvaziamento vesical — risco de retenção urinária aguda.',
+    level: 'high',
+  },
+  {
+    drugs: ['oxibutinina', 'solifenacina', 'tolterodina', 'difenidramina', 'amitriptilina', 'imipramina', 'clomipramina', 'biperideno', 'tri-hexifenidil', 'escopolamina', 'hioscina', 'ipratropio'],
+    condition: 'Glaucoma de ângulo fechado',
+    conditionKeywords: ['glaucoma de angulo fechado', 'glaucoma agudo', 'glaucoma de angulo estreito'],
+    warning: 'STOPP v3: Anticolinérgicos/antimuscarínicos contraindicados no glaucoma de ângulo fechado — risco de crise aguda de glaucoma por midríase.',
+    level: 'high',
+  },
 
   // ── Beers 2023 Table 2 — Drug-Disease Interactions (novos critérios) ─────────
 
