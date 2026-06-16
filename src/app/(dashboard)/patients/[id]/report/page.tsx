@@ -349,6 +349,9 @@ export default async function PatientReportPage({ params }: { params: { id: stri
                           {f.pharmacistConduct && (
                             <p className="mt-0.5 text-gray-600"><strong>Conduta:</strong> {f.pharmacistConduct}</p>
                           )}
+                          {f.suggestedExams && (
+                            <p className="mt-0.5 text-gray-600"><strong>Exames sugeridos:</strong> {f.suggestedExams}</p>
+                          )}
                         </div>
                       )
                     })}
