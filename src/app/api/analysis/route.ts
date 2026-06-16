@@ -206,7 +206,7 @@ export async function POST(req: NextRequest) {
         await logAi({ userId: session.user.id, model: cached.model, promptHash: aiHash, status: 'CACHED' })
         console.log('[AI-CACHE] hit — reuso do resultado de IA para contexto idêntico')
       } else {
-        const geminiResult = await analyzeWithGemini(patientContext, fdaData, knowledgeEntries as KnowledgeEntry[])
+        const geminiResult = await analyzeWithGemini(patientContext, fdaData, knowledgeEntries as KnowledgeEntry[], result.findings)
         const m = geminiResult.meta
         if (geminiResult.success) {
           // IA-2: guardrails anti-alucinação (dedupe interno + sinaliza achados

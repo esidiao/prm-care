@@ -55,7 +55,7 @@ export type GroqCallResult = {
  * automático para um 2º modelo. Retorna texto + metadados (modelo, tokens,
  * latência) ou null.
  */
-async function callGroqWithRetry(
+export async function callGroqWithRetry(
   apiKey: string,
   messages: GroqMessage[],
   opts: { temperature?: number; maxTokens?: number; json?: boolean; timeoutMs?: number } = {},
@@ -438,7 +438,29 @@ ${meds}`
 
 // ── User prompt ───────────────────────────────────────────────────────────────
 
-function buildUserPrompt(context: PatientContext, fdaData?: FDAEnrichmentResult): string {
+function buildEngineFindingsSection(engineFindings?: PRMFindingResult[]): string {
+  if (!engineFindings || engineFindings.length === 0) return ''
+  const linhas = engineFindings
+    .slice(0, 25)
+    .map((f) => `• [${f.riskLevel}] ${f.title.replace(/^\[IA\]\s*/, '')}`)
+    .join('\n')
+  return `
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ACHADOS JÁ DETECTADOS PELO MOTOR DETERMINÍSTICO (NÃO REPITA)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+O motor de regras já identificou os PRMs abaixo. NÃO os repita.
+Sua função é COMPLEMENTAR: aprofunde nuances, identifique PRMs que exigem
+raciocínio clínico que regras determinísticas não capturam (cascatas de prescrição,
+medicamentos ausentes por guideline, duplicidades sutis, adesão/complexidade).
+${linhas}
+`
+}
+
+function buildUserPrompt(
+  context: PatientContext,
+  fdaData?: FDAEnrichmentResult,
+  engineFindings?: PRMFindingResult[],
+): string {
   const patientContext = buildPatientContext(context)
   const medCount = context.medications.length
   const isComplex = medCount >= 5 || context.isElderly || context.isPregnant || context.isLactating
@@ -513,6 +535,7 @@ PASSO 9 — ADESÃO E COMPLEXIDADE:
 
 ${patientContext}
 ${fdaSection}
+${buildEngineFindingsSection(engineFindings)}
 
 === SUA TAREFA ===
 ${isComplex ? `⚠️ ATENÇÃO: Este é um paciente COMPLEXO (${medCount} medicamentos${context.isElderly ? ', IDOSO' : ''}${context.isPregnant ? ', GESTANTE' : ''}${context.isLactating ? ', LACTANTE' : ''}${hasRenalIssue ? ', COM COMPROMETIMENTO RENAL' : ''}). Análise com máxima atenção é obrigatória.` : ''}
@@ -585,7 +608,8 @@ ${e.content.slice(0, 600)}${e.content.length > 600 ? '...' : ''}`).join('\n\n')}
 export async function analyzeWithGemini(
   context: PatientContext,
   fdaData?: FDAEnrichmentResult,
-  knowledgeEntries?: KnowledgeEntry[]
+  knowledgeEntries?: KnowledgeEntry[],
+  engineFindings?: PRMFindingResult[]
 ): Promise<{
   findings: PRMFindingResult[]
   observacaoGeral: string
@@ -599,7 +623,7 @@ export async function analyzeWithGemini(
   }
 
   try {
-    const userPrompt = buildUserPrompt(context, fdaData)
+    const userPrompt = buildUserPrompt(context, fdaData, engineFindings)
     const knowledgeSection = buildKnowledgeSection(knowledgeEntries || [])
 
     // Inject knowledge base into system prompt if available
