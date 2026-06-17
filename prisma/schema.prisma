@@ -154,6 +154,7 @@ model User {
   consents          ConsentRecord[]
   auditLogs         AuditLog[]
   knowledgeEntries  KnowledgeBase[]
+  payments          Payment[]
 
   @@map("users")
 }
@@ -550,6 +551,7 @@ model Payment {
   createdAt       DateTime @default(now())
 
   subscription Subscription? @relation(fields: [subscriptionId], references: [id])
+  user         User?         @relation(fields: [userId], references: [id])
 
   @@map("payments")
 }
@@ -671,4 +673,40 @@ model PatientReview {
   @@index([userId, scheduledDate])
   @@index([patientId, scheduledDate])
   @@map("patient_reviews")
+}
+
+// ── Suporte de IA (cache + trilha de auditoria) ────────────────────────────────
+
+// IA-4: cache do resultado complementar da IA por hash do contexto clínico.
+// Evita reprocessar no Groq pacientes com contexto inalterado.
+model AiAnalysisCache {
+  id        String   @id @default(cuid())
+  hash      String   @unique
+  payload   Json
+  model     String
+  hits      Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("prm_ai_analysis_cache")
+}
+
+// IA-5: trilha estruturada das chamadas de IA (auditoria/observabilidade LGPD).
+// Não armazena PII em claro — apenas hash do prompt e metadados.
+model AiAnalysisLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  analysisId String?
+  model      String
+  promptHash String
+  status     String   // SUCCESS | FAILED | CACHED | FALLBACK
+  latencyMs  Int?
+  inputTokens  Int?
+  outputTokens Int?
+  error      String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@map("prm_ai_analysis_logs")
 }

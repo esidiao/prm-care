@@ -226,6 +226,11 @@ export default async function ReferralPage({ params }: { params: { id: string } 
                             <strong>Conduta sugerida:</strong> {f.pharmacistConduct}
                           </p>
                         )}
+                        {f.suggestedExams && (
+                          <p className="text-xs text-gray-600 mt-0.5">
+                            <strong>Exames sugeridos:</strong> {f.suggestedExams}
+                          </p>
+                        )}
                         {f.medication && (
                           <p className="text-xs text-gray-500 mt-0.5">
                             Medicamento: <strong>{f.medication.activeIngredient}</strong>

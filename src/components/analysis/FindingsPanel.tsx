@@ -19,6 +19,7 @@ interface Finding {
   pharmacistConduct: string
   patientGuidance: string
   monitoring: string | null
+  suggestedExams: string | null
   validationNote: string
   confidenceLevel: string
   interventionDeadline: string | null
@@ -499,7 +500,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 </div>
 
                 {/* Tags de ação + monitoramento inline */}
-                {(finding.needsPrescriberContact || finding.needsReferral || finding.interventionDeadline || finding.reevaluationPeriod || finding.monitoring) && (
+                {(finding.needsPrescriberContact || finding.needsReferral || finding.interventionDeadline || finding.reevaluationPeriod || finding.monitoring || finding.suggestedExams) && (
                   <div className="flex flex-wrap gap-1.5 text-[11px]">
                     {finding.needsPrescriberContact && (
                       <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-white px-2.5 py-1 text-blue-700">
@@ -524,6 +525,11 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     {finding.monitoring && (
                       <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600 max-w-xs truncate" title={finding.monitoring}>
                         👁 {finding.monitoring}
+                      </span>
+                    )}
+                    {finding.suggestedExams && (
+                      <span className="flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50/70 px-2.5 py-1 text-amber-800 max-w-xs truncate" title={finding.suggestedExams}>
+                        🧪 Exames: {finding.suggestedExams}
                       </span>
                     )}
                   </div>

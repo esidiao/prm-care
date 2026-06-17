@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
-
-const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
-const GROQ_MODEL = 'llama-3.3-70b-versatile'
+import { callGroqWithRetry } from '@/lib/gemini-service'
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession()
@@ -50,23 +48,14 @@ Formate como: "Conduta realizada: [descrição da ação tomada]. Paciente [orie
 Responda APENAS com a nota, sem explicações adicionais.`
 
   try {
-    const res = await fetch(GROQ_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${groqKey}`,
-      },
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.4,
-        max_tokens: 200,
-      }),
-    })
+    // Chamada resiliente: retry + fallback de modelo (mesmo helper da análise principal)
+    const groq = await callGroqWithRetry(
+      groqKey,
+      [{ role: 'user', content: prompt }],
+      { temperature: 0.4, maxTokens: 200, json: false, timeoutMs: 30000 },
+    )
 
-    if (!res.ok) throw new Error(`Groq error ${res.status}`)
-    const data = await res.json()
-    const suggestion = data.choices?.[0]?.message?.content?.trim()
+    const suggestion = groq?.text?.trim()
     if (!suggestion) throw new Error('Empty response')
 
     return NextResponse.json({ suggestion })

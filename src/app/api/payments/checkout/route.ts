@@ -47,6 +47,10 @@ export async function POST(req: NextRequest) {
         },
         auto_return: 'approved',
         notification_url: `${baseUrl}/api/payments/webhook`,
+        // IMPORTANTE: O Mercado Pago converte automaticamente as chaves de metadata
+        // de camelCase para snake_case ao salvar. Portanto, "userId" vira "user_id"
+        // e "packageId" vira "package_id" quando lido no webhook via mpPayment.get().
+        // O webhook já lê com snake_case — não altere sem sincronizar os dois arquivos.
         metadata: {
           userId: session.user.id,
           packageId: pkg.id,

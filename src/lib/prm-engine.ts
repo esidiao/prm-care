@@ -113,6 +113,20 @@ const KNOWN_INTERACTIONS: KnownInteraction[] = [
   { drug1: 'risperidona', drug2: 'metoclopramida', severity: 'moderate', mechanism: 'Bloqueio dopaminérgico aditivo', clinicalEffect: 'Sintomas extrapiramidais, parkinsonismo', management: 'Evitar uso concomitante. Se necessário, monitorar sintomas extrapiramidais.' },
   { drug1: 'amitriptilina', drug2: 'tramadol', severity: 'moderate', mechanism: 'Efeitos serotoninérgicos e anticolinérgicos aditivos', clinicalEffect: 'Síndrome serotoninérgica e toxicidade anticolinérgica', management: 'Monitorar. Evitar em idosos.' },
 
+  // CLOPIDOGREL + IBP (CYP2C19)
+  { drug1: 'clopidogrel', drug2: 'omeprazol', severity: 'major', mechanism: 'Omeprazol inibe a CYP2C19, que ativa o clopidogrel (pró-fármaco)', clinicalEffect: 'Redução do efeito antiplaquetário e maior risco de eventos trombóticos', management: 'Preferir pantoprazol (menor inibição) ou avaliar necessidade do IBP.' },
+  { drug1: 'clopidogrel', drug2: 'esomeprazol', severity: 'major', mechanism: 'Esomeprazol inibe a CYP2C19', clinicalEffect: 'Perda de eficácia antiplaquetária do clopidogrel', management: 'Trocar por pantoprazol ou reavaliar o IBP.' },
+
+  // NITRATO + INIBIDOR DE PDE5 (hipotensão grave)
+  { drug1: 'isossorbida', drug2: 'sildenafila', severity: 'contraindicated', mechanism: 'Potencialização do efeito vasodilatador (via GMPc)', clinicalEffect: 'Hipotensão grave/potencialmente fatal', management: 'Contraindicado. Não associar; respeitar intervalo de segurança entre as classes.' },
+  { drug1: 'isossorbida', drug2: 'tadalafila', severity: 'contraindicated', mechanism: 'Vasodilatação aditiva por inibição da PDE5', clinicalEffect: 'Hipotensão grave', management: 'Contraindicado.' },
+  { drug1: 'nitroglicerina', drug2: 'sildenafila', severity: 'contraindicated', mechanism: 'Sinergismo vasodilatador', clinicalEffect: 'Hipotensão refratária', management: 'Contraindicado (inclui uso de nitrato de resgate).' },
+
+  // OPIOIDE + BENZODIAZEPÍNICO (depressão respiratória — tarja preta)
+  { drug1: 'morfina', drug2: 'diazepam', severity: 'major', mechanism: 'Depressão aditiva do SNC e do drive respiratório', clinicalEffect: 'Sedação profunda, depressão respiratória, óbito', management: 'Evitar a combinação; se imprescindível, menor dose/tempo e monitorização.' },
+  { drug1: 'tramadol', drug2: 'clonazepam', severity: 'major', mechanism: 'Depressão aditiva do SNC', clinicalEffect: 'Sedação e depressão respiratória', management: 'Evitar; orientar sinais de alerta e revisar necessidade.' },
+  { drug1: 'codeina', drug2: 'alprazolam', severity: 'major', mechanism: 'Depressão respiratória aditiva (opioide + benzodiazepínico)', clinicalEffect: 'Risco de hipoventilação e óbito', management: 'Evitar a associação.' },
+
   // OUTROS
   { drug1: 'acido acetilsalicilico', drug2: 'ibuprofeno', severity: 'moderate', mechanism: 'AINE bloqueia sítio COX-1 do AAS', clinicalEffect: 'Redução do efeito antiagregante cardioprotetor do AAS', management: 'Administrar AAS pelo menos 2h antes do ibuprofeno.' },
   { drug1: 'colchicina', drug2: 'claritromicina', severity: 'major', mechanism: 'Inibição de CYP3A4 e P-gp eleva nível de colchicina', clinicalEffect: 'Toxicidade por colchicina: miopatia, neuropatia, pancitopenia', management: 'Reduzir dose de colchicina ou usar alternativa.' },
@@ -717,6 +731,20 @@ const STOPP_CRITERIA: STOPPCriterion[] = [
     warning: 'STOPP v3: IBPs em uso crônico (> 8 semanas) sem indicação clara — risco de deficiência de B12, magnésio, fraturas e infecções por C. difficile.',
     level: 'moderate',
   },
+  {
+    drugs: ['oxibutinina', 'solifenacina', 'tolterodina', 'darifenacina', 'fesoterodina', 'difenidramina', 'amitriptilina', 'imipramina', 'clomipramina', 'biperideno', 'tri-hexifenidil', 'escopolamina', 'hioscina'],
+    condition: 'Hiperplasia prostática benigna / retenção urinária',
+    conditionKeywords: ['hiperplasia prostatica', 'hpb', 'prostatismo', 'retencao urinaria', 'bexiga neurogenica', 'esvaziamento vesical incompleto'],
+    warning: 'STOPP v3: Anticolinérgicos/antimuscarínicos em HPB ou retenção urinária pioram o esvaziamento vesical — risco de retenção urinária aguda.',
+    level: 'high',
+  },
+  {
+    drugs: ['oxibutinina', 'solifenacina', 'tolterodina', 'difenidramina', 'amitriptilina', 'imipramina', 'clomipramina', 'biperideno', 'tri-hexifenidil', 'escopolamina', 'hioscina', 'ipratropio'],
+    condition: 'Glaucoma de ângulo fechado',
+    conditionKeywords: ['glaucoma de angulo fechado', 'glaucoma agudo', 'glaucoma de angulo estreito'],
+    warning: 'STOPP v3: Anticolinérgicos/antimuscarínicos contraindicados no glaucoma de ângulo fechado — risco de crise aguda de glaucoma por midríase.',
+    level: 'high',
+  },
 
   // ── Beers 2023 Table 2 — Drug-Disease Interactions (novos critérios) ─────────
 
@@ -825,6 +853,12 @@ interface STARTCriterion {
   condition: string
   conditionKeywords: string[]
   recommendation: string
+  /** Se presente, além de conditionKeywords, pelo menos UMA destas também deve constar
+   *  (gating composto: ex. DM2 E (DCV ou DRC)). Evita falso positivo de condição isolada. */
+  alsoRequiresAnyOf?: string[]
+  /** Se presente, pelo menos UM medicamento da lista deve estar em uso para o critério
+   *  fazer sentido (ex.: gastroproteção só faz sentido se há AINE em uso). */
+  requiresMedAnyOf?: string[]
 }
 
 const START_CRITERIA: STARTCriterion[] = [
@@ -880,6 +914,7 @@ const START_CRITERIA: STARTCriterion[] = [
     missingDrugs: ['omeprazol', 'pantoprazol', 'lansoprazol', 'esomeprazol', 'rabeprazol'],
     condition: 'Uso de AINE com fatores de risco GI',
     conditionKeywords: ['ulcera peptica', 'gastrite', 'uso cronico de aine', 'historico de sangramento gi'],
+    requiresMedAnyOf: ['ibuprofeno', 'naproxeno', 'diclofenaco', 'celecoxibe', 'meloxicam', 'indometacina', 'piroxicam', 'nimesulida', 'cetorolaco'],
     recommendation: 'START v3: IBP indicado para gastroproteção em usuários de AINEs com fatores de risco GI.',
   },
   {
@@ -910,8 +945,16 @@ const START_CRITERIA: STARTCriterion[] = [
   {
     missingDrugs: ['empagliflozina', 'dapagliflozina', 'canagliflozina'],
     condition: 'Diabetes tipo 2 com doença cardiovascular ou DRC',
-    conditionKeywords: ['diabetes tipo 2', 'dm2', 'insuficiencia cardiaca', 'doenca renal cronica'],
+    conditionKeywords: ['diabetes tipo 2', 'dm2', 'diabetes mellitus tipo 2'],
+    alsoRequiresAnyOf: ['insuficiencia cardiaca', 'doenca renal cronica', 'drc', 'doenca cardiovascular', 'dcv', 'infarto', 'doenca coronariana', 'avc'],
     recommendation: 'START v3: iSGLT2 (empagliflozina, dapagliflozina) indicados no DM2 com DCV estabelecida ou DRC — reduzem mortalidade cardiovascular e progressão renal.',
+  },
+  {
+    missingDrugs: ['semaglutida', 'liraglutida', 'dulaglutida', 'tirzepatida'],
+    condition: 'Diabetes tipo 2 com doença cardiovascular ou obesidade',
+    conditionKeywords: ['diabetes tipo 2', 'dm2', 'diabetes mellitus tipo 2'],
+    alsoRequiresAnyOf: ['doenca cardiovascular', 'dcv', 'infarto', 'doenca coronariana', 'avc', 'obesidade', 'imc elevado', 'sobrepeso'],
+    recommendation: 'ADA/START 2024: GLP-1 RA (semaglutida, dulaglutida) indicados no DM2 com DCV estabelecida ou obesidade — benefício cardiovascular e de peso, independentemente da HbA1c.',
   },
   {
     missingDrugs: ['donepezila', 'rivastigmina', 'galantamina', 'memantina'],
@@ -1616,7 +1659,7 @@ const CLASS_KEYWORDS: Record<string, string[]> = {
   'Opioide': ['tramadol', 'codeina', 'morfina', 'oxicodona', 'fentanila', 'buprenorfina', 'meperidina'],
   'Betabloqueador': ['atenolol', 'metoprolol', 'carvedilol', 'bisoprolol', 'propranolol', 'nebivolol', 'labetalol', 'nadolol'],
   'Bloqueador Ca': ['amlodipina', 'nifedipina', 'diltiazem', 'verapamil', 'felodipina', 'lercanidipina', 'lacidipina'],
-  'Hipnótico Z': ['zolpidem', 'zopiclona', 'zaleplon'],
+  'Hipnótico Z': ['zolpidem', 'zopiclona', 'zaleplon', 'eszopiclona'],
   'Antipsicótico': ['haloperidol', 'risperidona', 'quetiapina', 'olanzapina', 'aripiprazol', 'clorpromazina', 'levomepromazina', 'ziprasidona'],
   'Antidepressivo tricíclico': ['amitriptilina', 'nortriptilina', 'clomipramina', 'imipramina', 'desipramina'],
   'ISRS': ['fluoxetina', 'sertralina', 'paroxetina', 'citalopram', 'escitalopram', 'fluvoxamina'],
@@ -1624,6 +1667,134 @@ const CLASS_KEYWORDS: Record<string, string[]> = {
   'Antiagregante': ['acido acetilsalicilico', 'clopidogrel', 'ticagrelor', 'prasugrel', 'dipiridamol'],
   'Diurético de alça': ['furosemida', 'bumetanida', 'torasemida', 'piretanida'],
   'Diurético tiazídico': ['hidroclorotiazida', 'clortalidona', 'indapamida', 'bendroflumetiazida'],
+  'Nitrato': ['isossorbida', 'mononitrato de isossorbida', 'dinitrato de isossorbida', 'nitroglicerina', 'propatilnitrato', 'monocordil', 'sustrate'],
+  'Inibidor de PDE5': ['sildenafila', 'tadalafila', 'vardenafila', 'avanafila', 'lodenafila'],
+  'BCC não-diidropiridínico': ['verapamil', 'diltiazem'],
+}
+
+/**
+ * Interações classe×classe: disparam para QUALQUER membro de cada classe (via
+ * CLASS_KEYWORDS), não apenas pares de nomes enumerados. Cobrem efeitos de classe
+ * onde o risco independe do princípio ativo específico (ex.: opioide+benzo).
+ */
+interface ClassInteraction {
+  class1: string
+  class2: string
+  severity: KnownInteraction['severity']
+  mechanism: string
+  clinicalEffect: string
+  management: string
+}
+
+const CLASS_INTERACTIONS: ClassInteraction[] = [
+  { class1: 'Opioide', class2: 'Benzodiazepínico', severity: 'major', mechanism: 'Depressão aditiva do SNC e do drive respiratório (tarja preta FDA/ANVISA)', clinicalEffect: 'Sedação profunda, depressão respiratória, risco de óbito', management: 'Evitar a combinação. Se imprescindível, usar a menor dose e menor tempo possíveis, orientar sinais de alerta e considerar naloxona domiciliar.' },
+  { class1: 'Opioide', class2: 'Hipnótico Z', severity: 'major', mechanism: 'Depressão aditiva do SNC (zolpidem/zopiclona somam-se ao opioide)', clinicalEffect: 'Sedação e depressão respiratória', management: 'Evitar a associação; reavaliar necessidade do hipnótico.' },
+  { class1: 'Nitrato', class2: 'Inibidor de PDE5', severity: 'contraindicated', mechanism: 'Potencialização do efeito vasodilatador via acúmulo de GMPc', clinicalEffect: 'Hipotensão grave/potencialmente fatal', management: 'CONTRAINDICADO. Não associar; respeitar intervalo de segurança e nunca usar nitrato de resgate sob efeito de PDE5.' },
+  { class1: 'IECA', class2: 'BRA-II (Sartana)', severity: 'major', mechanism: 'Duplo bloqueio do sistema renina-angiotensina-aldosterona', clinicalEffect: 'Hipercalemia, hipotensão e lesão renal aguda, sem benefício cardiovascular adicional (ONTARGET)', management: 'Não associar IECA + BRA rotineiramente. Suspender uma das classes e monitorar K+ e função renal.' },
+  { class1: 'Benzodiazepínico', class2: 'Hipnótico Z', severity: 'moderate', mechanism: 'Sobreposição de sedativos GABAérgicos', clinicalEffect: 'Sedação excessiva, quedas e comprometimento cognitivo (especialmente idosos)', management: 'Evitar uso concomitante; consolidar em um único agente e planejar desmame.' },
+  { class1: 'Betabloqueador', class2: 'BCC não-diidropiridínico', severity: 'major', mechanism: 'Depressão aditiva do nó sinusal e da condução AV (verapamil/diltiazem + betabloqueador)', clinicalEffect: 'Bradicardia grave, bloqueio AV e hipotensão; risco maior em ICC ou distúrbio de condução', management: 'Evitar a associação, sobretudo com verapamil. Se imprescindível, monitorar FC e ECG e iniciar em doses baixas. Para controle de frequência, preferir um único agente.' },
+  { class1: 'AINE', class2: 'Anticoagulante oral', severity: 'major', mechanism: 'AINEs lesam a mucosa GI e inibem a função plaquetária, somando-se ao efeito anticoagulante', clinicalEffect: 'Risco elevado de hemorragia digestiva', management: 'Evitar AINEs em anticoagulados. Preferir paracetamol. Se imprescindível, usar IBP e o menor tempo possível, com monitorização.' },
+  { class1: 'AINE', class2: 'Antiagregante', severity: 'moderate', mechanism: 'AINE + antiagregante somam lesão de mucosa e inibição plaquetária', clinicalEffect: 'Aumento do risco de sangramento gastrointestinal', management: 'Evitar uso crônico concomitante; associar IBP para gastroproteção e reavaliar a necessidade do AINE.' },
+  { class1: 'Anticoagulante oral', class2: 'Antiagregante', severity: 'major', mechanism: 'Terapia antitrombótica combinada (anticoagulante + antiagregante)', clinicalEffect: 'Risco hemorrágico aumentado; só justificável em indicações específicas (ex.: SCA/stent recente em FA)', management: 'Confirmar indicação e duração planejada da terapia combinada. Associar IBP, definir tempo de dupla/tripla terapia e reavaliar conforme escores de risco (HAS-BLED).' },
+]
+
+/** Membros (medicamentos) de uma classe presentes na lista do paciente. */
+function membersOfClass(className: string, medications: MedicationContext[]): MedicationContext[] {
+  const keywords = CLASS_KEYWORDS[className] || []
+  return medications.filter(med => keywords.some(kw => norm(med.activeIngredient).includes(norm(kw))))
+}
+
+/**
+ * Cascatas de prescrição: um medicamento "tratamento" foi possivelmente adicionado
+ * para manejar um efeito adverso de um medicamento "gatilho". Detecção determinística
+ * quando AMBOS estão presentes — sinaliza para o farmacêutico investigar a indicação
+ * real do tratamento (candidato a desprescrição se for só efeito adverso do gatilho).
+ */
+interface PrescriptionCascade {
+  id: string
+  triggerKeywords: string[]
+  triggerLabel: string
+  treatmentKeywords: string[]
+  treatmentLabel: string
+  suspectedEffect: string
+  conduct: string
+}
+
+const PRESCRIPTION_CASCADES: PrescriptionCascade[] = [
+  {
+    id: 'bcc_edema_diuretico',
+    triggerKeywords: ['amlodipina', 'nifedipina', 'felodipina', 'lercanidipina', 'lacidipina', 'manidipina', 'nitrendipina'],
+    triggerLabel: 'bloqueador de canal de cálcio di-hidropiridínico',
+    treatmentKeywords: ['furosemida', 'hidroclorotiazida', 'clortalidona', 'indapamida', 'bumetanida', 'espironolactona'],
+    treatmentLabel: 'diurético',
+    suspectedEffect: 'edema periférico induzido por di-hidropiridínico (vasodilatação arteriolar)',
+    conduct: 'Investigar se o diurético foi iniciado para tratar edema do di-hidropiridínico. Se sim, o diurético tende a ser ineficaz para esse edema — preferir reduzir a dose do BCC ou trocar por anlodipino+IECA/BRA, em vez de adicionar diurético.',
+  },
+  {
+    id: 'antipsicotico_eps_antiparkinsoniano',
+    triggerKeywords: ['haloperidol', 'risperidona', 'flufenazina', 'clorpromazina', 'levomepromazina', 'metoclopramida', 'sulpirida', 'amissulprida'],
+    triggerLabel: 'antipsicótico/antidopaminérgico',
+    treatmentKeywords: ['biperideno', 'tri-hexifenidil', 'triexifenidil', 'prociclidina'],
+    treatmentLabel: 'antiparkinsoniano anticolinérgico',
+    suspectedEffect: 'sintomas extrapiramidais (parkinsonismo medicamentoso) induzidos pelo antidopaminérgico',
+    conduct: 'Investigar se o anticolinérgico foi adicionado para tratar sintomas extrapiramidais. Preferir reduzir a dose ou trocar o antipsicótico por um de menor risco extrapiramidal, em vez de manter o anticolinérgico (que carrega carga anticolinérgica e risco de delirium em idosos).',
+  },
+  {
+    id: 'tiazidico_hiperuricemia_gota',
+    triggerKeywords: ['hidroclorotiazida', 'clortalidona', 'indapamida', 'bendroflumetiazida'],
+    triggerLabel: 'diurético tiazídico',
+    treatmentKeywords: ['alopurinol', 'febuxostate', 'colchicina', 'benzobromarona'],
+    treatmentLabel: 'hipouricemiante/antigotoso',
+    suspectedEffect: 'hiperuricemia/crise de gota precipitada pelo tiazídico (redução da excreção renal de ácido úrico)',
+    conduct: 'Investigar se a gota/hiperuricemia surgiu após o tiazídico. Avaliar trocar o tiazídico por outro anti-hipertensivo (ex.: BCC, IECA/BRA — losartana tem efeito uricosúrico) em vez de manter terapia antigotosa crônica.',
+  },
+  {
+    id: 'isrs_disfuncao_sexual_pde5',
+    triggerKeywords: ['fluoxetina', 'sertralina', 'paroxetina', 'citalopram', 'escitalopram', 'fluvoxamina', 'venlafaxina', 'duloxetina'],
+    triggerLabel: 'ISRS/IRSN',
+    treatmentKeywords: ['sildenafila', 'tadalafila', 'vardenafila', 'avanafila', 'lodenafila'],
+    treatmentLabel: 'inibidor de PDE5',
+    suspectedEffect: 'disfunção sexual induzida por ISRS/IRSN (efeito de classe muito frequente)',
+    conduct: 'Investigar se a disfunção sexual surgiu após o antidepressivo. Discutir com o prescritor estratégias (troca por antidepressivo de menor impacto sexual — bupropiona, mirtazapina — ou ajuste de dose) antes de cronificar o uso de inibidor de PDE5.',
+  },
+  {
+    id: 'ieca_tosse_antitussigeno',
+    triggerKeywords: ['enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'quinapril', 'fosinopril', 'trandolapril'],
+    triggerLabel: 'IECA',
+    treatmentKeywords: ['dextrometorfano', 'levodropropizina', 'cloperastina', 'codeina'],
+    treatmentLabel: 'antitussígeno',
+    suspectedEffect: 'tosse seca induzida por IECA (acúmulo de bradicinina)',
+    conduct: 'Investigar se a tosse surgiu após o IECA. Se for tosse do IECA, o antitussígeno é ineficaz — substituir o IECA por um BRA (sartana), que não causa tosse.',
+  },
+]
+
+function findPrescriptionCascades(medications: MedicationContext[]): PRMFindingResult[] {
+  const findings: PRMFindingResult[] = []
+  for (const c of PRESCRIPTION_CASCADES) {
+    const trigger = medications.find(m => c.triggerKeywords.some(k => norm(m.activeIngredient).includes(norm(k))))
+    const treatment = medications.find(m => c.treatmentKeywords.some(k => norm(m.activeIngredient).includes(norm(k))))
+    if (trigger && treatment && trigger.id !== treatment.id) {
+      findings.push({
+        category: PRMCategory.NECESSITY,
+        riskLevel: RiskLevel.MODERATE,
+        title: `Possível cascata de prescrição: ${treatment.activeIngredient} para efeito de ${trigger.activeIngredient}`,
+        description: `${treatment.activeIngredient} (${c.treatmentLabel}) pode ter sido adicionado para tratar ${c.suspectedEffect}, causado por ${trigger.activeIngredient} (${c.triggerLabel}).`,
+        clinicalEvidence: `Cascata de prescrição (Rochon & Gurwitz). Gatilho: ${trigger.activeIngredient}; tratamento: ${treatment.activeIngredient}. Efeito suspeito: ${c.suspectedEffect}.`,
+        potentialImpact: 'Manutenção de medicamento potencialmente desnecessário, somando custo, risco de eventos adversos e complexidade do regime.',
+        pharmacistConduct: c.conduct,
+        patientGuidance: 'Converse com seu farmacêutico/médico sobre quando cada remédio foi iniciado. Não suspenda nada por conta própria.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Reavaliar o sintoma-alvo após ajuste do medicamento gatilho.',
+        reevaluationPeriod: 'Próxima consulta',
+        confidenceLevel: 'moderate',
+        validationNote: 'Confirmar com o paciente a cronologia de início dos medicamentos e se o tratamento é para outra indicação legítima.',
+        interventionDeadline: 'Próxima consulta',
+        medicationId: treatment.id,
+      })
+    }
+  }
+  return findings
 }
 
 // ─── Funções Utilitárias ─────────────────────────────────────────────────────
@@ -1643,6 +1814,34 @@ function findInteractions(medications: MedicationContext[]) {
       }
     }
   }
+
+  // Interações por classe×classe (qualquer membro de cada classe)
+  const seen = new Set(results.map(r => [r.med1.id, r.med2.id].sort().join('|')))
+  for (const ci of CLASS_INTERACTIONS) {
+    const group1 = membersOfClass(ci.class1, medications)
+    const group2 = membersOfClass(ci.class2, medications)
+    for (const m1 of group1) {
+      for (const m2 of group2) {
+        if (m1.id === m2.id) continue
+        const key = [m1.id, m2.id].sort().join('|')
+        if (seen.has(key)) continue // já coberto por par de nomes específico
+        seen.add(key)
+        results.push({
+          med1: m1,
+          med2: m2,
+          interaction: {
+            drug1: m1.activeIngredient,
+            drug2: m2.activeIngredient,
+            severity: ci.severity,
+            mechanism: ci.mechanism,
+            clinicalEffect: ci.clinicalEffect,
+            management: ci.management,
+          },
+        })
+      }
+    }
+  }
+
   return results
 }
 
@@ -1666,6 +1865,9 @@ function checkDuplicateTherapy(medications: MedicationContext[]) {
 
 function findNecessityPRMs(context: PatientContext): PRMFindingResult[] {
   const findings: PRMFindingResult[] = []
+
+  // Cascatas de prescrição (medicamento tratando efeito adverso de outro)
+  findings.push(...findPrescriptionCascades(context.medications))
 
   // Automedicação sem indicação
   for (const med of context.medications.filter(m => m.isSelfMedication && !m.indication)) {
@@ -1753,6 +1955,8 @@ function findNecessityPRMs(context: PatientContext): PRMFindingResult[] {
   for (const criterion of START_CRITERIA) {
     const hasCondition = criterion.conditionKeywords.some(k => startDiagText.includes(norm(k)))
     if (!hasCondition) continue
+    if (criterion.alsoRequiresAnyOf && !criterion.alsoRequiresAnyOf.some(k => startDiagText.includes(norm(k)))) continue
+    if (criterion.requiresMedAnyOf && !criterion.requiresMedAnyOf.some(k => medText.includes(norm(k)))) continue
     const hasTreatment = criterion.missingDrugs.some(d => medText.includes(norm(d)))
     if (!hasTreatment) {
       findings.push({
@@ -2243,6 +2447,76 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
     })
   }
 
+  // ── "Triple whammy" — AINE + (IECA ou BRA) + diurético ────────────────────────
+  // Combinação clássica de nefrotoxicidade: vasoconstrição aferente (AINE) +
+  // vasodilatação eferente bloqueada (IECA/BRA) + hipovolemia (diurético) → IRA.
+  {
+    const aineMeds = membersOfClass('AINE', context.medications)
+    const raasMeds = [
+      ...membersOfClass('IECA', context.medications),
+      ...membersOfClass('BRA-II (Sartana)', context.medications),
+    ]
+    const diureticMeds = [
+      ...membersOfClass('Diurético de alça', context.medications),
+      ...membersOfClass('Diurético tiazídico', context.medications),
+    ]
+    if (aineMeds.length > 0 && raasMeds.length > 0 && diureticMeds.length > 0) {
+      const todos = [...aineMeds, ...raasMeds, ...diureticMeds]
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `"Triple whammy" — risco de lesão renal aguda: ${aineMeds[0].activeIngredient} + ${raasMeds[0].activeIngredient} + ${diureticMeds[0].activeIngredient}`,
+        description: 'Uso simultâneo de AINE + IECA/BRA + diurético ("triple whammy") — combinação de alto risco para lesão renal aguda, especialmente em idosos, hipovolemia ou doença renal prévia.',
+        clinicalEvidence: `AINE: ${aineMeds.map(m => m.activeIngredient).join(', ')}; IECA/BRA: ${raasMeds.map(m => m.activeIngredient).join(', ')}; Diurético: ${diureticMeds.map(m => m.activeIngredient).join(', ')}. O AINE bloqueia as prostaglandinas que dilatam a arteríola aferente, o IECA/BRA dilata a eferente e o diurético reduz a volemia — os três reduzem a pressão de filtração glomerular. Fonte: BMJ 2013 (Lapi et al.); NICE.`,
+        potentialImpact: 'Lesão renal aguda (IRA), hipercalemia e retenção hidrossalina — risco aumentado nas primeiras semanas da associação.',
+        pharmacistConduct: 'Comunicar ao prescritor. Suspender ou substituir o AINE (preferir paracetamol). Se a tríade for inevitável, monitorar creatinina e K⁺ de perto e orientar hidratação adequada.',
+        patientGuidance: 'Evite anti-inflamatórios (ibuprofeno, diclofenaco, naproxeno) enquanto usa seus remédios para pressão e diurético — a combinação pode prejudicar os rins. Para dor, prefira paracetamol e fale com seu médico.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Creatinina, ureia e K⁺ basais e 5-7 dias após início da associação. Reavaliar diurese e sinais de hipovolemia.',
+        suggestedExams: 'Creatinina, ureia, potássio.',
+        reevaluationPeriod: '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Risco maior em idosos, desidratação, DRC prévia ou estenose de artéria renal. Avaliação individual essencial.',
+        interventionDeadline: '24-48h',
+        medicationId: aineMeds[0].id,
+      })
+    }
+  }
+
+  // ── Suplemento de potássio + fármaco que retém potássio ───────────────────────
+  {
+    const kSupp = context.medications.find(m => {
+      const n = norm(m.activeIngredient)
+      const t = norm(m.tradeName || '')
+      return ['cloreto de potassio', 'citrato de potassio', 'suplemento de potassio', 'slow-k', 'slow k', 'kcl'].some(k => n.includes(norm(k)) || t.includes(norm(k)))
+    })
+    const kRetentor = context.medications.find(m =>
+      ['enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana', 'irbesartana', 'telmisartana', 'olmesartana', 'espironolactona', 'eplerenona', 'amilorida', 'triantereno'].some(d => norm(m.activeIngredient).includes(norm(d)))
+    )
+    if (kSupp && kRetentor) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `Suplemento de potássio com fármaco que retém potássio: ${kSupp.activeIngredient} + ${kRetentor.activeIngredient}`,
+        description: `Uso de suplemento de potássio (${kSupp.activeIngredient}) junto a ${kRetentor.activeIngredient}, que reduz a excreção renal de potássio — combinação raramente apropriada e de alto risco para hipercalemia.`,
+        clinicalEvidence: `IECA/BRA e poupadores de potássio retêm K⁺; somar suplementação de potássio aumenta substancialmente o risco de hipercalemia. Fonte: Beers 2023 / bulário.`,
+        potentialImpact: 'Hipercalemia com risco de arritmias graves e parada cardíaca.',
+        pharmacistConduct: 'Comunicar ao prescritor. Reavaliar a real necessidade do suplemento de potássio (dosar K⁺ antes de manter). Em geral, suspender o suplemento na vigência de IECA/BRA/poupador, salvo hipocalemia documentada com monitorização.',
+        patientGuidance: 'Evite suplementos e sais de potássio sem orientação enquanto usa esses remédios. Relate fraqueza muscular ou palpitações.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Potássio sérico e função renal antes de manter o suplemento; ECG se K⁺ elevado.',
+        suggestedExams: 'Potássio, creatinina, ECG se alterado.',
+        reevaluationPeriod: '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Confirmar indicação do suplemento (hipocalemia documentada?) e o valor atual de K⁺.',
+        interventionDeadline: '24-48h',
+        medicationId: kSupp.id,
+      })
+    }
+  }
+
   // ── Interações alimento-medicamento ──────────────────────────────────────────
   for (const interaction of FOOD_DRUG_INTERACTIONS) {
     for (const med of context.medications) {
@@ -2415,6 +2689,385 @@ function findAdherencePRMs(context: PatientContext): PRMFindingResult[] {
   return findings
 }
 
+// ─── Findings guiados por exames laboratoriais ────────────────────────────────
+
+/** Extrai o primeiro número de uma string de valor laboratorial ("8,5%", "150 mg/dL"). */
+function parseLabValue(value: string): number | null {
+  if (!value) return null
+  const m = value.replace(',', '.').match(/-?\d+(\.\d+)?/)
+  return m ? parseFloat(m[0]) : null
+}
+
+/** Retorna o valor numérico do primeiro exame cujo nome casa com algum dos termos. */
+function getLab(context: PatientContext, ...nameKeywords: string[]): number | null {
+  for (const lab of context.labResults) {
+    const n = norm(lab.examName)
+    if (nameKeywords.some(k => n.includes(norm(k)))) {
+      const v = parseLabValue(lab.value)
+      if (v !== null) return v
+    }
+  }
+  return null
+}
+
+function findLabBasedPRMs(context: PatientContext): PRMFindingResult[] {
+  const findings: PRMFindingResult[] = []
+  if (context.labResults.length === 0) return findings
+
+  const medText = context.medications.map(m => norm(m.activeIngredient)).join(' ')
+  const hasMed = (...keys: string[]) => keys.some(k => medText.includes(norm(k)))
+  const diagText = expandDiagnosesWithSynonyms(
+    [...context.diagnoses.map(d => norm(d.name)), ...context.comorbidities.map(c => norm(c.name))].join(' ')
+  )
+  const hasDiag = (...keys: string[]) => keys.some(k => diagText.includes(norm(k)))
+
+  // HbA1c elevada — inefetividade do tratamento do diabetes
+  const hba1c = getLab(context, 'hba1c', 'hemoglobina glicada', 'glicada', 'a1c')
+  if (hba1c !== null && hba1c >= 7 && hba1c <= 20) {
+    const grave = hba1c >= 9
+    findings.push({
+      category: PRMCategory.EFFECTIVENESS,
+      riskLevel: grave ? RiskLevel.HIGH : RiskLevel.MODERATE,
+      title: `HbA1c acima da meta (${hba1c}%) — controle glicêmico inadequado`,
+      description: `Hemoglobina glicada de ${hba1c}% indica controle glicêmico ${grave ? 'gravemente inadequado' : 'fora da meta usual (<7% para a maioria dos adultos)'}.`,
+      clinicalEvidence: `HbA1c = ${hba1c}%. Meta individualizada (geralmente <7%; <8% em idosos frágeis). Fonte: ADA/SBD 2024.`,
+      potentialImpact: 'Risco aumentado de complicações micro e macrovasculares (retinopatia, nefropatia, neuropatia, DCV).',
+      pharmacistConduct: 'Revisar adesão, técnica e doses dos antidiabéticos. Avaliar com o prescritor intensificação/otimização (metformina em dose plena, adição de iSGLT2/GLP-1 conforme comorbidades).',
+      patientGuidance: 'Seu açúcar no sangue está acima da meta. Use os medicamentos corretamente e converse com a equipe sobre ajustes e dieta.',
+      needsReferral: false,
+      needsPrescriberContact: true,
+      monitoring: `HbA1c em 3 meses após ajuste. Meta individualizada.`,
+      suggestedExams: 'HbA1c, glicemia de jejum, perfil lipídico.',
+      reevaluationPeriod: '90 dias',
+      confidenceLevel: 'high',
+      validationNote: 'Confirmar meta individualizada (idade, fragilidade, expectativa de vida) com o prescritor.',
+      interventionDeadline: grave ? '7 dias' : 'Próxima consulta',
+    })
+  }
+
+  // HbA1c baixa em idoso sob hipoglicemiante de risco — supertratamento ("less is more")
+  const idoso = context.isElderly || (context.age != null && context.age >= 65)
+  const hipoRisco = hasMed('glibenclamida', 'glipizida', 'glimepirida', 'gliclazida', 'clorpropamida', 'insulina', 'nph', 'regular', 'glargina', 'degludeca', 'lispro', 'aspart', 'repaglinida', 'nateglinida')
+  if (hba1c !== null && hba1c > 0 && hba1c < 7 && idoso && hipoRisco) {
+    const muitoBaixa = hba1c < 6.5
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: muitoBaixa ? RiskLevel.HIGH : RiskLevel.MODERATE,
+      title: `Controle glicêmico excessivo no idoso (HbA1c ${hba1c}%) com hipoglicemiante de risco`,
+      description: `HbA1c de ${hba1c}% em idoso em uso de sulfonilureia/insulina sugere supertratamento — meta excessivamente restrita aumenta o risco de hipoglicemia, sem benefício adicional.`,
+      clinicalEvidence: `HbA1c = ${hba1c}%. Em idosos (especialmente frágeis), a meta usual é 7,5–8,0% (até 8,5% se múltiplas comorbidades). Sulfonilureias e insulina são as principais causas de hipoglicemia grave. Fonte: ADA 2024 / Beers 2023 / Choosing Wisely.`,
+      potentialImpact: 'Hipoglicemia grave: quedas, fraturas, arritmias, déficit cognitivo e hospitalização.',
+      pharmacistConduct: 'Avaliar com o prescritor a desintensificação (reduzir/suspender sulfonilureia ou ajustar insulina) e relaxar a meta de HbA1c conforme idade/fragilidade. Preferir agentes de baixo risco de hipoglicemia (metformina, iDPP-4, iSGLT2/GLP-1).',
+      patientGuidance: 'Açúcar muito baixo também é perigoso em idosos. Relate tremores, suor frio, tontura ou confusão. Converse com a equipe sobre ajustar a meta e os remédios.',
+      needsReferral: false,
+      needsPrescriberContact: true,
+      monitoring: 'Glicemias capilares (atenção a hipoglicemias), episódios sintomáticos. Reavaliar HbA1c em 3 meses.',
+      suggestedExams: 'HbA1c, glicemia capilar, função renal.',
+      reevaluationPeriod: '90 dias',
+      confidenceLevel: 'high',
+      validationNote: 'Confirmar meta individualizada e histórico de hipoglicemia. Desintensificação deve ser pactuada com o prescritor.',
+      interventionDeadline: 'Próxima consulta',
+    })
+  }
+
+  // Hipercalemia — agravada por bloqueadores do SRAA / poupadores de potássio
+  const potassio = getLab(context, 'potassio', 'potassio serico', 'k+', 'kalemia', 'caliemia')
+  if (potassio !== null && potassio >= 5.5) {
+    const grave = potassio >= 6
+    const onRaas = hasMed('enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana', 'espironolactona', 'amilorida', 'eplerenona')
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: grave ? RiskLevel.URGENT : RiskLevel.HIGH,
+      title: `${grave ? 'URGENTE — ' : ''}Hipercalemia (K⁺ = ${potassio} mEq/L)${onRaas ? ' com medicamento que retém potássio' : ''}`,
+      description: `Potássio sérico de ${potassio} mEq/L${grave ? ' (hipercalemia grave)' : ' acima do limite superior'}.${onRaas ? ' Paciente em uso de bloqueador do SRAA ou poupador de potássio.' : ''}`,
+      clinicalEvidence: `K⁺ = ${potassio} mEq/L (normal 3,5–5,0). ${onRaas ? 'IECA/BRA, espironolactona e poupadores de K⁺ reduzem a excreção renal de potássio.' : ''}`,
+      potentialImpact: 'Arritmias cardíacas graves, bloqueios de condução e parada cardíaca (assistolia/FV), sobretudo com K⁺ > 6,5.',
+      pharmacistConduct: grave
+        ? 'URGENTE: comunicar ao prescritor imediatamente e encaminhar para avaliação. Revisar/suspender medicamentos que retêm potássio e suplementos de K⁺.'
+        : 'Comunicar ao prescritor. Revisar dose/uso de IECA/BRA/espironolactona e suplementos de K⁺. Orientar dieta e repetir dosagem.',
+      patientGuidance: 'Seu potássio está alto. Evite suplementos e sais com potássio e procure orientação; busque atendimento se sentir fraqueza intensa ou palpitações.',
+      needsReferral: grave,
+      needsPrescriberContact: true,
+      monitoring: 'K⁺ e ECG. Repetir potássio após intervenção. K⁺ > 6,5 = emergência.',
+      suggestedExams: 'Potássio, creatinina, ECG.',
+      reevaluationPeriod: grave ? 'Imediato' : '48-72h',
+      confidenceLevel: 'high',
+      validationNote: 'Descartar hemólise da amostra (pseudo-hipercalemia). Correlacionar com função renal.',
+      interventionDeadline: grave ? 'Imediato' : '24-48h',
+    })
+  }
+
+  // INR fora da faixa em uso de varfarina
+  const inr = getLab(context, 'inr', 'rni', 'razao normalizada')
+  if (inr !== null && hasMed('warfarina', 'varfarina')) {
+    if (inr > 4) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: inr >= 5 ? RiskLevel.URGENT : RiskLevel.HIGH,
+        title: `${inr >= 5 ? 'URGENTE — ' : ''}INR supraterapêutico (${inr}) em uso de varfarina`,
+        description: `INR de ${inr} acima da faixa terapêutica usual (2,0–3,0) — risco hemorrágico elevado.`,
+        clinicalEvidence: `INR = ${inr}. Risco de sangramento cresce de forma acentuada acima de 4,0–5,0.`,
+        potentialImpact: 'Hemorragia maior (gastrintestinal, intracraniana).',
+        pharmacistConduct: 'Comunicar ao prescritor com urgência. Avaliar suspensão de dose(s) de varfarina, conduta conforme INR/sangramento (vitamina K se indicado) e checar interações/fármacos recém-introduzidos.',
+        patientGuidance: 'Seu exame de coagulação está alterado, com risco de sangramento. Procure orientação imediatamente e relate sangramentos ou hematomas.',
+        needsReferral: inr >= 5,
+        needsPrescriberContact: true,
+        monitoring: 'INR seriado. Sinais de sangramento.',
+        suggestedExams: 'INR/TP, hemograma.',
+        reevaluationPeriod: 'Imediato',
+        confidenceLevel: 'high',
+        validationNote: 'Conduta depende de sangramento ativo e do valor do INR (diretriz de anticoagulação).',
+        interventionDeadline: 'Imediato',
+      })
+    } else if (inr < 2) {
+      findings.push({
+        category: PRMCategory.EFFECTIVENESS,
+        riskLevel: RiskLevel.HIGH,
+        title: `INR subterapêutico (${inr}) em uso de varfarina`,
+        description: `INR de ${inr} abaixo da faixa terapêutica (2,0–3,0) — anticoagulação insuficiente.`,
+        clinicalEvidence: `INR = ${inr}. Abaixo da meta usual de 2,0–3,0 (2,5–3,5 em próteses mecânicas).`,
+        potentialImpact: 'Risco trombótico/tromboembólico (AVC, TEV) por anticoagulação inadequada.',
+        pharmacistConduct: 'Comunicar ao prescritor para ajuste de dose. Investigar adesão, interações (alimentos ricos em vitamina K, fármacos) e mudanças recentes.',
+        patientGuidance: 'Sua anticoagulação está abaixo do ideal. Use a varfarina conforme prescrito, mantenha dieta estável e não falte aos exames de INR.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'INR conforme protocolo. Reavaliar após ajuste.',
+        suggestedExams: 'INR/TP.',
+        reevaluationPeriod: '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Meta de INR depende da indicação (FA, TEV, prótese valvar).',
+        interventionDeadline: '7 dias',
+      })
+    }
+  }
+
+  // Hiponatremia — agravada por ISRS ou tiazídico
+  const sodio = getLab(context, 'sodio', 'sodio serico', 'na+', 'natremia')
+  if (sodio !== null && sodio < 130) {
+    const culpados = hasMed('fluoxetina', 'sertralina', 'paroxetina', 'citalopram', 'escitalopram', 'hidroclorotiazida', 'clortalidona', 'indapamida', 'carbamazepina', 'oxcarbazepina')
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: sodio < 125 ? RiskLevel.URGENT : RiskLevel.HIGH,
+      title: `${sodio < 125 ? 'URGENTE — ' : ''}Hiponatremia (Na⁺ = ${sodio} mEq/L)${culpados ? ' possivelmente medicamentosa' : ''}`,
+      description: `Sódio sérico de ${sodio} mEq/L${sodio < 125 ? ' (hiponatremia grave)' : ''}.${culpados ? ' Paciente em uso de ISRS, tiazídico ou outro fármaco associado a SIADH/hiponatremia.' : ''}`,
+      clinicalEvidence: `Na⁺ = ${sodio} mEq/L (normal 135–145). ${culpados ? 'ISRS e tiazídicos são causas medicamentosas frequentes (SIADH), especialmente em idosos.' : ''}`,
+      potentialImpact: 'Confusão, quedas, convulsões e, na forma grave/aguda, edema cerebral.',
+      pharmacistConduct: 'Comunicar ao prescritor. Revisar fármacos associados a hiponatremia (ISRS, tiazídicos). Investigar volemia e outras causas. Não corrigir o sódio rapidamente (risco de mielinólise).',
+      patientGuidance: 'Seu sódio está baixo. Relate confusão, dor de cabeça forte, náuseas ou desmaios e siga as orientações sobre líquidos.',
+      needsReferral: sodio < 125,
+      needsPrescriberContact: true,
+      monitoring: 'Sódio seriado (correção lenta). Estado neurológico.',
+      suggestedExams: 'Sódio, osmolaridade sérica e urinária, função renal e tireoidiana.',
+      reevaluationPeriod: sodio < 125 ? 'Imediato' : '48h',
+      confidenceLevel: 'moderate',
+      validationNote: 'Avaliar volemia e causas não medicamentosas. Correção do Na⁺ deve ser gradual.',
+      interventionDeadline: sodio < 125 ? 'Imediato' : '24-48h',
+    })
+  }
+
+  // LDL elevado em alto risco cardiovascular sem estatina
+  const ldl = getLab(context, 'ldl', 'ldl-c', 'colesterol ldl')
+  if (ldl !== null && ldl >= 100) {
+    const onStatin = hasMed('sinvastatina', 'atorvastatina', 'rosuvastatina', 'pravastatina', 'pitavastatina', 'fluvastatina', 'lovastatina')
+    const altoRisco = hasDiag('diabetes', 'infarto', 'doenca coronariana', 'avc', 'doenca arterial periferica', 'doenca cardiovascular', 'doenca renal cronica')
+    if (!onStatin && (altoRisco || ldl >= 190)) {
+      findings.push({
+        category: PRMCategory.NECESSITY,
+        riskLevel: ldl >= 190 ? RiskLevel.HIGH : RiskLevel.MODERATE,
+        title: `LDL elevado (${ldl} mg/dL) em alto risco CV sem estatina`,
+        description: `LDL-colesterol de ${ldl} mg/dL ${ldl >= 190 ? '(muito elevado)' : 'em paciente de alto risco cardiovascular'} sem terapia com estatina identificada.`,
+        clinicalEvidence: `LDL = ${ldl} mg/dL. ${altoRisco ? 'Paciente de alto/muito alto risco (diabetes/DCV/DRC).' : 'LDL ≥ 190 caracteriza dislipidemia grave.'} Fonte: ESC/AHA 2023.`,
+        potentialImpact: 'Risco aumentado de eventos cardiovasculares ateroscleróticos (IAM, AVC).',
+        pharmacistConduct: 'Avaliar com o prescritor início de estatina de intensidade adequada ao risco e metas de LDL. Reforçar medidas de estilo de vida.',
+        patientGuidance: 'Seu colesterol LDL está alto. Converse com o médico sobre tratamento e adote alimentação saudável e atividade física.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Perfil lipídico 6-12 semanas após início/ajuste. Transaminases conforme protocolo.',
+        suggestedExams: 'Perfil lipídico, ALT/AST, CK se sintomas musculares.',
+        reevaluationPeriod: '90 dias',
+        confidenceLevel: 'moderate',
+        validationNote: 'Meta de LDL depende da estratificação de risco individual. Confirmar ausência de estatina e contraindicações.',
+        interventionDeadline: 'Próxima consulta',
+      })
+    }
+  }
+
+  // TSH fora da faixa em uso de levotiroxina
+  const tsh = getLab(context, 'tsh', 'hormonio tireoestimulante', 'tireoestimulante')
+  if (tsh !== null && hasMed('levotiroxina', 'tiroxina', 't4')) {
+    if (tsh > 4.5) {
+      findings.push({
+        category: PRMCategory.EFFECTIVENESS,
+        riskLevel: tsh >= 10 ? RiskLevel.HIGH : RiskLevel.MODERATE,
+        title: `TSH elevado (${tsh} mUI/L) — reposição de levotiroxina possivelmente insuficiente`,
+        description: `TSH de ${tsh} mUI/L acima da faixa usual (0,4–4,5) em paciente em uso de levotiroxina — sugere dose subterapêutica ou problema de adesão/absorção.`,
+        clinicalEvidence: `TSH = ${tsh} mUI/L. Hipotireoidismo subtratado eleva o TSH. Fonte: diretrizes de tireoide (ATA/SBEM).`,
+        potentialImpact: 'Sintomas de hipotireoidismo persistentes (fadiga, ganho de peso, dislipidemia, bradicardia).',
+        pharmacistConduct: 'Verificar adesão e técnica de administração (jejum, 30–60 min antes do café, longe de cálcio/ferro/IBP). Avaliar com o prescritor ajuste de dose. Repetir TSH em 6–8 semanas.',
+        patientGuidance: 'Tome a levotiroxina em jejum, com água, e aguarde antes de comer. Não tome junto de cálcio, ferro ou omeprazol. Converse com o médico sobre a dose.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'TSH (± T4 livre) em 6–8 semanas após ajuste.',
+        suggestedExams: 'TSH, T4 livre.',
+        reevaluationPeriod: '60 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Confirmar adesão e interações de absorção antes de atribuir à dose.',
+        interventionDeadline: 'Próxima consulta',
+      })
+    } else if (tsh < 0.4) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.MODERATE,
+        title: `TSH suprimido (${tsh} mUI/L) — possível superdosagem de levotiroxina`,
+        description: `TSH de ${tsh} mUI/L abaixo da faixa usual em uso de levotiroxina — sugere dose excessiva (tireotoxicose iatrogênica).`,
+        clinicalEvidence: `TSH = ${tsh} mUI/L. Supressão do TSH por excesso de levotiroxina, com risco de fibrilação atrial e perda de massa óssea, sobretudo em idosos.`,
+        potentialImpact: 'Fibrilação atrial, osteoporose, palpitações e perda de peso (hipertireoidismo iatrogênico).',
+        pharmacistConduct: 'Avaliar com o prescritor redução de dose. Atenção redobrada em idosos e cardiopatas. Repetir TSH em 6–8 semanas.',
+        patientGuidance: 'Sua dose do hormônio da tireoide pode estar alta. Relate palpitações ou tremores e converse com o médico sobre ajuste.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'TSH em 6–8 semanas. ECG se sintomas cardíacos.',
+        suggestedExams: 'TSH, T4 livre.',
+        reevaluationPeriod: '60 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Em supressão intencional (ex.: pós-câncer de tireoide), pode ser conduta deliberada — confirmar com prescritor.',
+        interventionDeadline: 'Próxima consulta',
+      })
+    }
+  }
+
+  // Função renal reduzida (TFG/clearance) com nefrotóxicos / fármacos de ajuste renal
+  const tfg = getLab(context, 'tfg', 'tfge', 'egfr', 'clearance', 'ritmo de filtracao', 'filtracao glomerular', 'depuracao')
+  if (tfg !== null && tfg > 0 && tfg < 60) {
+    if (hasMed('metformina') && tfg < 30) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `Metformina com TFG ${tfg} mL/min — contraindicada (<30)`,
+        description: `Metformina em uso com taxa de filtração glomerular de ${tfg} mL/min/1,73m². Contraindicada com TFG < 30 pelo risco de acidose lática.`,
+        clinicalEvidence: `TFG = ${tfg} mL/min. Metformina contraindicada < 30 e exige redução de dose entre 30–45. Fonte: ANVISA/FDA/SBD.`,
+        potentialImpact: 'Acidose lática (rara, porém potencialmente fatal) por acúmulo de metformina.',
+        pharmacistConduct: 'Comunicar ao prescritor para suspensão/substituição da metformina. Considerar alternativas com segurança renal (iDPP-4 com ajuste, insulina, iSGLT2 conforme TFG).',
+        patientGuidance: 'Sua função renal exige rever a metformina. Não suspenda por conta própria; procure orientação. Suspenda em caso de desidratação, vômitos ou diarreia intensa.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'TFG/creatinina, lactato se suspeita de acidose.',
+        suggestedExams: 'Creatinina, TFGe, eletrólitos.',
+        reevaluationPeriod: 'Imediato',
+        confidenceLevel: 'high',
+        validationNote: 'Confirmar TFG atual e estabilidade da função renal.',
+        interventionDeadline: '24-48h',
+      })
+    }
+    const aineMed = membersOfClass('AINE', context.medications)[0]
+    if (aineMed) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `AINE (${aineMed.activeIngredient}) com função renal reduzida (TFG ${tfg})`,
+        description: `Uso de AINE com TFG de ${tfg} mL/min — risco de piora da função renal, retenção hídrica e hipercalemia.`,
+        clinicalEvidence: `TFG = ${tfg} mL/min. AINEs reduzem a perfusão glomerular (inibição de prostaglandinas) e devem ser evitados com TFG < 60, sobretudo < 30. Beers 2023.`,
+        potentialImpact: 'Lesão renal aguda sobre crônica, hipercalemia e retenção hidrossalina.',
+        pharmacistConduct: 'Comunicar ao prescritor. Suspender/substituir o AINE (preferir paracetamol). Evitar uso crônico em DRC.',
+        patientGuidance: 'Anti-inflamatórios podem prejudicar seus rins. Para dor, prefira paracetamol e evite ibuprofeno/diclofenaco sem orientação.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Creatinina, TFG e K⁺ após suspensão.',
+        suggestedExams: 'Creatinina, TFGe, potássio.',
+        reevaluationPeriod: '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Avaliar duração do uso e indicação do AINE.',
+        interventionDeadline: '24-48h',
+        medicationId: aineMed.id,
+      })
+    }
+    // Anticoagulante oral direto (DOAC) com função renal reduzida
+    if (tfg < 30) {
+      const doac = context.medications.find(m =>
+        ['dabigatrana', 'rivaroxabana', 'apixabana', 'edoxabana'].some(d => norm(m.activeIngredient).includes(norm(d)))
+      )
+      if (doac) {
+        const isDabigatrana = norm(doac.activeIngredient).includes('dabigatrana')
+        findings.push({
+          category: PRMCategory.SAFETY,
+          riskLevel: tfg < 15 || isDabigatrana ? RiskLevel.URGENT : RiskLevel.HIGH,
+          title: `${tfg < 15 || isDabigatrana ? 'URGENTE — ' : ''}DOAC (${doac.activeIngredient}) com função renal reduzida (TFG ${tfg})`,
+          description: `${doac.activeIngredient} em uso com TFG de ${tfg} mL/min. DOACs têm eliminação renal (dabigatrana ~80%) — TFG < 30 exige ajuste/contraindicação pelo risco de acúmulo e sangramento.`,
+          clinicalEvidence: `TFG = ${tfg} mL/min. ${isDabigatrana ? 'Dabigatrana contraindicada com TFG < 30.' : 'Rivaroxabana/apixabana/edoxabana exigem redução de dose com TFG < 50 e cautela/contraindicação < 30 (< 15 contraindicados).'} Fonte: bulário/diretrizes de anticoagulação.`,
+          potentialImpact: 'Acúmulo do anticoagulante e hemorragia maior.',
+          pharmacistConduct: 'Comunicar ao prescritor com urgência. Avaliar ajuste de dose conforme TFG ou troca de anticoagulante (ex.: varfarina com monitorização de INR em DRC avançada). Conferir a dose prescrita versus a faixa de TFG.',
+          patientGuidance: 'Sua função renal exige rever o anticoagulante. Não suspenda por conta própria; procure orientação e relate sangramentos ou hematomas.',
+          needsReferral: tfg < 15,
+          needsPrescriberContact: true,
+          monitoring: 'TFG/creatinina, hemograma e sinais de sangramento.',
+          suggestedExams: 'Creatinina, TFGe, hemograma.',
+          reevaluationPeriod: tfg < 15 ? 'Imediato' : '48-72h',
+          confidenceLevel: 'high',
+          validationNote: 'Confirmar a dose prescrita e a TFG atual; o ajuste depende do DOAC específico e da indicação.',
+          interventionDeadline: tfg < 15 || isDabigatrana ? 'Imediato' : '24-48h',
+          medicationId: doac.id,
+        })
+      }
+    }
+  }
+
+  // Nível sérico de digoxina elevado (toxicidade)
+  const digoxinemia = getLab(context, 'digoxina', 'digoxinemia', 'nivel de digoxina')
+  if (digoxinemia !== null && digoxinemia >= 2 && digoxinemia <= 20 && hasMed('digoxina')) {
+    findings.push({
+      category: PRMCategory.SAFETY,
+      riskLevel: RiskLevel.URGENT,
+      title: `URGENTE — Nível sérico de digoxina tóxico (${digoxinemia} ng/mL)`,
+      description: `Digoxinemia de ${digoxinemia} ng/mL acima da faixa terapêutica (0,5–0,9 ng/mL na IC; até ~2,0 limite). Risco de intoxicação digitálica.`,
+      clinicalEvidence: `Digoxina = ${digoxinemia} ng/mL. Janela terapêutica estreita; toxicidade favorecida por hipocalemia, hipomagnesemia e disfunção renal. Fonte: bulário/AHA.`,
+      potentialImpact: 'Arritmias graves, bloqueios, náuseas/vômitos, alterações visuais e distúrbios de condução.',
+      pharmacistConduct: 'Comunicar ao prescritor imediatamente. Avaliar suspensão/redução da digoxina, dosar K⁺/Mg²⁺/função renal, revisar interações (amiodarona, verapamil, claritromicina) e considerar encaminhamento.',
+      patientGuidance: 'O nível do seu remédio para o coração está alto. Relate náuseas, visão amarelada, palpitações ou tontura e procure atendimento.',
+      needsReferral: true,
+      needsPrescriberContact: true,
+      monitoring: 'Digoxinemia, K⁺, Mg²⁺, função renal e ECG.',
+      suggestedExams: 'Digoxinemia, potássio, magnésio, creatinina, ECG.',
+      reevaluationPeriod: 'Imediato',
+      confidenceLevel: 'high',
+      validationNote: 'Colher a amostra ≥ 6 h após a dose. Correlacionar com sintomas e eletrólitos.',
+      interventionDeadline: 'Imediato',
+    })
+  }
+
+  // Transaminases elevadas (>3× LSN ≈ 120 U/L) com fármaco hepatotóxico
+  const tgp = getLab(context, 'alt', 'tgp', 'alanina aminotransferase')
+  const tgo = getLab(context, 'ast', 'tgo', 'aspartato aminotransferase')
+  const transaminaseMax = Math.max(tgp ?? 0, tgo ?? 0)
+  if (transaminaseMax >= 120) {
+    const hepatoMed = context.medications.find(m =>
+      ['sinvastatina', 'atorvastatina', 'rosuvastatina', 'metotrexato', 'isoniazida', 'amiodarona', 'cetoconazol', 'paracetamol', 'nimesulida', 'valproato', 'acido valproico'].some(d => norm(m.activeIngredient).includes(norm(d)))
+    )
+    if (hepatoMed) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `Transaminases elevadas (${transaminaseMax} U/L) com fármaco hepatotóxico (${hepatoMed.activeIngredient})`,
+        description: `Transaminases acima de 3× o limite superior em uso de ${hepatoMed.activeIngredient}, potencialmente hepatotóxico.`,
+        clinicalEvidence: `ALT/AST ≈ ${transaminaseMax} U/L (LSN ~40). Elevação > 3× LSN exige reavaliação do fármaco hepatotóxico. Fonte: bulário/diretrizes de hepatotoxicidade.`,
+        potentialImpact: 'Lesão hepática medicamentosa (DILI), podendo evoluir para insuficiência hepática.',
+        pharmacistConduct: 'Comunicar ao prescritor. Avaliar suspensão/redução do fármaco hepatotóxico e investigar outras causas (viral, álcool). Repetir provas hepáticas.',
+        patientGuidance: 'Suas enzimas do fígado estão alteradas. Evite álcool, relate icterícia/dor abdominal/náuseas e converse com o médico sobre o medicamento.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'ALT, AST, bilirrubinas e fosfatase alcalina seriadas.',
+        suggestedExams: 'ALT, AST, GGT, bilirrubinas, INR.',
+        reevaluationPeriod: '7-14 dias',
+        confidenceLevel: 'moderate',
+        validationNote: 'Correlacionar com bilirrubinas (lei de Hy), outras causas e cronologia do fármaco.',
+        interventionDeadline: '7 dias',
+        medicationId: hepatoMed.id,
+      })
+    }
+  }
+
+  return findings
+}
+
 // ─── SOAP Generator ───────────────────────────────────────────────────────────
 
 function generateSOAP(context: PatientContext, findings: PRMFindingResult[]): SOAPSuggestion {
@@ -2486,6 +3139,7 @@ export function analyzePRM(context: PatientContext): AnalysisResult {
     ...findEffectivenessPRMs(context),
     ...findSafetyPRMs(context),
     ...findAdherencePRMs(context),
+    ...findLabBasedPRMs(context),
   ]
 
   const sortOrder: Record<RiskLevel, number> = { URGENT: 0, HIGH: 1, MODERATE: 2, LOW: 3 }
