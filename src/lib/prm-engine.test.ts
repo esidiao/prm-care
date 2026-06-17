@@ -367,6 +367,14 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('metotrexato'), med('naproxeno')], 'metotrexato', 'naproxeno')).toBe(true)
   })
 
+  it('detecta DOAC + inibidor CYP3A4/P-gp (rivaroxabana + itraconazol)', () => {
+    expect(hasFinding([med('rivaroxabana'), med('itraconazol')], 'rivaroxabana', 'itraconazol')).toBe(true)
+  })
+
+  it('detecta estatina + genfibrozila (rabdomiólise)', () => {
+    expect(hasFinding([med('sinvastatina'), med('genfibrozila')], 'sinvastatina', 'genfibrozila')).toBe(true)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
