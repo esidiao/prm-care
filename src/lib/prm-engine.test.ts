@@ -335,6 +335,18 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('apixabana'), med('clopidogrel')], 'apixabana', 'clopidogrel')).toBe(true)
   })
 
+  it('lab: hipocalemia + digoxina → toxicidade digitálica', () => {
+    expect(hasFindingLab([med('digoxina')], [lab('Potássio', '3.1')], [], 'hipocalemia', 'digoxina')).toBe(true)
+  })
+
+  it('lab: hipocalemia + diurético espoliador (furosemida)', () => {
+    expect(hasFindingLab([med('furosemida')], [lab('Potássio', '2.9')], [], 'hipocalemia')).toBe(true)
+  })
+
+  it('lab: hipocalemia isolada sem fármaco de risco NÃO dispara', () => {
+    expect(hasFindingLab([med('paracetamol')], [lab('Potássio', '3.1')], [], 'hipocalemia')).toBe(false)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })

@@ -2797,6 +2797,36 @@ function findLabBasedPRMs(context: PatientContext): PRMFindingResult[] {
     })
   }
 
+  // Hipocalemia (K⁺ baixo) — potencializa toxicidade da digoxina e prolongamento de QT
+  if (potassio !== null && potassio > 0 && potassio < 3.5) {
+    const graveK = potassio < 3.0
+    const comDigoxina = hasMed('digoxina')
+    const comQt = context.medications.some(m =>
+      [...QT_HIGH_RISK, ...QT_MODERATE_RISK].some(d => norm(m.activeIngredient).includes(norm(d)))
+    )
+    const comEspoliador = hasMed('furosemida', 'hidroclorotiazida', 'clortalidona', 'indapamida', 'bumetanida')
+    if (comDigoxina || comQt || comEspoliador) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: graveK || comDigoxina ? RiskLevel.HIGH : RiskLevel.MODERATE,
+        title: `Hipocalemia (K⁺ = ${potassio} mEq/L)${comDigoxina ? ' em uso de digoxina' : comQt ? ' com prolongador de QT' : ''}`,
+        description: `Potássio sérico de ${potassio} mEq/L${graveK ? ' (hipocalemia grave)' : ' abaixo do limite inferior'}.${comDigoxina ? ' A hipocalemia potencializa a toxicidade da digoxina.' : comQt ? ' A hipocalemia aumenta o risco de arritmia com fármacos que prolongam o QT.' : ' Possivelmente espoliada por diurético.'}`,
+        clinicalEvidence: `K⁺ = ${potassio} mEq/L (normal 3,5–5,0). ${comDigoxina ? 'Hipocalemia + digoxina → maior risco de arritmias digitálicas.' : comQt ? 'Hipocalemia é fator de risco para Torsades de Pointes com prolongadores de QT.' : 'Diuréticos de alça/tiazídicos espoliam potássio.'}`,
+        potentialImpact: 'Arritmias cardíacas (extrassístoles, TV, Torsades), fraqueza muscular e câimbras; risco maior com digoxina ou QT longo.',
+        pharmacistConduct: 'Comunicar ao prescritor. Corrigir o potássio (reposição) e investigar a causa (diurético espoliador, vômitos/diarreia). Reavaliar dose do diurético e monitorar ECG se digoxina/QT. Corrigir também magnésio se baixo.',
+        patientGuidance: 'Seu potássio está baixo. Relate palpitações, fraqueza intensa ou câimbras. Siga a orientação sobre reposição e dieta.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Potássio e magnésio séricos; ECG se digoxina ou prolongador de QT. Repetir após reposição.',
+        suggestedExams: 'Potássio, magnésio, ECG, digoxinemia se aplicável.',
+        reevaluationPeriod: graveK ? '24-48h' : '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Correlacionar com magnésio (hipomagnesemia dificulta a correção) e com a causa da perda de potássio.',
+        interventionDeadline: graveK || comDigoxina ? '24-48h' : '7 dias',
+      })
+    }
+  }
+
   // INR fora da faixa em uso de varfarina
   const inr = getLab(context, 'inr', 'rni', 'razao normalizada')
   if (inr !== null && hasMed('warfarina', 'varfarina')) {
