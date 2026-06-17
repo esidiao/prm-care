@@ -359,6 +359,14 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('hiperico'), med('varfarina')], 'hiperico', 'varfarina')).toBe(true)
   })
 
+  it('detecta metotrexato + sulfametoxazol (pancitopenia)', () => {
+    expect(hasFinding([med('metotrexato'), med('sulfametoxazol')], 'metotrexato', 'sulfametoxazol')).toBe(true)
+  })
+
+  it('detecta metotrexato + naproxeno (AINE)', () => {
+    expect(hasFinding([med('metotrexato'), med('naproxeno')], 'metotrexato', 'naproxeno')).toBe(true)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
