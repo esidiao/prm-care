@@ -26,6 +26,7 @@ mecanismo, efeito clínico e manejo. Cobre, entre outros:
 - Inibidores de CYP3A4 (fluconazol + midazolam/quetiapina), sulfonilureia + fluconazol
 - **Nitrato + inibidor de PDE5** (contraindicado)
 - **Opioide + benzodiazepínico** (depressão respiratória)
+- **Indutores enzimáticos** (rifampicina/carbamazepina/fenitoína/fenobarbital/topiramato/erva-de-são-joão) + anticoncepcional → falha contraceptiva; + varfarina → perda de anticoagulação
 
 ### 1b. Interações por **classe × classe** (`CLASS_INTERACTIONS`, 5 pares)
 Disparam para **qualquer membro** de cada classe (não só pares enumerados):
