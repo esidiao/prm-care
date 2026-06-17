@@ -70,7 +70,8 @@ Sinaliza quando um "tratamento" pode estar manejando o efeito adverso de um "gat
 |---|---|---|---|
 | HbA1c | ≥7% (≥9% grave) em diabético | — | EFFECTIVENESS · MOD/HIGH |
 | HbA1c | <7% (<6,5%) em **idoso** | Sulfonilureia/insulina | SAFETY · MOD/HIGH (supertratamento) |
-| K⁺ | ≥5,5 (≥6 grave) | Agravado por IECA/BRA/espironolactona | SAFETY · HIGH/URGENT |
+| K⁺ alto | ≥5,5 (≥6 grave) | Agravado por IECA/BRA/espironolactona | SAFETY · HIGH/URGENT |
+| K⁺ baixo | <3,5 (<3,0 grave) | Digoxina / prolongador de QT / diurético espoliador | SAFETY · MOD/HIGH |
 | INR | >4 / <2 | Varfarina | SAFETY/EFFECTIVENESS · HIGH/URGENT |
 | Na⁺ | <130 (<125) | Agravado por ISRS/tiazídico | SAFETY · HIGH/URGENT |
 | LDL | ≥100 em alto risco CV (ou ≥190) | Sem estatina | NECESSITY · MOD/HIGH |
