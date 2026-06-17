@@ -36,11 +36,19 @@ Disparam para **qualquer membro** de cada classe (não só pares enumerados):
 | Nitrato | Inibidor de PDE5 | contraindicado | Hipotensão grave |
 | IECA | BRA-II | major | Hipercalemia/IRA (duplo SRAA) |
 | Benzodiazepínico | Hipnótico Z | moderate | Sedação excessiva |
+| Betabloqueador | BCC não-diidropiridínico (verapamil/diltiazem) | major | Bradicardia/BAV |
+| AINE | Anticoagulante oral | major | Hemorragia digestiva |
+| AINE | Antiagregante | moderate | Sangramento GI |
+| Anticoagulante oral | Antiagregante | major | Sangramento (verificar indicação) |
 
 ### 1c. Combinações de QT longo (cumulativo)
 ≥2 fármacos de alto risco → URGENT; alto + moderado → HIGH; ≥2 moderados → MODERATE.
 
 ### 1d. Interações alimento–medicamento (`FOOD_DRUG_INTERACTIONS`).
+
+## 1e. Suplemento de potássio + fármaco que retém K⁺
+Suplemento de potássio (KCl/citrato) com IECA/BRA ou poupador de potássio
+(espironolactona/eplerenona/amilorida/triantereno) → alto risco de hipercalemia (HIGH).
 
 ## 2. "Triple whammy"
 AINE + (IECA **ou** BRA) + diurético (alça/tiazídico) em uso simultâneo → risco de
@@ -75,7 +83,8 @@ Sinaliza quando um "tratamento" pode estar manejando o efeito adverso de um "gat
 
 ## 5. Critérios geriátricos e de adequação
 - **Beers 2023** — medicamentos potencialmente inadequados em idosos.
-- **STOPP v3** — prescrições potencialmente inapropriadas.
+- **STOPP v3** — prescrições potencialmente inapropriadas (interação fármaco-doença),
+  incluindo anticolinérgicos em **HPB/retenção urinária** e em **glaucoma de ângulo fechado**.
 - **START v3** — tratamentos indicados possivelmente ausentes (subtratamento), com
   **gating composto** (`alsoRequiresAnyOf`, ex.: DM2 **E** DCV/DRC para iSGLT2/GLP-1) e
   **gating por medicamento** (`requiresMedAnyOf`, ex.: gastroproteção só se há AINE em uso).
