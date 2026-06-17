@@ -347,6 +347,18 @@ describe('Interações classe×classe', () => {
     expect(hasFindingLab([med('paracetamol')], [lab('Potássio', '3.1')], [], 'hipocalemia')).toBe(false)
   })
 
+  it('detecta indutor + anticoncepcional → falha contraceptiva (rifampicina)', () => {
+    expect(hasFinding([med('rifampicina'), med('etinilestradiol')], 'rifampicina', 'etinilestradiol')).toBe(true)
+  })
+
+  it('detecta carbamazepina + anticoncepcional', () => {
+    expect(hasFinding([med('carbamazepina'), med('etinilestradiol')], 'carbamazepina', 'etinilestradiol')).toBe(true)
+  })
+
+  it('detecta erva-de-são-joão + varfarina', () => {
+    expect(hasFinding([med('hiperico'), med('varfarina')], 'hiperico', 'varfarina')).toBe(true)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
