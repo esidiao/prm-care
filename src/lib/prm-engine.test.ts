@@ -311,6 +311,18 @@ describe('Interações classe×classe', () => {
     expect(bradi).toBe(false)
   })
 
+  it('detecta suplemento de potássio + IECA (retenção de K+)', () => {
+    expect(hasFinding([med('cloreto de potassio'), med('enalapril')], 'cloreto de potassio', 'enalapril')).toBe(true)
+  })
+
+  it('detecta suplemento de potássio + espironolactona', () => {
+    expect(hasFinding([med('cloreto de potassio'), med('espironolactona')], 'cloreto de potassio', 'espironolactona')).toBe(true)
+  })
+
+  it('NÃO dispara suplemento de potássio sem fármaco que retém K+', () => {
+    expect(hasFinding([med('cloreto de potassio'), med('furosemida')], 'suplemento de potassio com')).toBe(false)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })

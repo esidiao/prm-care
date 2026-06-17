@@ -2481,6 +2481,39 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
     }
   }
 
+  // ── Suplemento de potássio + fármaco que retém potássio ───────────────────────
+  {
+    const kSupp = context.medications.find(m => {
+      const n = norm(m.activeIngredient)
+      const t = norm(m.tradeName || '')
+      return ['cloreto de potassio', 'citrato de potassio', 'suplemento de potassio', 'slow-k', 'slow k', 'kcl'].some(k => n.includes(norm(k)) || t.includes(norm(k)))
+    })
+    const kRetentor = context.medications.find(m =>
+      ['enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana', 'irbesartana', 'telmisartana', 'olmesartana', 'espironolactona', 'eplerenona', 'amilorida', 'triantereno'].some(d => norm(m.activeIngredient).includes(norm(d)))
+    )
+    if (kSupp && kRetentor) {
+      findings.push({
+        category: PRMCategory.SAFETY,
+        riskLevel: RiskLevel.HIGH,
+        title: `Suplemento de potássio com fármaco que retém potássio: ${kSupp.activeIngredient} + ${kRetentor.activeIngredient}`,
+        description: `Uso de suplemento de potássio (${kSupp.activeIngredient}) junto a ${kRetentor.activeIngredient}, que reduz a excreção renal de potássio — combinação raramente apropriada e de alto risco para hipercalemia.`,
+        clinicalEvidence: `IECA/BRA e poupadores de potássio retêm K⁺; somar suplementação de potássio aumenta substancialmente o risco de hipercalemia. Fonte: Beers 2023 / bulário.`,
+        potentialImpact: 'Hipercalemia com risco de arritmias graves e parada cardíaca.',
+        pharmacistConduct: 'Comunicar ao prescritor. Reavaliar a real necessidade do suplemento de potássio (dosar K⁺ antes de manter). Em geral, suspender o suplemento na vigência de IECA/BRA/poupador, salvo hipocalemia documentada com monitorização.',
+        patientGuidance: 'Evite suplementos e sais de potássio sem orientação enquanto usa esses remédios. Relate fraqueza muscular ou palpitações.',
+        needsReferral: false,
+        needsPrescriberContact: true,
+        monitoring: 'Potássio sérico e função renal antes de manter o suplemento; ECG se K⁺ elevado.',
+        suggestedExams: 'Potássio, creatinina, ECG se alterado.',
+        reevaluationPeriod: '7 dias',
+        confidenceLevel: 'high',
+        validationNote: 'Confirmar indicação do suplemento (hipocalemia documentada?) e o valor atual de K⁺.',
+        interventionDeadline: '24-48h',
+        medicationId: kSupp.id,
+      })
+    }
+  }
+
   // ── Interações alimento-medicamento ──────────────────────────────────────────
   for (const interaction of FOOD_DRUG_INTERACTIONS) {
     for (const med of context.medications) {
