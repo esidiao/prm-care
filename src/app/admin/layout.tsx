@@ -1,7 +1,7 @@
 import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { TopBar } from '@/components/layout/TopBar'
+import { Sidebar } from '@/components/layout/sidebar'
+import { TopBar } from '@/components/layout/topbar'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession()
