@@ -1669,6 +1669,7 @@ const CLASS_KEYWORDS: Record<string, string[]> = {
   'Diurético tiazídico': ['hidroclorotiazida', 'clortalidona', 'indapamida', 'bendroflumetiazida'],
   'Nitrato': ['isossorbida', 'mononitrato de isossorbida', 'dinitrato de isossorbida', 'nitroglicerina', 'propatilnitrato', 'monocordil', 'sustrate'],
   'Inibidor de PDE5': ['sildenafila', 'tadalafila', 'vardenafila', 'avanafila', 'lodenafila'],
+  'BCC não-diidropiridínico': ['verapamil', 'diltiazem'],
 }
 
 /**
@@ -1691,6 +1692,7 @@ const CLASS_INTERACTIONS: ClassInteraction[] = [
   { class1: 'Nitrato', class2: 'Inibidor de PDE5', severity: 'contraindicated', mechanism: 'Potencialização do efeito vasodilatador via acúmulo de GMPc', clinicalEffect: 'Hipotensão grave/potencialmente fatal', management: 'CONTRAINDICADO. Não associar; respeitar intervalo de segurança e nunca usar nitrato de resgate sob efeito de PDE5.' },
   { class1: 'IECA', class2: 'BRA-II (Sartana)', severity: 'major', mechanism: 'Duplo bloqueio do sistema renina-angiotensina-aldosterona', clinicalEffect: 'Hipercalemia, hipotensão e lesão renal aguda, sem benefício cardiovascular adicional (ONTARGET)', management: 'Não associar IECA + BRA rotineiramente. Suspender uma das classes e monitorar K+ e função renal.' },
   { class1: 'Benzodiazepínico', class2: 'Hipnótico Z', severity: 'moderate', mechanism: 'Sobreposição de sedativos GABAérgicos', clinicalEffect: 'Sedação excessiva, quedas e comprometimento cognitivo (especialmente idosos)', management: 'Evitar uso concomitante; consolidar em um único agente e planejar desmame.' },
+  { class1: 'Betabloqueador', class2: 'BCC não-diidropiridínico', severity: 'major', mechanism: 'Depressão aditiva do nó sinusal e da condução AV (verapamil/diltiazem + betabloqueador)', clinicalEffect: 'Bradicardia grave, bloqueio AV e hipotensão; risco maior em ICC ou distúrbio de condução', management: 'Evitar a associação, sobretudo com verapamil. Se imprescindível, monitorar FC e ECG e iniciar em doses baixas. Para controle de frequência, preferir um único agente.' },
 ]
 
 /** Membros (medicamentos) de uma classe presentes na lista do paciente. */

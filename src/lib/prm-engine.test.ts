@@ -301,6 +301,16 @@ describe('Interações classe×classe', () => {
     expect(ok).toBe(false)
   })
 
+  it('detecta betabloqueador + BCC não-diidropiridínico (verapamil)', () => {
+    expect(hasFinding([med('atenolol'), med('verapamil')], 'atenolol', 'verapamil')).toBe(true)
+  })
+
+  it('NÃO dispara betabloqueador + di-hidropiridínico (amlodipina é segura)', () => {
+    const findings = analyzePRM(ctx([med('atenolol'), med('amlodipina')])).findings
+    const bradi = findings.some(f => /intera/i.test(f.title) && /atenolol/i.test(f.title) && /amlodipina/i.test(f.title))
+    expect(bradi).toBe(false)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
