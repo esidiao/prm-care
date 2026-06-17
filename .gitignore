@@ -6,6 +6,10 @@ node_modules/
 out/
 build/
 
+# TypeScript build cache (artefato — não versionar)
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
 # Environment variables — NUNCA subir para o GitHub
 .env
 .env.local
