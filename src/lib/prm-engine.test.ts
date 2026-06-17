@@ -323,6 +323,18 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('cloreto de potassio'), med('furosemida')], 'suplemento de potassio com')).toBe(false)
   })
 
+  it('detecta AINE + anticoagulante oral (DOAC) — sangramento', () => {
+    expect(hasFinding([med('diclofenaco'), med('rivaroxabana')], 'diclofenaco', 'rivaroxabana')).toBe(true)
+  })
+
+  it('detecta AINE + antiagregante', () => {
+    expect(hasFinding([med('naproxeno'), med('clopidogrel')], 'naproxeno', 'clopidogrel')).toBe(true)
+  })
+
+  it('detecta anticoagulante oral + antiagregante (terapia combinada)', () => {
+    expect(hasFinding([med('apixabana'), med('clopidogrel')], 'apixabana', 'clopidogrel')).toBe(true)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
