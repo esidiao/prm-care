@@ -375,6 +375,14 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('sinvastatina'), med('genfibrozila')], 'sinvastatina', 'genfibrozila')).toBe(true)
   })
 
+  it('detecta quelação ciprofloxacino + sulfato ferroso', () => {
+    expect(hasFinding([med('ciprofloxacino'), med('sulfato ferroso')], 'ciprofloxacino', 'ferroso')).toBe(true)
+  })
+
+  it('detecta bifosfonato + cálcio (absorção)', () => {
+    expect(hasFinding([med('alendronato'), med('carbonato de calcio')], 'alendronato', 'calcio')).toBe(true)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
