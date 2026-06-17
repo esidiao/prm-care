@@ -383,6 +383,14 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('alendronato'), med('carbonato de calcio')], 'alendronato', 'calcio')).toBe(true)
   })
 
+  it('dedup: par com entradas duplicadas gera UMA interação, na maior severidade', () => {
+    // clopidogrel+omeprazol tinha 2 entradas (major e moderate) em KNOWN_INTERACTIONS
+    const findings = analyzePRM(ctx([med('clopidogrel'), med('omeprazol')])).findings
+    const interacoes = findings.filter(f => /intera/i.test(f.title) && /clopidogrel/i.test(f.title) && /omeprazol/i.test(f.title))
+    expect(interacoes.length).toBe(1)
+    expect(interacoes[0].riskLevel).toBe('HIGH') // major → HIGH (não rebaixa para moderate)
+  })
+
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })

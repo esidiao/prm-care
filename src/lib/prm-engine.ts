@@ -1825,24 +1825,34 @@ function findPrescriptionCascades(medications: MedicationContext[]): PRMFindingR
 
 // ─── Funções Utilitárias ─────────────────────────────────────────────────────
 
+const SEVERITY_RANK: Record<KnownInteraction['severity'], number> = {
+  contraindicated: 3, major: 2, moderate: 1, minor: 0,
+}
+
 function findInteractions(medications: MedicationContext[]) {
-  const results: Array<{ med1: MedicationContext; med2: MedicationContext; interaction: KnownInteraction }> = []
+  // Dedup por par de medicamentos: cada dupla gera no MÁXIMO uma interação.
+  // Se múltiplas entradas casarem (incl. duplicatas), mantém a de maior severidade.
+  const byPair = new Map<string, { med1: MedicationContext; med2: MedicationContext; interaction: KnownInteraction }>()
+
   for (let i = 0; i < medications.length; i++) {
     for (let j = i + 1; j < medications.length; j++) {
+      const n1 = norm(medications[i].activeIngredient)
+      const n2 = norm(medications[j].activeIngredient)
+      const key = [medications[i].id, medications[j].id].sort().join('|')
       for (const interaction of KNOWN_INTERACTIONS) {
-        const n1 = norm(medications[i].activeIngredient)
-        const n2 = norm(medications[j].activeIngredient)
         const d1 = norm(interaction.drug1)
         const d2 = norm(interaction.drug2)
         if ((n1.includes(d1) && n2.includes(d2)) || (n1.includes(d2) && n2.includes(d1))) {
-          results.push({ med1: medications[i], med2: medications[j], interaction })
+          const cur = byPair.get(key)
+          if (!cur || SEVERITY_RANK[interaction.severity] > SEVERITY_RANK[cur.interaction.severity]) {
+            byPair.set(key, { med1: medications[i], med2: medications[j], interaction })
+          }
         }
       }
     }
   }
 
   // Interações por classe×classe (qualquer membro de cada classe)
-  const seen = new Set(results.map(r => [r.med1.id, r.med2.id].sort().join('|')))
   for (const ci of CLASS_INTERACTIONS) {
     const group1 = membersOfClass(ci.class1, medications)
     const group2 = membersOfClass(ci.class2, medications)
@@ -1850,9 +1860,8 @@ function findInteractions(medications: MedicationContext[]) {
       for (const m2 of group2) {
         if (m1.id === m2.id) continue
         const key = [m1.id, m2.id].sort().join('|')
-        if (seen.has(key)) continue // já coberto por par de nomes específico
-        seen.add(key)
-        results.push({
+        if (byPair.has(key)) continue // já coberto por par de nomes específico
+        byPair.set(key, {
           med1: m1,
           med2: m2,
           interaction: {
@@ -1868,7 +1877,7 @@ function findInteractions(medications: MedicationContext[]) {
     }
   }
 
-  return results
+  return Array.from(byPair.values())
 }
 
 function checkDuplicateTherapy(medications: MedicationContext[]) {
