@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { analyzePRM } from '@/lib/prm-engine'
+import { analyzePRM, checkInteractions } from '@/lib/prm-engine'
 import type { PatientContext, MedicationContext } from '@/types'
 
 function med(activeIngredient: string, id = activeIngredient): MedicationContext {
@@ -393,6 +393,26 @@ describe('Interações classe×classe', () => {
 
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
+  })
+
+  // ── Módulo de consulta de interações (checkInteractions) ──
+  it('checkInteractions: detecta par grave e calcula risco global', () => {
+    const r = checkInteractions(['varfarina', 'ibuprofeno'])
+    expect(r.interactions.length).toBeGreaterThanOrEqual(1)
+    expect(r.globalRisk).toBe('major')
+    expect(r.globalLabel).toBe('Grave')
+  })
+
+  it('checkInteractions: ordena por severidade e usa a maior como risco global', () => {
+    const r = checkInteractions(['isossorbida', 'sildenafila', 'paracetamol'])
+    expect(r.globalRisk).toBe('contraindicated')
+    expect(r.interactions[0].severity).toBe('contraindicated') // contraindicada vem primeiro
+  })
+
+  it('checkInteractions: par inócuo retorna vazio e sem risco', () => {
+    const r = checkInteractions(['paracetamol', 'loratadina'])
+    expect(r.interactions).toHaveLength(0)
+    expect(r.globalRisk).toBeNull()
   })
 
   it('não duplica par coberto por nome E por classe (morfina + diazepam)', () => {

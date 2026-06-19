@@ -3239,3 +3239,58 @@ export function getTokenCostForAnalysis(medicationCount: number, hasLabResults: 
   if (medicationCount > 3) return { type: 'complete', cost: 3, label: 'Análise Completa (até 10 medicamentos)' }
   return { type: 'basic', cost: 1, label: 'Análise Básica (até 3 medicamentos)' }
 }
+
+// ─── Consulta de interações (módulo "Interações Medicamentosas") ───────────────
+// Reusa a base determinística (KNOWN_INTERACTIONS + CLASS_INTERACTIONS + dedup por
+// severidade) de forma reutilizável fora do fluxo de análise completa.
+
+const SEVERITY_LABEL: Record<KnownInteraction['severity'], string> = {
+  contraindicated: 'Contraindicada', major: 'Grave', moderate: 'Moderada', minor: 'Leve',
+}
+
+export interface DdiInteractionResult {
+  drugs: [string, string]
+  severity: KnownInteraction['severity']
+  severityLabel: string
+  severityRank: number
+  riskLevel: RiskLevel
+  mechanism: string
+  clinicalEffect: string
+  management: string
+}
+
+export interface DdiCheckResult {
+  interactions: DdiInteractionResult[]
+  globalRisk: KnownInteraction['severity'] | null
+  globalLabel: string
+}
+
+/** Cruza ≥2 medicamentos (por princípio ativo/nome) e retorna as interações da base. */
+export function checkInteractions(drugNames: string[]): DdiCheckResult {
+  const meds: MedicationContext[] = drugNames
+    .map(n => (n || '').trim()).filter(Boolean)
+    .map((activeIngredient, i) => ({
+      id: `ddi-${i}`, tradeName: null, activeIngredient, dose: null, doseUnit: null,
+      pharmaceuticalForm: null, route: 'ORAL' as MedicationContext['route'], frequency: null,
+      frequencyHours: null, indication: null, isPrescribed: true, isSelfMedication: false,
+      durationOfUse: null, adherence: AdherenceLevel.UNKNOWN, adverseEffects: null,
+    }))
+
+  const interactions: DdiInteractionResult[] = findInteractions(meds)
+    .map(r => ({
+      drugs: [r.med1.activeIngredient, r.med2.activeIngredient] as [string, string],
+      severity: r.interaction.severity,
+      severityLabel: SEVERITY_LABEL[r.interaction.severity],
+      severityRank: SEVERITY_RANK[r.interaction.severity],
+      riskLevel: r.interaction.severity === 'contraindicated' ? RiskLevel.URGENT
+        : r.interaction.severity === 'major' ? RiskLevel.HIGH
+        : r.interaction.severity === 'moderate' ? RiskLevel.MODERATE : RiskLevel.LOW,
+      mechanism: r.interaction.mechanism,
+      clinicalEffect: r.interaction.clinicalEffect,
+      management: r.interaction.management,
+    }))
+    .sort((a, b) => b.severityRank - a.severityRank)
+
+  const top = interactions[0]?.severity ?? null
+  return { interactions, globalRisk: top, globalLabel: top ? SEVERITY_LABEL[top] : 'Nenhuma interação na base disponível' }
+}

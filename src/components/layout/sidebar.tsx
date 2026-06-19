@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
   Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
-  Calculator, X, Menu, UserCircle, Globe, TrendingUp,
+  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2,
 } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
@@ -26,6 +26,7 @@ const navItems = [
   { href: '/dashboard', label: 'Painel', icon: LayoutDashboard },
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
+  { href: '/interactions', label: 'Interações', icon: Link2 },
   { href: '/reports', label: 'Relatórios', icon: FileText },
   { href: '/analyses', label: 'Histórico', icon: BarChart3 },
   { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
