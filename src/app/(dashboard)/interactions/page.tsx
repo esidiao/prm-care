@@ -19,7 +19,13 @@ type CheckResp = {
   globalRisk: Interaction['severity'] | null
   globalLabel: string
   interactions: Interaction[]
+  foodSupplements?: FoodSupp[]
   advisory: string
+}
+type FoodSupp = {
+  agent: string; emoji: string; type: 'alimento' | 'álcool' | 'suplemento'
+  severity: 'major' | 'moderate'; severityLabel: string; drugs: string[]
+  mechanism: string; clinicalEffect: string; management: string; patientGuidance: string
 }
 
 const SEV = {
@@ -184,12 +190,13 @@ export default function InteractionsPage() {
       {resp && (
         <div className="mt-6">
           {/* síntese de risco global */}
-          {resp.notFound ? (
+          {resp.notFound && (
             <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-600">
-              Nenhuma interação relevante encontrada na base disponível para os medicamentos informados.
+              Nenhuma interação relevante (fármaco, alimento ou suplemento) encontrada na base disponível para os itens informados.
               <span className="mt-1 block text-slate-500">Ausência de evidência não significa ausência de risco — mantenha o julgamento clínico.</span>
             </div>
-          ) : (
+          )}
+          {resp.interactions.length > 0 && (
             <div className={`flex items-center justify-between rounded-xl border bg-white px-4 py-3 ${resp.globalRisk ? SEV[resp.globalRisk].ring : ''}`}>
               <div className="flex items-center gap-3">
                 <AlertTriangle className={`h-5 w-5 ${resp.globalRisk === 'contraindicated' || resp.globalRisk === 'major' ? 'text-red-600' : 'text-amber-500'}`} />
@@ -250,6 +257,37 @@ export default function InteractionsPage() {
               )
             })}
           </div>
+
+          {/* Alimentos, álcool e suplementos */}
+          {resp.foodSupplements && resp.foodSupplements.length > 0 && (
+            <div className="mt-5">
+              <h3 className="mb-2 text-sm font-bold text-slate-700">Alimentos, álcool e suplementos ({resp.foodSupplements.length})</h3>
+              <div className="space-y-3">
+                {resp.foodSupplements.map((f, i) => {
+                  const c = SEV[f.severity]
+                  const typeChip = f.type === 'suplemento' ? 'bg-emerald-100 text-emerald-800' : f.type === 'álcool' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'
+                  return (
+                    <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 ${c.ring}`}>
+                      <div className={`absolute left-0 top-0 h-full w-1.5 ${c.bar}`} />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg">{f.emoji}</span>
+                        <span className="font-semibold text-slate-800">{f.agent}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${typeChip}`}>{f.type}</span>
+                        <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${c.chip}`}>{f.severityLabel}</span>
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">Afeta: {f.drugs.join(', ')}</p>
+                      <dl className="mt-2 space-y-1.5 text-sm">
+                        <div><dt className="inline font-semibold text-slate-600">Mecanismo: </dt><dd className="inline text-slate-700">{f.mechanism}</dd></div>
+                        <div><dt className="inline font-semibold text-slate-600">Efeito: </dt><dd className="inline text-slate-700">{f.clinicalEffect}</dd></div>
+                        <div><dt className="inline font-semibold text-slate-600">Conduta: </dt><dd className="inline text-slate-700">{f.management}</dd></div>
+                      </dl>
+                      <div className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900"><b>Orientação ao paciente:</b> {f.patientGuidance}</div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {sources.length > 0 && (
             <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">

@@ -3446,3 +3446,52 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
   const top = interactions[0]?.severity ?? null
   return { interactions, globalRisk: top, globalLabel: top ? SEVERITY_LABEL[top] : 'Nenhuma interação na base disponível' }
 }
+
+// ─── Interações com SUPLEMENTOS / fitoterápicos (reusa o tipo FoodDrugInteraction) ───
+const SUPPLEMENT_INTERACTIONS: FoodDrugInteraction[] = [
+  { food: 'Ginkgo biloba', emoji: '🌿', drugs: ['varfarina', 'acido acetilsalicilico', 'clopidogrel', 'ticagrelor', 'rivaroxabana', 'apixabana', 'dabigatrana'], severity: 'major', mechanism: 'Ginkgo inibe a agregação plaquetária (fator ativador de plaquetas)', clinicalEffect: 'Risco aumentado de sangramento com anticoagulantes/antiagregantes', management: 'Evitar a associação; orientar sobre sinais de sangramento.', patientGuidance: 'Evite ginkgo biloba enquanto usa anticoagulante/antiagregante — aumenta o risco de sangramento.' },
+  { food: 'Erva-de-são-joão (Hypericum perforatum)', emoji: '🌼', drugs: ['fluoxetina', 'sertralina', 'paroxetina', 'citalopram', 'escitalopram', 'venlafaxina', 'duloxetina', 'tramadol'], severity: 'major', mechanism: 'Efeito serotoninérgico aditivo', clinicalEffect: 'Risco de síndrome serotoninérgica', management: 'Evitar com ISRS/IRSN/tramadol; orientar sinais (agitação, tremor, hipertermia).', patientGuidance: 'Não use erva-de-são-joão com antidepressivos — risco de reação grave.' },
+  { food: 'Erva-de-são-joão (Hypericum)', emoji: '🌼', drugs: ['ciclosporina', 'tacrolimo', 'tacrolimus', 'digoxina', 'etinilestradiol'], severity: 'major', mechanism: 'Indução de CYP3A4 e P-glicoproteína', clinicalEffect: 'Redução da eficácia (rejeição de transplante, falha contraceptiva, perda de efeito)', management: 'Contraindicada com imunossupressores/anticoncepcional; revisar.', patientGuidance: 'Erva-de-são-joão reduz o efeito de vários remédios. Avise seu farmacêutico se usa.' },
+  { food: 'Alho (suplemento em altas doses)', emoji: '🧄', drugs: ['varfarina', 'acido acetilsalicilico', 'clopidogrel', 'rivaroxabana', 'apixabana'], severity: 'moderate', mechanism: 'Efeito antiplaquetário/antitrombótico', clinicalEffect: 'Aumento do risco de sangramento', management: 'Cautela com suplementos de alho em anticoagulados.', patientGuidance: 'Suplementos concentrados de alho podem aumentar sangramento com anticoagulantes.' },
+  { food: 'Ômega-3 / óleo de peixe (altas doses)', emoji: '🐟', drugs: ['varfarina', 'acido acetilsalicilico', 'clopidogrel', 'rivaroxabana', 'apixabana'], severity: 'moderate', mechanism: 'Efeito antiplaquetário em doses altas', clinicalEffect: 'Possível aumento do risco de sangramento', management: 'Cautela em doses altas com anticoagulantes/antiagregantes.', patientGuidance: 'Doses altas de ômega-3 podem somar ao efeito do anticoagulante.' },
+  { food: 'Vitamina E (altas doses)', emoji: '💊', drugs: ['varfarina', 'acido acetilsalicilico', 'clopidogrel'], severity: 'moderate', mechanism: 'Efeito antiplaquetário em altas doses', clinicalEffect: 'Aumento do risco de sangramento', management: 'Evitar altas doses de vitamina E em anticoagulados.', patientGuidance: 'Evite altas doses de vitamina E com anticoagulante.' },
+  { food: 'Ginseng', emoji: '🌱', drugs: ['varfarina', 'glibenclamida', 'gliclazida', 'glimepirida', 'insulina', 'metformina'], severity: 'moderate', mechanism: 'Reduz INR (varfarina); efeito hipoglicemiante aditivo', clinicalEffect: 'Redução da anticoagulação ou hipoglicemia', management: 'Monitorar INR/glicemia se uso de ginseng.', patientGuidance: 'Ginseng pode mexer com a coagulação e o açúcar no sangue — avise a equipe.' },
+  { food: 'Valeriana / Kava-kava', emoji: '🌿', drugs: ['diazepam', 'alprazolam', 'clonazepam', 'lorazepam', 'zolpidem', 'zopiclona', 'fenobarbital'], severity: 'moderate', mechanism: 'Depressão aditiva do SNC', clinicalEffect: 'Sedação excessiva', management: 'Evitar com sedativos/hipnóticos; atenção a quedas.', patientGuidance: 'Valeriana/kava com calmantes aumentam a sonolência — cuidado.' },
+  { food: 'Vitamina K (suplemento)', emoji: '💊', drugs: ['varfarina', 'varfarina'], severity: 'major', mechanism: 'Antagoniza o efeito da varfarina', clinicalEffect: 'Redução do INR e da anticoagulação', management: 'Manter ingestão de vitamina K estável; evitar suplementação não planejada.', patientGuidance: 'Não inicie suplemento de vitamina K por conta própria se usa varfarina.' },
+]
+
+export interface FoodSupplementHit {
+  agent: string
+  emoji: string
+  type: 'alimento' | 'álcool' | 'suplemento'
+  severity: 'major' | 'moderate'
+  severityLabel: string
+  drugs: string[]
+  mechanism: string
+  clinicalEffect: string
+  management: string
+  patientGuidance: string
+}
+
+/** Detecta interações dos fármacos informados com ALIMENTOS, ÁLCOOL e SUPLEMENTOS. */
+export function checkFoodAndSupplements(drugNames: string[]): FoodSupplementHit[] {
+  const names = drugNames.map(d => canonicalizeDrug(d)).filter(Boolean)
+  const hits: FoodSupplementHit[] = []
+  const scan = (list: FoodDrugInteraction[], kind: 'food' | 'supp') => {
+    for (const it of list) {
+      const matched = names.filter(n => it.drugs.some(d => n.includes(norm(d)) || norm(d).includes(n)))
+      if (matched.length === 0) continue
+      const type: FoodSupplementHit['type'] = kind === 'supp' ? 'suplemento' : (/alcool|álcool/i.test(norm(it.food)) ? 'álcool' : 'alimento')
+      hits.push({
+        agent: it.food, emoji: it.emoji, type, severity: it.severity,
+        severityLabel: it.severity === 'major' ? 'Grave' : 'Moderada',
+        drugs: Array.from(new Set(matched)), mechanism: it.mechanism,
+        clinicalEffect: it.clinicalEffect, management: it.management, patientGuidance: it.patientGuidance,
+      })
+    }
+  }
+  scan(FOOD_DRUG_INTERACTIONS, 'food')
+  scan(SUPPLEMENT_INTERACTIONS, 'supp')
+  const rank = { major: 0, moderate: 1 }
+  return hits.sort((a, b) => rank[a.severity] - rank[b.severity])
+}

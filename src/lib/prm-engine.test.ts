@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { analyzePRM, checkInteractions } from '@/lib/prm-engine'
+import { analyzePRM, checkInteractions, checkFoodAndSupplements } from '@/lib/prm-engine'
 import type { PatientContext, MedicationContext } from '@/types'
 
 function med(activeIngredient: string, id = activeIngredient): MedicationContext {
@@ -393,6 +393,31 @@ describe('Interações classe×classe', () => {
 
   it('não dispara interação para combinação inócua', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
+  })
+
+  // ── Interações com alimentos/álcool/suplementos ──
+  it('alimentos: sinvastatina × toranja (grapefruit)', () => {
+    const f = checkFoodAndSupplements(['sinvastatina'])
+    expect(f.some(x => x.type === 'alimento' && /toranja|grapefruit/i.test(x.agent))).toBe(true)
+  })
+
+  it('suplemento: varfarina × ginkgo (sangramento)', () => {
+    const f = checkFoodAndSupplements(['varfarina'])
+    expect(f.some(x => x.type === 'suplemento' && /ginkgo/i.test(x.agent))).toBe(true)
+  })
+
+  it('suplemento: ISRS × erva-de-são-joão', () => {
+    const f = checkFoodAndSupplements(['sertralina'])
+    expect(f.some(x => x.type === 'suplemento' && /sao joao|são joão|hypericum/i.test(x.agent))).toBe(true)
+  })
+
+  it('alias funciona em alimentos/suplementos (Xarelto → rivaroxabana × ginkgo)', () => {
+    const f = checkFoodAndSupplements(['Xarelto'])
+    expect(f.some(x => /ginkgo/i.test(x.agent))).toBe(true)
+  })
+
+  it('fármaco sem alimento/suplemento relevante → vazio', () => {
+    expect(checkFoodAndSupplements(['loratadina'])).toHaveLength(0)
   })
 
   // ── Dose/duração-aware (#5) ──

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
-import { checkInteractions } from '@/lib/prm-engine'
+import { checkInteractions, checkFoodAndSupplements } from '@/lib/prm-engine'
 
 const ADVISORY =
   'Esta consulta é apoio à decisão clínica e não substitui a avaliação individualizada. ' +
@@ -32,14 +32,16 @@ export async function POST(req: Request) {
     pregnant: !!c.pregnant,
   }
   const { interactions, globalRisk, globalLabel } = checkInteractions(drugs, context)
+  const foodSupplements = checkFoodAndSupplements(drugs)
 
   return NextResponse.json({
     drugs,
     count: interactions.length,
-    notFound: interactions.length === 0,
+    notFound: interactions.length === 0 && foodSupplements.length === 0,
     globalRisk,
     globalLabel,
     interactions,
+    foodSupplements,
     advisory: ADVISORY,
   })
 }
