@@ -8,6 +8,7 @@ import { resolveSchedule, generatePosologyAlerts, getTherapeuticClass, type Reso
 import { getPKProfile } from '@/lib/pharma-pk-db'
 import { MedScheduleGrid } from '@/components/reconciliation/MedScheduleGrid'
 import { PrintButton } from '@/components/reconciliation/PrintButton'
+import { ReconciliationReportPanel } from '@/components/reconciliation/ReconciliationReportPanel'
 
 // ── Exported types (used by MedScheduleGrid) ─────────────────────────────────
 
@@ -60,6 +61,7 @@ export default async function ReconciliationPage({ params }: { params: { id: str
     where: { id: params.id, userId: session.user.id },
     include: {
       medications: { where: { isActive: true }, orderBy: { createdAt: 'asc' } },
+      allergies: true,
     },
   })
 
@@ -162,12 +164,28 @@ export default async function ReconciliationPage({ params }: { params: { id: str
           </Link>
         </div>
       ) : (
-        <MedScheduleGrid
-          meds={meds}
-          alerts={alerts}
-          patientName={patient.name || patient.code}
-          patientAge={age ?? null}
-        />
+        <>
+          <MedScheduleGrid
+            meds={meds}
+            alerts={alerts}
+            patientName={patient.name || patient.code}
+            patientAge={age ?? null}
+          />
+          <ReconciliationReportPanel
+            patientId={params.id}
+            patientName={patient.name || patient.code}
+            patientAge={age ?? null}
+            pharmacist={session.user.name || 'Farmacêutico(a)'}
+            allergies={patient.allergies.map(a => a.substance)}
+            meds={patient.medications.map(m => ({
+              name: m.tradeName ? `${m.activeIngredient} (${m.tradeName})` : m.activeIngredient,
+              dosage: m.dose != null ? `${m.dose}${m.doseUnit ?? ''}` : null,
+              frequency: m.frequency,
+              isSelfMedication: m.isSelfMedication,
+              adherence: m.adherence,
+            }))}
+          />
+        </>
       )}
     </div>
   )

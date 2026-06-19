@@ -755,3 +755,36 @@ model DdiFeedback {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   @@map("ddi_feedback")
 }
+
+// ─── Conciliação medicamentosa (Fase 2) — tabelas criadas por SQL aditivo ───
+model Reconciliation {
+  id            String   @id @default(cuid())
+  patientId     String
+  userId        String
+  source        String?
+  snapshot      Json
+  riscos        String?
+  intervencoes  String?
+  orientacoes   String?
+  recomendacoes String?
+  plano         String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  @@index([patientId])
+  @@index([userId])
+  @@map("reconciliations")
+}
+
+model ReconciliationReport {
+  id               String    @id @default(cuid())
+  reconciliationId String
+  variant          String
+  format           String
+  sharedChannel    String?
+  anonymized       Boolean   @default(false)
+  consentGiven     Boolean   @default(false)
+  consentAt        DateTime? @db.Timestamptz(6)
+  sharedAt         DateTime? @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @db.Timestamptz(6)
+  @@index([reconciliationId])
+  @@map("reconciliation_reports")
+}
