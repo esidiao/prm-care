@@ -415,6 +415,18 @@ describe('Interações classe×classe', () => {
     expect(r.globalRisk).toBeNull()
   })
 
+  it('checkInteractions: contexto idoso adiciona flag em par sedativo', () => {
+    const semCtx = checkInteractions(['morfina', 'diazepam'])
+    expect(semCtx.interactions[0].contextFlags).toHaveLength(0)
+    const idoso = checkInteractions(['morfina', 'diazepam'], { age: 78 })
+    expect(idoso.interactions[0].contextFlags.some(f => /idoso/i.test(f))).toBe(true)
+  })
+
+  it('checkInteractions: TFG baixa adiciona flag renal', () => {
+    const r = checkInteractions(['enalapril', 'espironolactona'], { tfg: 25 })
+    expect(r.interactions[0].contextFlags.some(f => /renal/i.test(f))).toBe(true)
+  })
+
   it('não duplica par coberto por nome E por classe (morfina + diazepam)', () => {
     // morfina+diazepam existe em KNOWN_INTERACTIONS e também na classe Opioide×Benzo:
     // o dedup deve garantir uma única interação para esse par.

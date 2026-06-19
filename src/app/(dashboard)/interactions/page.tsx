@@ -11,6 +11,7 @@ type Interaction = {
   mechanism: string
   clinicalEffect: string
   management: string
+  contextFlags?: string[]
 }
 type CheckResp = {
   count: number
@@ -41,6 +42,7 @@ export default function InteractionsPage() {
   const [explaining, setExplaining] = useState(false)
   const [expl, setExpl] = useState<Record<string, Explanation>>({})
   const [sources, setSources] = useState<string[]>([])
+  const [ctx, setCtx] = useState({ age: '', tfg: '', pregnant: false })
 
   const addDrug = () => {
     const v = input.trim()
@@ -54,7 +56,7 @@ export default function InteractionsPage() {
     try {
       const r = await fetch('/api/interactions/check', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ drugs }),
+        body: JSON.stringify({ drugs, context: { age: ctx.age ? Number(ctx.age) : null, tfg: ctx.tfg ? Number(ctx.tfg) : null, pregnant: ctx.pregnant } }),
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Falha na consulta')
@@ -162,6 +164,12 @@ export default function InteractionsPage() {
             ))}
           </div>
         )}
+        <div className="mt-3 flex flex-wrap items-center gap-3 rounded-lg bg-slate-50 px-3 py-2 text-sm">
+          <span className="text-xs font-semibold text-slate-500">Contexto (opcional):</span>
+          <label className="flex items-center gap-1 text-slate-600">Idade <input type="number" value={ctx.age} onChange={e => setCtx({ ...ctx, age: e.target.value })} className="w-16 rounded border border-slate-300 px-2 py-1" /></label>
+          <label className="flex items-center gap-1 text-slate-600">TFG <input type="number" value={ctx.tfg} onChange={e => setCtx({ ...ctx, tfg: e.target.value })} className="w-16 rounded border border-slate-300 px-2 py-1" /> mL/min</label>
+          <label className="flex items-center gap-1 text-slate-600"><input type="checkbox" checked={ctx.pregnant} onChange={e => setCtx({ ...ctx, pregnant: e.target.checked })} /> Gestante</label>
+        </div>
         <div className="mt-4 flex items-center gap-3">
           <button onClick={check} disabled={drugs.length < 2 || loading}
             className="flex items-center gap-2 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">
@@ -228,6 +236,13 @@ export default function InteractionsPage() {
                     {e?.monitoring && <div><dt className="inline font-semibold text-slate-600">Monitorar: </dt><dd className="inline text-slate-700">{e.monitoring}</dd></div>}
                     {e?.alternatives && e.alternatives !== '—' && <div><dt className="inline font-semibold text-slate-600">Alternativas: </dt><dd className="inline text-slate-700">{e.alternatives}</dd></div>}
                   </dl>
+                  {it.contextFlags && it.contextFlags.length > 0 && (
+                    <div className="mt-2 space-y-1">
+                      {it.contextFlags.map((f, k) => (
+                        <div key={k} className="rounded-lg bg-amber-50 px-3 py-1.5 text-xs text-amber-900">⚠ <b>Ajuste ao paciente:</b> {f}</div>
+                      ))}
+                    </div>
+                  )}
                   {e?.patientMessage && (
                     <div className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900"><b>Orientação ao paciente:</b> {e.patientMessage}</div>
                   )}

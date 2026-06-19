@@ -25,7 +25,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Informe ao menos 2 medicamentos para verificar interações.' }, { status: 400 })
   }
 
-  const { interactions, globalRisk, globalLabel } = checkInteractions(drugs)
+  const c = body?.context || {}
+  const context = {
+    age: typeof c.age === 'number' ? c.age : (c.age ? Number(c.age) : null),
+    tfg: typeof c.tfg === 'number' ? c.tfg : (c.tfg ? Number(c.tfg) : null),
+    pregnant: !!c.pregnant,
+  }
+  const { interactions, globalRisk, globalLabel } = checkInteractions(drugs, context)
 
   return NextResponse.json({
     drugs,

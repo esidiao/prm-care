@@ -3257,6 +3257,7 @@ export interface DdiInteractionResult {
   mechanism: string
   clinicalEffect: string
   management: string
+  contextFlags: string[]   // amplificadores de risco ajustados ao paciente (idade/TFG/gestação)
 }
 
 export interface DdiCheckResult {
@@ -3265,8 +3266,37 @@ export interface DdiCheckResult {
   globalLabel: string
 }
 
+export interface DdiPatientContext { age?: number | null; tfg?: number | null; pregnant?: boolean }
+
+function drugInClass(name: string, className: string): boolean {
+  const ks = CLASS_KEYWORDS[className] || []
+  const n = norm(name)
+  return ks.some(k => n.includes(norm(k)))
+}
+const RENAL_SENSITIVE = ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'celecoxibe', 'nimesulida', 'cetorolaco', 'piroxicam', 'enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana', 'irbesartana', 'telmisartana', 'olmesartana', 'espironolactona', 'eplerenona', 'amilorida', 'metformina', 'dabigatrana', 'rivaroxabana', 'apixabana', 'edoxabana', 'digoxina', 'litio', 'lítio', 'gabapentina', 'pregabalina']
+const ELDERLY_CNS_CLASSES = ['Benzodiazepínico', 'Opioide', 'Hipnótico Z', 'Antipsicótico', 'Antidepressivo tricíclico']
+
+/** Flags de amplificação de risco pelo contexto do paciente (não altera a severidade curada). */
+function contextFlagsFor(a: string, b: string, ctx?: DdiPatientContext): string[] {
+  if (!ctx) return []
+  const flags: string[] = []
+  const pair = [a, b]
+  if (ctx.age != null && ctx.age >= 65 && pair.some(d => ELDERLY_CNS_CLASSES.some(c => drugInClass(d, c)))) {
+    flags.push('Idoso: maior risco de sedação, quedas e declínio cognitivo — priorizar revisão.')
+  }
+  if (ctx.tfg != null && ctx.tfg < 60 && pair.some(d => RENAL_SENSITIVE.some(k => norm(d).includes(norm(k))))) {
+    flags.push(ctx.tfg < 30
+      ? `Função renal muito reduzida (TFG ${ctx.tfg}): alto risco de acúmulo/hipercalemia/nefrotoxicidade — revisar dose/contraindicação.`
+      : `Função renal reduzida (TFG ${ctx.tfg}): risco aumentado — reavaliar dose e monitorar.`)
+  }
+  if (ctx.pregnant) {
+    flags.push('Gestante: reavaliar segurança/contraindicação na gestação.')
+  }
+  return flags
+}
+
 /** Cruza ≥2 medicamentos (por princípio ativo/nome) e retorna as interações da base. */
-export function checkInteractions(drugNames: string[]): DdiCheckResult {
+export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext): DdiCheckResult {
   const meds: MedicationContext[] = drugNames
     .map(n => (n || '').trim()).filter(Boolean)
     .map((activeIngredient, i) => ({
@@ -3288,6 +3318,7 @@ export function checkInteractions(drugNames: string[]): DdiCheckResult {
       mechanism: r.interaction.mechanism,
       clinicalEffect: r.interaction.clinicalEffect,
       management: r.interaction.management,
+      contextFlags: contextFlagsFor(r.med1.activeIngredient, r.med2.activeIngredient, ctx),
     }))
     .sort((a, b) => b.severityRank - a.severityRank)
 
