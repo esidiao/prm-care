@@ -22,6 +22,7 @@ import type {
 } from '@/types'
 import { PRMCategory, RiskLevel, AdherenceLevel } from '@prisma/client'
 import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS } from '@/lib/utils'
+import { canonicalizeDrug } from '@/lib/drug-aliases'
 
 function labelRenal(v?: string | null) { return v ? (RENAL_FUNCTION_LABELS[v] || v) : '—' }
 function labelHepatic(v?: string | null) { return v ? (HEPATIC_FUNCTION_LABELS[v] || v) : '—' }
@@ -3298,7 +3299,7 @@ function contextFlagsFor(a: string, b: string, ctx?: DdiPatientContext): string[
 /** Cruza ≥2 medicamentos (por princípio ativo/nome) e retorna as interações da base. */
 export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext): DdiCheckResult {
   const meds: MedicationContext[] = drugNames
-    .map(n => (n || '').trim()).filter(Boolean)
+    .map(n => canonicalizeDrug(n)).filter(Boolean)
     .map((activeIngredient, i) => ({
       id: `ddi-${i}`, tradeName: null, activeIngredient, dose: null, doseUnit: null,
       pharmaceuticalForm: null, route: 'ORAL' as MedicationContext['route'], frequency: null,
