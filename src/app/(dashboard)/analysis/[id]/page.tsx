@@ -11,6 +11,7 @@ import { RiskLevel, PRMCategory } from '@prisma/client'
 import { FindingsPanel } from '@/components/analysis/FindingsPanel'
 import { AnalysisComparison } from '@/components/analysis/AnalysisComparison'
 import { PgxAlerts } from '@/components/pgx/PgxAlerts'
+import { LabTrends } from '@/components/analysis/LabTrends'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -25,6 +26,7 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
           allergies: true,
           diagnoses: true,
           medications: { where: { isActive: true } },
+          labResults: { orderBy: { collectedAt: 'desc' }, take: 40 },
         },
       },
       findings: {
@@ -184,6 +186,9 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         analysisId={analysis.id}
         totalPRMs={analysis.totalPRMs}
       />
+
+      {/* Monitoramento temporal de exames — piora/tendência entre medidas recentes */}
+      <LabTrends labs={analysis.patient.labResults.map(l => ({ examName: l.examName, value: l.value, collectedAt: l.collectedAt?.toISOString() ?? null }))} />
 
       {/* Farmacogenômica (CPIC) — derivada automaticamente dos medicamentos */}
       <PgxAlerts drugs={analysis.patient.medications.map(m => m.activeIngredient)} />
