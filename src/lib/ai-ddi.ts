@@ -43,9 +43,11 @@ Para CADA interação fornecida (e SOMENTE essas), produza, com base em conhecim
 - alternatives: alternativas terapêuticas possíveis (ou "—" se não houver clara);
 - monitoring: parâmetros laboratoriais/clínicos a monitorar;
 - patientMessage: orientação simplificada ao paciente, sem jargão, sem alarmismo.
-Use o MESMO identificador "pair" recebido. Não invente referências. Linguagem técnica nos
-campos clínicos. Responda EXCLUSIVAMENTE em JSON: {"items":[{"pair","evidenceLevel",
-"warningSigns","alternatives","monitoring","patientMessage"}]}.`
+Use o MESMO identificador "pair" recebido. Linguagem técnica nos campos clínicos.
+FONTES: você PODE referenciar os TRECHOS DE FONTES fornecidos (cite o título do protocolo
+no campo pertinente); NUNCA invente referências/fontes que não estejam na lista fornecida.
+Responda EXCLUSIVAMENTE em JSON: {"items":[{"pair","evidenceLevel","warningSigns",
+"alternatives","monitoring","patientMessage"}]}.`
 
 function extractJson(raw: string): string {
   let s = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
@@ -57,15 +59,18 @@ function extractJson(raw: string): string {
 export async function explainInteractions(
   interactions: DdiInputInteraction[],
   context?: { age?: number; isPregnant?: boolean; renal?: string; hepatic?: string },
-): Promise<{ items: DdiExplanation[]; model: string } | null> {
+  chunks?: { citation: string; content: string }[],
+): Promise<{ items: DdiExplanation[]; model: string; sourcesUsed: string[] } | null> {
   const apiKey = process.env.GROQ_API_KEY
   if (!apiKey || interactions.length === 0) return null
 
   const allowed = new Set(interactions.map(i => i.drugs.join(' + ').toLowerCase()))
+  const sources = (chunks || []).slice(0, 6)
   const userPrompt = [
     context && Object.keys(context).length ? `CONTEXTO DO PACIENTE: ${JSON.stringify(context)}` : '',
     'INTERAÇÕES IDENTIFICADAS (organize/enriqueça SOMENTE estas; "pair" deve ser reusado igual):',
     JSON.stringify(interactions.map(i => ({ pair: i.drugs.join(' + '), gravidade: i.severityLabel, mecanismo: i.mechanism, efeito: i.clinicalEffect, conduta: i.management }))),
+    sources.length ? `\nTRECHOS DE FONTES (cite o título quando pertinente; NÃO invente outras fontes):\n${sources.map((c, i) => `[${i + 1}] ${c.citation}: ${c.content}`).join('\n')}` : '',
   ].filter(Boolean).join('\n')
 
   const groq = await callGroqWithRetry(
@@ -80,7 +85,7 @@ export async function explainInteractions(
     if (!parsed.success) return null
     // GUARDRAIL: só mantém itens cujo par foi realmente fornecido (anti-alucinação)
     const items = parsed.data.items.filter(it => allowed.has((it.pair || '').toLowerCase()))
-    return { items, model: groq.model }
+    return { items, model: groq.model, sourcesUsed: sources.map(c => c.citation) }
   } catch {
     return null
   }

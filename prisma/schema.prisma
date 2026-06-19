@@ -788,3 +788,27 @@ model ReconciliationReport {
   @@index([reconciliationId])
   @@map("reconciliation_reports")
 }
+
+// ─── Fontes e RAG do módulo de Interações (Fase 3b) — tabelas por SQL aditivo ───
+model DdiSource {
+  id          String    @id @default(cuid())
+  kind        String
+  title       String
+  citation    String
+  url         String?
+  version     String?
+  retrievedAt DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @db.Timestamptz(6)
+  @@map("ddi_sources")
+}
+
+model DdiRagChunk {
+  id        String   @id @default(cuid())
+  sourceId  String
+  content   String
+  drugRefs  String[] @default([])
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  @@index([sourceId])
+  @@map("ddi_rag_chunks")
+}

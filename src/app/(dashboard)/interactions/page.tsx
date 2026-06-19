@@ -40,6 +40,7 @@ export default function InteractionsPage() {
   const [decSaved, setDecSaved] = useState(false)
   const [explaining, setExplaining] = useState(false)
   const [expl, setExpl] = useState<Record<string, Explanation>>({})
+  const [sources, setSources] = useState<string[]>([])
 
   const addDrug = () => {
     const v = input.trim()
@@ -57,7 +58,7 @@ export default function InteractionsPage() {
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Falha na consulta')
-      setResp(data); setSavedId(null); setDecSaved(false); setExpl({})
+      setResp(data); setSavedId(null); setDecSaved(false); setExpl({}); setSources([])
       setDec({ note: '', intervened: false, contactedMD: false, outcome: '' })
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro') }
     finally { setLoading(false) }
@@ -97,7 +98,7 @@ export default function InteractionsPage() {
       const data = await r.json()
       const map: Record<string, Explanation> = {}
       for (const e of (data.explanations || []) as Explanation[]) map[e.pair.toLowerCase()] = e
-      setExpl(map)
+      setExpl(map); setSources(Array.from(new Set((data.sourcesUsed || []) as string[])))
     } catch { /* mantém base determinística */ }
     finally { setExplaining(false) }
   }
@@ -234,6 +235,12 @@ export default function InteractionsPage() {
               )
             })}
           </div>
+
+          {sources.length > 0 && (
+            <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
+              <span className="font-semibold">Fontes consultadas:</span> {sources.join(' · ')}
+            </div>
+          )}
 
           <p className="mt-5 rounded-lg bg-teal-50 px-4 py-3 text-xs leading-relaxed text-teal-900">{resp.advisory}</p>
 
