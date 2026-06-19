@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { Plus, X, Search, AlertTriangle, Copy, Loader2, Printer, Save, Check, Sparkles } from 'lucide-react'
+import { PgxAlerts } from '@/components/pgx/PgxAlerts'
+import { canonicalizeDrug } from '@/lib/drug-aliases'
 
 type Explanation = { pair: string; evidenceLevel: string; warningSigns: string; alternatives: string; monitoring: string; patientMessage: string }
 
@@ -288,6 +290,11 @@ export default function InteractionsPage() {
               </div>
             </div>
           )}
+
+          {/* Farmacogenômica (CPIC) dos fármacos consultados — unifica a checagem */}
+          <div className="mt-5">
+            <PgxAlerts drugs={drugs.map(canonicalizeDrug)} />
+          </div>
 
           {sources.length > 0 && (
             <div className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-xs text-slate-600">
