@@ -395,6 +395,32 @@ describe('Interações classe×classe', () => {
     expect(hasFinding([med('paracetamol'), med('loratadina')], 'paracetamol', 'loratadina')).toBe(false)
   })
 
+  // ── Dose/duração-aware (#5) ──
+  it('paracetamol acima do limite diário (1000mg 4/4h = 6000)', () => {
+    const c = ctx([medWith('paracetamol', { dose: 1000, doseUnit: 'mg', frequencyHours: 4 })])
+    expect(analyzePRM(c).findings.some(f => /paracetamol acima do limite/i.test(f.title))).toBe(true)
+  })
+
+  it('paracetamol em dose normal (750mg 8/8h = 2250) NÃO dispara', () => {
+    const c = ctx([medWith('paracetamol', { dose: 750, doseUnit: 'mg', frequencyHours: 8 })])
+    expect(analyzePRM(c).findings.some(f => /paracetamol acima do limite/i.test(f.title))).toBe(false)
+  })
+
+  it('AINE de uso crônico dispara', () => {
+    const c = ctx([medWith('ibuprofeno', { dose: 600, frequencyHours: 8, durationOfUse: '6 meses' })])
+    expect(analyzePRM(c).findings.some(f => /aine/i.test(f.title) && /ibuprofeno/i.test(f.title))).toBe(true)
+  })
+
+  it('benzodiazepínico > 4 semanas dispara', () => {
+    const c = ctx([medWith('clonazepam', { dose: 2, frequency: '1x/dia', durationOfUse: '8 meses' })])
+    expect(analyzePRM(c).findings.some(f => /uso prolongado/i.test(f.title) && /clonazepam/i.test(f.title))).toBe(true)
+  })
+
+  it('corticoide sistêmico crônico dispara proteção óssea', () => {
+    const c = ctx([medWith('prednisona', { dose: 20, frequency: '1x/dia', durationOfUse: '6 meses' })])
+    expect(analyzePRM(c).findings.some(f => /corticoide/i.test(f.title) && /prednisona/i.test(f.title))).toBe(true)
+  })
+
   // ── Módulo de consulta de interações (checkInteractions) ──
   it('checkInteractions: detecta par grave e calcula risco global', () => {
     const r = checkInteractions(['varfarina', 'ibuprofeno'])

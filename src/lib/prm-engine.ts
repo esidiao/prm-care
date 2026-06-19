@@ -3181,6 +3181,125 @@ function checkDataQuality(context: PatientContext): string[] {
 
 // ─── Main Analysis Function ───────────────────────────────────────────────────
 
+// ─── Findings sensíveis a DOSE e DURAÇÃO (#5) ─────────────────────────────────
+
+function dosesPerDay(med: MedicationContext): number | null {
+  if (med.frequencyHours && med.frequencyHours > 0) return 24 / med.frequencyHours
+  const f = norm(med.frequency || '')
+  if (!f) return null
+  if (/(sos|se necessari|quando necessari|s\/n)/.test(f)) return 0 // PRN
+  const each = f.match(/(\d+)\s*\/\s*(\d+)\s*h/) // "8/8h"
+  if (each) return 24 / parseInt(each[2])
+  const xday = f.match(/(\d+)\s*x/) // "3x/dia"
+  if (xday) return parseInt(xday[1])
+  if (/1x|uma vez|1 vez/.test(f)) return 1
+  return null
+}
+
+function durationDays(med: MedicationContext): number | null {
+  const d = norm(med.durationOfUse || '')
+  if (!d) return null
+  if (/(cronico|continuo|uso continuo|indefinid)/.test(d)) return 9999
+  const m = d.match(/(\d+)\s*(dia|semana|mes|mês|mes|ano)/)
+  if (!m) return null
+  const n = parseInt(m[1]); const u = m[2]
+  if (u.startsWith('dia')) return n
+  if (u.startsWith('semana')) return n * 7
+  if (u.startsWith('ano')) return n * 365
+  return n * 30 // mês/meses
+}
+const isPRN = (m: MedicationContext) => dosesPerDay(m) === 0
+const CORTICOIDES = ['prednisona', 'prednisolona', 'dexametasona', 'metilprednisolona', 'betametasona', 'deflazacorte']
+
+function findDoseDurationPRMs(context: PatientContext): PRMFindingResult[] {
+  const findings: PRMFindingResult[] = []
+  const frail = context.isElderly || (context.age != null && context.age >= 65)
+  const hepato = !!context.hepaticFunction && context.hepaticFunction !== 'normal'
+
+  for (const med of context.medications) {
+    const n = norm(med.activeIngredient)
+
+    // Paracetamol acima do limite diário
+    if (n.includes('paracetamol') && med.dose && !isPRN(med)) {
+      const dpd = dosesPerDay(med)
+      if (dpd && dpd > 0) {
+        const daily = med.dose * dpd
+        const limit = frail || hepato ? 3000 : 4000
+        if (daily > limit) {
+          findings.push({
+            category: PRMCategory.SAFETY,
+            riskLevel: daily > 4000 ? RiskLevel.HIGH : RiskLevel.MODERATE,
+            title: `Paracetamol acima do limite diário (~${daily} mg/dia)`,
+            description: `Dose diária estimada de paracetamol (~${daily} mg) acima do recomendado (${limit} mg/dia${frail || hepato ? ' — idoso/hepatopata' : ''}). Risco de hepatotoxicidade.`,
+            clinicalEvidence: `Limite usual: 4 g/dia (3 g/dia em idosos, hepatopatas ou etilistas). Estimativa: ${med.dose} mg × ${dpd}/dia.`,
+            potentialImpact: 'Lesão hepática (hepatotoxicidade dose-dependente).',
+            pharmacistConduct: 'Revisar dose/frequência total (somar apresentações combinadas com paracetamol). Reduzir para ≤ limite e orientar não exceder.',
+            patientGuidance: 'Não passe da dose máxima de paracetamol por dia e cuidado com remédios de gripe que já contêm paracetamol. Evite álcool.',
+            needsReferral: false, needsPrescriberContact: true,
+            monitoring: 'Transaminases se uso elevado/prolongado; sinais de hepatotoxicidade.',
+            reevaluationPeriod: '7 dias', confidenceLevel: 'moderate',
+            validationNote: 'Estimativa baseada em dose×frequência; confirmar apresentações ocultas com paracetamol.',
+            interventionDeadline: '24-48h', medicationId: med.id,
+          })
+        }
+      }
+    }
+
+    // AINE de uso crônico
+    if (drugInClass(med.activeIngredient, 'AINE') && !isPRN(med) && (durationDays(med) ?? 0) >= 30) {
+      findings.push({
+        category: PRMCategory.SAFETY, riskLevel: RiskLevel.MODERATE,
+        title: `Uso crônico de AINE: ${med.activeIngredient}`,
+        description: `${med.activeIngredient} em uso contínuo/prolongado — risco GI, renal e cardiovascular cumulativo.`,
+        clinicalEvidence: 'AINEs em uso crônico aumentam risco de úlcera/sangramento GI, lesão renal e eventos CV. Beers/STOPP recomendam menor dose e duração.',
+        potentialImpact: 'Hemorragia digestiva, lesão renal, hipertensão e eventos cardiovasculares.',
+        pharmacistConduct: 'Reavaliar necessidade do uso crônico; preferir menor dose/menor duração; associar IBP se mantido; considerar analgésico alternativo (paracetamol).',
+        patientGuidance: 'Anti-inflamatórios de uso contínuo podem prejudicar estômago e rins. Converse sobre alternativas e tempo de uso.',
+        needsReferral: false, needsPrescriberContact: true,
+        monitoring: 'Creatinina, PA, sinais de sangramento GI.',
+        reevaluationPeriod: '30 dias', confidenceLevel: 'moderate',
+        validationNote: 'Confirmar duração real e indicação.', interventionDeadline: 'Próxima consulta', medicationId: med.id,
+      })
+    }
+
+    // Benzodiazepínico / Hipnótico Z > 4 semanas
+    if ((drugInClass(med.activeIngredient, 'Benzodiazepínico') || drugInClass(med.activeIngredient, 'Hipnótico Z')) && (durationDays(med) ?? 0) > 28) {
+      findings.push({
+        category: PRMCategory.SAFETY, riskLevel: RiskLevel.MODERATE,
+        title: `Uso prolongado (>4 semanas) de ${med.activeIngredient}`,
+        description: `${med.activeIngredient} em uso por mais de 4 semanas — risco de dependência, tolerância, quedas e declínio cognitivo (sobretudo idosos).`,
+        clinicalEvidence: 'STOPP/Beers: benzodiazepínicos e hipnóticos Z não devem ser usados >4 semanas; planejar desmame gradual.',
+        potentialImpact: 'Dependência, quedas/fraturas, comprometimento cognitivo, acidentes.',
+        pharmacistConduct: 'Planejar desmame gradual com o prescritor; medidas não farmacológicas para insônia/ansiedade.',
+        patientGuidance: 'Esse calmante/indutor do sono não deve ser usado por muito tempo seguido. Não pare de repente; converse sobre reduzir aos poucos.',
+        needsReferral: false, needsPrescriberContact: true,
+        monitoring: 'Sintomas de abstinência durante o desmame; risco de quedas.',
+        reevaluationPeriod: '30 dias', confidenceLevel: 'high',
+        validationNote: 'Confirmar duração e indicação atual.', interventionDeadline: 'Próxima consulta', medicationId: med.id,
+      })
+    }
+
+    // Corticoide sistêmico crônico (>3 meses) → proteção óssea/gástrica
+    if (CORTICOIDES.some(c => n.includes(c)) && (durationDays(med) ?? 0) >= 90) {
+      findings.push({
+        category: PRMCategory.NECESSITY, riskLevel: RiskLevel.MODERATE,
+        title: `Corticoide sistêmico crônico (>3 meses): ${med.activeIngredient}`,
+        description: `Uso prolongado de corticoide sistêmico — necessária profilaxia de osteoporose induzida por glicocorticoide e atenção gástrica/glicêmica.`,
+        clinicalEvidence: 'Diretrizes: corticoide sistêmico ≥3 meses requer cálcio + vitamina D ± bifosfonato; monitorar glicemia e PA.',
+        potentialImpact: 'Osteoporose/fraturas, hiperglicemia, hipertensão, supressão adrenal.',
+        pharmacistConduct: 'Avaliar com o prescritor cálcio + vitamina D ± bifosfonato; monitorar glicemia/PA/densitometria; não suspender abruptamente.',
+        patientGuidance: 'Uso prolongado de corticoide exige proteção dos ossos. Não pare sozinho. Faça os exames recomendados.',
+        needsReferral: false, needsPrescriberContact: true,
+        monitoring: 'Densitometria óssea, glicemia, PA, vitamina D.',
+        suggestedExams: 'Glicemia, vitamina D, densitometria óssea.',
+        reevaluationPeriod: '90 dias', confidenceLevel: 'moderate',
+        validationNote: 'Confirmar duração e dose; corticoide inalatório/tópico não conta.', interventionDeadline: 'Próxima consulta', medicationId: med.id,
+      })
+    }
+  }
+  return findings
+}
+
 export function analyzePRM(context: PatientContext): AnalysisResult {
   if (context.medications.length === 0) {
     return {
@@ -3198,6 +3317,7 @@ export function analyzePRM(context: PatientContext): AnalysisResult {
     ...findSafetyPRMs(context),
     ...findAdherencePRMs(context),
     ...findLabBasedPRMs(context),
+    ...findDoseDurationPRMs(context),
   ]
 
   const sortOrder: Record<RiskLevel, number> = { URGENT: 0, HIGH: 1, MODERATE: 2, LOW: 3 }
