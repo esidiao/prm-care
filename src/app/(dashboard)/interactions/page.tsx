@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { Plus, X, Search, AlertTriangle, Copy, Loader2 } from 'lucide-react'
+import { Plus, X, Search, AlertTriangle, Copy, Loader2, Printer, Save, Check } from 'lucide-react'
 
 type Interaction = {
   drugs: [string, string]
@@ -32,6 +32,10 @@ export default function InteractionsPage() {
   const [loading, setLoading] = useState(false)
   const [resp, setResp] = useState<CheckResp | null>(null)
   const [error, setError] = useState('')
+  const [savedId, setSavedId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [dec, setDec] = useState({ note: '', intervened: false, contactedMD: false, outcome: '' })
+  const [decSaved, setDecSaved] = useState(false)
 
   const addDrug = () => {
     const v = input.trim()
@@ -49,9 +53,55 @@ export default function InteractionsPage() {
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Falha na consulta')
-      setResp(data)
+      setResp(data); setSavedId(null); setDecSaved(false)
+      setDec({ note: '', intervened: false, contactedMD: false, outcome: '' })
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro') }
     finally { setLoading(false) }
+  }
+
+  const saveConsult = async () => {
+    if (!resp) return
+    setSaving(true)
+    try {
+      const r = await fetch('/api/interactions/save', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ drugs, globalRisk: resp.globalRisk, globalLabel: resp.globalLabel, interactions: resp.interactions }),
+      })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error || 'Falha ao salvar')
+      setSavedId(data.id)
+    } catch (e) { setError(e instanceof Error ? e.message : 'Erro ao salvar') }
+    finally { setSaving(false) }
+  }
+
+  const saveDecision = async () => {
+    if (!savedId) return
+    const r = await fetch(`/api/interactions/${savedId}/decision`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dec),
+    })
+    if (r.ok) setDecSaved(true)
+  }
+
+  const printConsult = () => {
+    if (!resp) return
+    const cor: Record<string, string> = { contraindicated: '#dc2626', major: '#ea580c', moderate: '#d97706', minor: '#16a34a' }
+    const rows = resp.interactions.map(i => `
+      <div style="border:1px solid #e2e8f0;border-left:5px solid ${cor[i.severity]};border-radius:8px;padding:10px 14px;margin:8px 0">
+        <b style="color:${cor[i.severity]}">[${i.severityLabel}]</b> <b>${i.drugs[0]} + ${i.drugs[1]}</b>
+        <div style="font-size:13px;margin-top:4px"><b>Mecanismo:</b> ${i.mechanism}</div>
+        <div style="font-size:13px"><b>Efeito clínico:</b> ${i.clinicalEffect}</div>
+        <div style="font-size:13px"><b>Conduta:</b> ${i.management}</div>
+      </div>`).join('')
+    const w = window.open('', '_blank'); if (!w) return
+    w.document.write(`<!doctype html><meta charset="utf-8"><title>Consulta de Interações — PRM Care</title>
+      <body style="font-family:Segoe UI,Arial;max-width:760px;margin:24px auto;color:#1a202c">
+      <h2 style="color:#1e3a5f">PRM Care — Consulta de Interações Medicamentosas</h2>
+      <p style="color:#475569">Medicamentos: ${drugs.join(', ')}</p>
+      <p><b>Risco global:</b> ${resp.globalLabel} · ${resp.count} interação(ões)</p>
+      ${resp.notFound ? '<p>Nenhuma interação relevante na base disponível.</p>' : rows}
+      <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:16px">${resp.advisory}</p>
+      </body>`)
+    w.document.close(); w.focus(); setTimeout(() => w.print(), 250)
   }
 
   const copySummary = () => {
@@ -119,9 +169,17 @@ export default function InteractionsPage() {
                   <div className="text-lg font-bold text-slate-800">{resp.globalLabel} · {resp.count} interação(ões)</div>
                 </div>
               </div>
-              <button onClick={copySummary} className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
-                <Copy className="h-4 w-4" /> Copiar resumo
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={printConsult} className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <Printer className="h-4 w-4" /> Imprimir / PDF
+                </button>
+                <button onClick={copySummary} className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
+                  <Copy className="h-4 w-4" /> Copiar
+                </button>
+                <button onClick={saveConsult} disabled={saving || !!savedId} className="flex items-center gap-1 rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
+                  {savedId ? <Check className="h-4 w-4" /> : saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {savedId ? 'Salva' : 'Salvar consulta'}
+                </button>
+              </div>
             </div>
           )}
 
@@ -147,6 +205,31 @@ export default function InteractionsPage() {
           </div>
 
           <p className="mt-5 rounded-lg bg-teal-50 px-4 py-3 text-xs leading-relaxed text-teal-900">{resp.advisory}</p>
+
+          {/* Decisão clínica — disponível após salvar a consulta */}
+          {savedId && (
+            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+              <h3 className="text-sm font-semibold text-slate-800">Decisão clínica do farmacêutico</h3>
+              <textarea
+                value={dec.note} onChange={e => setDec({ ...dec, note: e.target.value })}
+                placeholder="Conduta adotada / observações clínicas…"
+                className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500" rows={3}
+              />
+              <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-slate-700">
+                <label className="flex items-center gap-2"><input type="checkbox" checked={dec.intervened} onChange={e => setDec({ ...dec, intervened: e.target.checked })} /> Houve intervenção farmacêutica</label>
+                <label className="flex items-center gap-2"><input type="checkbox" checked={dec.contactedMD} onChange={e => setDec({ ...dec, contactedMD: e.target.checked })} /> Contato com prescritor</label>
+              </div>
+              <input
+                value={dec.outcome} onChange={e => setDec({ ...dec, outcome: e.target.value })}
+                placeholder="Desfecho da intervenção (opcional)"
+                className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-teal-500"
+              />
+              <div className="mt-3 flex items-center gap-3">
+                <button onClick={saveDecision} className="flex items-center gap-1 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white">Registrar decisão</button>
+                {decSaved && <span className="flex items-center gap-1 text-sm text-green-700"><Check className="h-4 w-4" /> Registrada</span>}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

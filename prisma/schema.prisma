@@ -710,3 +710,48 @@ model AiAnalysisLog {
   @@index([status, createdAt])
   @@map("prm_ai_analysis_logs")
 }
+
+// ─── Módulo Interações Medicamentosas (Fase 1) — tabelas criadas por SQL aditivo ───
+model DdiQuery {
+  id         String   @id @default(cuid())
+  userId     String
+  patientId  String?
+  inputDrugs Json
+  globalRisk String?
+  count      Int      @default(0)
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+  @@index([userId])
+  @@index([patientId])
+  @@map("ddi_queries")
+}
+
+model DdiResult {
+  id        String   @id @default(cuid())
+  queryId   String
+  severity  String
+  payload   Json
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  @@index([queryId])
+  @@map("ddi_results")
+}
+
+model DdiDecision {
+  id          String   @id @default(cuid())
+  queryId     String   @unique
+  note        String?
+  intervened  Boolean  @default(false)
+  contactedMD Boolean  @default(false)
+  outcome     String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  @@map("ddi_decisions")
+}
+
+model DdiFeedback {
+  id        String   @id @default(cuid())
+  queryId   String
+  userId    String
+  useful    Boolean
+  comment   String?
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  @@map("ddi_feedback")
+}
