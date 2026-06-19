@@ -23,6 +23,13 @@ describe('Normalização/alias de fármacos', () => {
     expect(canonicalizeDrug('Losartana potássica')).toBe('losartana')
   })
 
+  it('marcas BR ampliadas → princípio ativo', () => {
+    expect(canonicalizeDrug('Rivotril')).toBe('clonazepam')
+    expect(canonicalizeDrug('Voltaren')).toBe('diclofenaco')
+    expect(canonicalizeDrug('Ozempic')).toBe('semaglutida')
+    expect(canonicalizeDrug('Renitec')).toBe('enalapril')
+  })
+
   it('checkInteractions casa par mesmo com nomes em inglês/comercial', () => {
     // "Coumadin" (varfarina) + "aspirin/AAS" → deve detectar a interação
     const r = checkInteractions(['Marevan', 'AAS'])

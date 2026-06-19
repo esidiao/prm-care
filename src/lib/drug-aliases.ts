@@ -30,6 +30,30 @@ const ALIASES: Record<string, string> = {
   'puran t4': 'levotiroxina', puran: 'levotiroxina', synthroid: 'levotiroxina', marevan: 'varfarina',
   coumadin: 'varfarina', xarelto: 'rivaroxabana', eliquis: 'apixabana', pradaxa: 'dabigatrana',
   viagra: 'sildenafila', plavix: 'clopidogrel', 'aas protect': 'acido acetilsalicilico',
+  // cardiovascular
+  atenol: 'atenolol', concor: 'bisoprolol', coreg: 'carvedilol', higroton: 'clortalidona',
+  aldactone: 'espironolactona', adalat: 'nifedipina', norvasc: 'amlodipina', pressat: 'amlodipina',
+  renitec: 'enalapril', capoten: 'captopril', diovan: 'valsartana', micardis: 'telmisartana',
+  benicar: 'olmesartana', ancoron: 'amiodarona', lanoxin: 'digoxina', brilinta: 'ticagrelor',
+  clexane: 'enoxaparina', lixiana: 'edoxabana',
+  // diabetes
+  daonil: 'glibenclamida', amaryl: 'glimepirida', diamicron: 'gliclazida', forxiga: 'dapagliflozina',
+  jardiance: 'empagliflozina', januvia: 'sitagliptina', galvus: 'vildagliptina', trayenta: 'linagliptina',
+  ozempic: 'semaglutida', victoza: 'liraglutida',
+  // estatinas
+  sinvascor: 'sinvastatina', citalor: 'atorvastatina', lipitor: 'atorvastatina', crestor: 'rosuvastatina',
+  // IBP
+  losec: 'omeprazol', pantozol: 'pantoprazol', nexium: 'esomeprazol',
+  // SNC / psiquiatria
+  rivotril: 'clonazepam', frontal: 'alprazolam', lexotan: 'bromazepam', valium: 'diazepam',
+  stilnox: 'zolpidem', dormonid: 'midazolam', prozac: 'fluoxetina', zoloft: 'sertralina',
+  lexapro: 'escitalopram', cipralex: 'escitalopram', venlift: 'venlafaxina', cymbalta: 'duloxetina',
+  amytril: 'amitriptilina', tramal: 'tramadol', tylex: 'codeina',
+  // dor / AINE
+  voltaren: 'diclofenaco', cataflam: 'diclofenaco', advil: 'ibuprofeno', alivium: 'ibuprofeno',
+  feldene: 'piroxicam', celebra: 'celecoxibe', nisulid: 'nimesulida', naprosyn: 'naproxeno',
+  // corticoides / outros
+  meticorten: 'prednisona', predsim: 'prednisona', prelone: 'prednisolona', decadron: 'dexametasona',
 }
 
 // sufixos de forma salina/éster a remover quando não houver alias direto
