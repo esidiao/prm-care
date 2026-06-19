@@ -420,6 +420,25 @@ describe('Interações classe×classe', () => {
     expect(checkFoodAndSupplements(['loratadina'])).toHaveLength(0)
   })
 
+  it('novos suplementos: varfarina × cranberry/coenzima Q10', () => {
+    const f = checkFoodAndSupplements(['varfarina'])
+    expect(f.some(x => /cranberry/i.test(x.agent))).toBe(true)
+    expect(f.some(x => /coenzima q10|ubiquinona/i.test(x.agent))).toBe(true)
+  })
+
+  it('novos: ISRS × L-triptofano (serotoninérgica, grave)', () => {
+    const f = checkFoodAndSupplements(['sertralina'])
+    expect(f.some(x => /triptofano|5-htp/i.test(x.agent) && x.severity === 'major')).toBe(true)
+  })
+
+  it('novos: levodopa × vitamina B6', () => {
+    expect(checkFoodAndSupplements(['levodopa']).some(x => /b6|piridoxina/i.test(x.agent))).toBe(true)
+  })
+
+  it('novos: digoxina × alcaçuz', () => {
+    expect(checkFoodAndSupplements(['digoxina']).some(x => /alcacuz|licorice|alça?çuz/i.test(x.agent))).toBe(true)
+  })
+
   // ── Dose/duração-aware (#5) ──
   it('paracetamol acima do limite diário (1000mg 4/4h = 6000)', () => {
     const c = ctx([medWith('paracetamol', { dose: 1000, doseUnit: 'mg', frequencyHours: 4 })])
