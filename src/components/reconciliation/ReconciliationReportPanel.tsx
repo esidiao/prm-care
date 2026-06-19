@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
-import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2 } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { toPng } from 'html-to-image'
+import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2, Image as ImageIcon } from 'lucide-react'
 
 type Med = { name: string; dosage: string | null; frequency: string | null; isSelfMedication?: boolean; adherence?: string | null }
 type Props = {
@@ -24,6 +25,15 @@ export function ReconciliationReportPanel(p: Props) {
   const [phone, setPhone] = useState('')
   const [anon, setAnon] = useState(false)
   const [consent, setConsent] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const genPng = async () => {
+    if (!cardRef.current) return
+    try {
+      const url = await toPng(cardRef.current, { pixelRatio: 2, backgroundColor: '#ffffff', cacheBust: true })
+      const a = document.createElement('a'); a.href = url; a.download = 'conciliacao-prm-care.png'; a.click()
+    } catch { setMsg('Não foi possível gerar a imagem.') }
+  }
 
   const today = new Date().toLocaleDateString('pt-BR')
   const displayName = (a: boolean) => (a ? (p.patientName || '')
@@ -130,6 +140,7 @@ export function ReconciliationReportPanel(p: Props) {
           {/* ações */}
           <div className="flex flex-wrap gap-2">
             <button onClick={printReport} className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"><Printer className="h-4 w-4" /> Imprimir / PDF</button>
+            <button onClick={genPng} className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"><ImageIcon className="h-4 w-4" /> Gerar imagem (PNG)</button>
             <button onClick={() => navigator.clipboard?.writeText(whatsappText())} className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50"><Copy className="h-4 w-4" /> Copiar texto</button>
             <button onClick={persist} className="flex items-center gap-1 rounded-lg bg-gray-800 px-3 py-2 text-sm font-medium text-white">{recId ? <Check className="h-4 w-4" /> : null} {recId ? 'Anexada ao prontuário' : 'Anexar ao prontuário'}</button>
           </div>
@@ -147,6 +158,22 @@ export function ReconciliationReportPanel(p: Props) {
               {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <MessageCircle className="h-4 w-4" />} Enviar ao paciente
             </button>
             {msg && <p className="mt-2 text-sm text-red-600">{msg}</p>}
+          </div>
+
+          {/* Card compacto (off-screen) usado para gerar a imagem PNG do WhatsApp */}
+          <div ref={cardRef} style={{ position: 'absolute', left: -99999, top: 0, width: 480, background: '#fff', padding: 24, fontFamily: 'Segoe UI, Arial', color: '#1a202c' }}>
+            <div style={{ borderBottom: '3px solid #1e3a5f', paddingBottom: 8, marginBottom: 12 }}>
+              <div style={{ color: '#1e3a5f', fontSize: 20, fontWeight: 800 }}>PRM Care</div>
+              <div style={{ color: '#475569', fontSize: 12 }}>Conciliação medicamentosa · {today}</div>
+            </div>
+            <div style={{ fontSize: 13, marginBottom: 8 }}><b>Paciente:</b> {displayName(anon)}{p.patientAge != null ? ` · ${p.patientAge} anos` : ''}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#2c7a7b', marginBottom: 4 }}>Seus medicamentos</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13 }}>
+              {p.meds.map((m, i) => <li key={i} style={{ marginBottom: 2 }}>{m.name}{m.dosage ? ` — ${m.dosage}` : ''}{m.frequency ? ` (${m.frequency})` : ''}</li>)}
+            </ul>
+            {notes.orientacoes && <><div style={{ fontSize: 13, fontWeight: 700, color: '#2c7a7b', margin: '8px 0 2px' }}>Orientações</div><div style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}>{notes.orientacoes}</div></>}
+            {notes.plano && <><div style={{ fontSize: 13, fontWeight: 700, color: '#2c7a7b', margin: '8px 0 2px' }}>Acompanhamento</div><div style={{ fontSize: 13, whiteSpace: 'pre-wrap' }}>{notes.plano}</div></>}
+            <div style={{ fontSize: 10, color: '#64748b', borderTop: '1px solid #e2e8f0', paddingTop: 6, marginTop: 12 }}>{DISCLAIMER} — {p.pharmacist}</div>
           </div>
         </div>
       )}

@@ -3,6 +3,8 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { KnowledgeStatus } from '@prisma/client'
 import { explainInteractions, type DdiInputInteraction } from '@/lib/ai-ddi'
+import { enrichWithFDA } from '@/lib/drug-lookup-service'
+import { rerank } from '@/lib/embeddings'
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 
@@ -26,7 +28,14 @@ async function retrieveContext(drugNames: string[]): Promise<{ citation: string;
     const byId = new Map(srcs.map(s => [s.id, s.citation]))
     for (const c of chunks) out.push({ citation: byId.get(c.sourceId) || 'Fonte clínica', content: c.content.slice(0, 600) })
   }
-  return out.slice(0, 6)
+  // 3) openFDA — bulas FDA (fonte pública, já integrada): trechos reais de interação
+  try {
+    const fda = await enrichWithFDA(drugNames)
+    for (const d of fda.directInteractions.slice(0, 6)) {
+      out.push({ citation: `Bula FDA (openFDA): ${d.drugA} × ${d.drugB}`, content: d.context.slice(0, 600) })
+    }
+  } catch { /* openFDA indisponível — segue sem */ }
+  return out
 }
 
 /**
@@ -45,7 +54,10 @@ export async function POST(req: Request) {
   if (interactions.length === 0) return NextResponse.json({ explanations: [] })
 
   const drugNames = Array.from(new Set(interactions.flatMap(i => i.drugs)))
-  const chunks = await retrieveContext(drugNames)
+  const candidates = await retrieveContext(drugNames)
+  // Rerank semântico (Hugging Face, custo zero) — prioriza os trechos mais relevantes
+  const queryText = interactions.map(i => `${i.drugs.join(' + ')}: ${i.clinicalEffect}`).join('; ')
+  const chunks = await rerank(queryText, candidates, 5)
 
   const result = await explainInteractions(interactions, b?.context, chunks)
   if (!result) return NextResponse.json({ explanations: [], sourcesUsed: [], error: 'IA indisponível no momento.' }, { status: 200 })
