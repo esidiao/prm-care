@@ -1,6 +1,8 @@
 'use client'
 import { useState } from 'react'
-import { Plus, X, Search, AlertTriangle, Copy, Loader2, Printer, Save, Check } from 'lucide-react'
+import { Plus, X, Search, AlertTriangle, Copy, Loader2, Printer, Save, Check, Sparkles } from 'lucide-react'
+
+type Explanation = { pair: string; evidenceLevel: string; warningSigns: string; alternatives: string; monitoring: string; patientMessage: string }
 
 type Interaction = {
   drugs: [string, string]
@@ -36,6 +38,8 @@ export default function InteractionsPage() {
   const [saving, setSaving] = useState(false)
   const [dec, setDec] = useState({ note: '', intervened: false, contactedMD: false, outcome: '' })
   const [decSaved, setDecSaved] = useState(false)
+  const [explaining, setExplaining] = useState(false)
+  const [expl, setExpl] = useState<Record<string, Explanation>>({})
 
   const addDrug = () => {
     const v = input.trim()
@@ -53,7 +57,7 @@ export default function InteractionsPage() {
       })
       const data = await r.json()
       if (!r.ok) throw new Error(data.error || 'Falha na consulta')
-      setResp(data); setSavedId(null); setDecSaved(false)
+      setResp(data); setSavedId(null); setDecSaved(false); setExpl({})
       setDec({ note: '', intervened: false, contactedMD: false, outcome: '' })
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro') }
     finally { setLoading(false) }
@@ -80,6 +84,22 @@ export default function InteractionsPage() {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(dec),
     })
     if (r.ok) setDecSaved(true)
+  }
+
+  const explain = async () => {
+    if (!resp || resp.interactions.length === 0) return
+    setExplaining(true)
+    try {
+      const r = await fetch('/api/interactions/explain', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interactions: resp.interactions }),
+      })
+      const data = await r.json()
+      const map: Record<string, Explanation> = {}
+      for (const e of (data.explanations || []) as Explanation[]) map[e.pair.toLowerCase()] = e
+      setExpl(map)
+    } catch { /* mantém base determinística */ }
+    finally { setExplaining(false) }
   }
 
   const printConsult = () => {
@@ -176,6 +196,9 @@ export default function InteractionsPage() {
                 <button onClick={copySummary} className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50">
                   <Copy className="h-4 w-4" /> Copiar
                 </button>
+                <button onClick={explain} disabled={explaining || resp.notFound} className="flex items-center gap-1 rounded-lg border border-teal-300 bg-teal-50 px-3 py-1.5 text-sm font-medium text-teal-800 hover:bg-teal-100 disabled:opacity-50">
+                  {explaining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />} Explicar com IA
+                </button>
                 <button onClick={saveConsult} disabled={saving || !!savedId} className="flex items-center gap-1 rounded-lg bg-slate-800 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
                   {savedId ? <Check className="h-4 w-4" /> : saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {savedId ? 'Salva' : 'Salvar consulta'}
                 </button>
@@ -187,18 +210,26 @@ export default function InteractionsPage() {
           <div className="mt-4 space-y-3">
             {resp.interactions.map((it, i) => {
               const s = SEV[it.severity]
+              const e = expl[`${it.drugs[0]} + ${it.drugs[1]}`.toLowerCase()]
               return (
                 <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 ${s.ring}`}>
                   <div className={`absolute left-0 top-0 h-full w-1.5 ${s.bar}`} />
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${s.chip}`}>{it.severityLabel}</span>
                     <span className="font-semibold text-slate-800">{it.drugs[0]} + {it.drugs[1]}</span>
+                    {e?.evidenceLevel && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">Evidência: {e.evidenceLevel}</span>}
                   </div>
                   <dl className="mt-2 space-y-1.5 text-sm">
                     <div><dt className="inline font-semibold text-slate-600">Mecanismo: </dt><dd className="inline text-slate-700">{it.mechanism}</dd></div>
                     <div><dt className="inline font-semibold text-slate-600">Efeito clínico: </dt><dd className="inline text-slate-700">{it.clinicalEffect}</dd></div>
                     <div><dt className="inline font-semibold text-slate-600">Conduta farmacêutica: </dt><dd className="inline text-slate-700">{it.management}</dd></div>
+                    {e?.warningSigns && <div><dt className="inline font-semibold text-slate-600">Sinais de alerta: </dt><dd className="inline text-slate-700">{e.warningSigns}</dd></div>}
+                    {e?.monitoring && <div><dt className="inline font-semibold text-slate-600">Monitorar: </dt><dd className="inline text-slate-700">{e.monitoring}</dd></div>}
+                    {e?.alternatives && e.alternatives !== '—' && <div><dt className="inline font-semibold text-slate-600">Alternativas: </dt><dd className="inline text-slate-700">{e.alternatives}</dd></div>}
                   </dl>
+                  {e?.patientMessage && (
+                    <div className="mt-2 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900"><b>Orientação ao paciente:</b> {e.patientMessage}</div>
+                  )}
                 </div>
               )
             })}
