@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Plus, X, Search, AlertTriangle, Copy, Loader2, Printer, Save, Check, Sparkles } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 import { canonicalizeDrug } from '@/lib/drug-aliases'
 
@@ -38,6 +39,8 @@ const SEV = {
 } as const
 
 export default function InteractionsPage() {
+  const { data: session } = useSession()
+  const pharmacist = session?.user?.name || 'Farmacêutico(a)'
   const [input, setInput] = useState('')
   const [drugs, setDrugs] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
@@ -116,21 +119,41 @@ export default function InteractionsPage() {
   const printConsult = () => {
     if (!resp) return
     const cor: Record<string, string> = { contraindicated: '#dc2626', major: '#ea580c', moderate: '#d97706', minor: '#16a34a' }
-    const rows = resp.interactions.map(i => `
+    const today = new Date().toLocaleDateString('pt-BR')
+    const e = expl
+    const rows = resp.interactions.map(i => {
+      const ex = e[`${i.drugs[0]} + ${i.drugs[1]}`.toLowerCase()]
+      return `
       <div style="border:1px solid #e2e8f0;border-left:5px solid ${cor[i.severity]};border-radius:8px;padding:10px 14px;margin:8px 0">
-        <b style="color:${cor[i.severity]}">[${i.severityLabel}]</b> <b>${i.drugs[0]} + ${i.drugs[1]}</b>
+        <b style="color:${cor[i.severity]}">[${i.severityLabel}]</b> <b>${i.drugs[0]} + ${i.drugs[1]}</b>${ex?.evidenceLevel ? ` <span style="font-size:11px;color:#64748b">(Evidência: ${ex.evidenceLevel})</span>` : ''}
         <div style="font-size:13px;margin-top:4px"><b>Mecanismo:</b> ${i.mechanism}</div>
         <div style="font-size:13px"><b>Efeito clínico:</b> ${i.clinicalEffect}</div>
         <div style="font-size:13px"><b>Conduta:</b> ${i.management}</div>
+        ${ex?.monitoring ? `<div style="font-size:13px"><b>Monitorar:</b> ${ex.monitoring}</div>` : ''}
+        ${(i.contextFlags || []).map(f => `<div style="font-size:12px;color:#92400e">⚠ Ajuste ao paciente: ${f}</div>`).join('')}
+      </div>`
+    }).join('')
+    const fs = (resp.foodSupplements || []).map(f => `
+      <div style="border:1px solid #e2e8f0;border-left:5px solid ${cor[f.severity]};border-radius:8px;padding:8px 14px;margin:6px 0">
+        <b>${f.emoji} ${f.agent}</b> <span style="font-size:11px;color:#475569">[${f.type} · ${f.severityLabel}]</span>
+        <div style="font-size:12px">Afeta: ${f.drugs.join(', ')} — ${f.clinicalEffect}. <b>Conduta:</b> ${f.management}</div>
       </div>`).join('')
+    const ctxLine = [ctx.age && `${ctx.age} anos`, ctx.tfg && `TFG ${ctx.tfg} mL/min`, ctx.pregnant && 'gestante'].filter(Boolean).join(' · ')
     const w = window.open('', '_blank'); if (!w) return
     w.document.write(`<!doctype html><meta charset="utf-8"><title>Consulta de Interações — PRM Care</title>
-      <body style="font-family:Segoe UI,Arial;max-width:760px;margin:24px auto;color:#1a202c">
-      <h2 style="color:#1e3a5f">PRM Care — Consulta de Interações Medicamentosas</h2>
-      <p style="color:#475569">Medicamentos: ${drugs.join(', ')}</p>
-      <p><b>Risco global:</b> ${resp.globalLabel} · ${resp.count} interação(ões)</p>
-      ${resp.notFound ? '<p>Nenhuma interação relevante na base disponível.</p>' : rows}
-      <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:16px">${resp.advisory}</p>
+      <body style="font-family:Segoe UI,Arial;max-width:760px;margin:24px auto;color:#1a202c;line-height:1.5">
+      <div style="border-bottom:3px solid #1e3a5f;padding-bottom:8px;margin-bottom:14px">
+        <h2 style="color:#1e3a5f;margin:0">PRM Care — Consulta de Interações Medicamentosas</h2>
+        <div style="color:#475569;font-size:13px">Método Dáder · ${today}</div>
+      </div>
+      <p style="margin:4px 0"><b>Medicamentos:</b> ${drugs.join(', ')}${ctxLine ? ` &nbsp;·&nbsp; <b>Contexto:</b> ${ctxLine}` : ''}</p>
+      <p style="margin:4px 0"><b>Farmacêutico(a):</b> ${pharmacist}</p>
+      <p style="margin:8px 0"><b>Risco global:</b> ${resp.globalLabel}${resp.count ? ` · ${resp.count} interação(ões)` : ''}</p>
+      ${resp.interactions.length ? `<h3 style="color:#1e3a5f;font-size:15px;margin:14px 0 4px">Interações medicamentosas</h3>${rows}` : ''}
+      ${fs ? `<h3 style="color:#1e3a5f;font-size:15px;margin:14px 0 4px">Alimentos, álcool e suplementos</h3>${fs}` : ''}
+      ${resp.notFound ? '<p>Nenhuma interação relevante (fármaco, alimento ou suplemento) na base disponível.</p>' : ''}
+      <p style="margin-top:22px">_______________________________________<br><b>${pharmacist}</b> — Farmacêutico(a) responsável (CRF)</p>
+      <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:10px">${resp.advisory}</p>
       </body>`)
     w.document.close(); w.focus(); setTimeout(() => w.print(), 250)
   }
@@ -147,7 +170,10 @@ export default function InteractionsPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6">
-      <h1 className="text-2xl font-bold text-slate-800">Interações Medicamentosas</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-slate-800">Interações Medicamentosas</h1>
+        <a href="/interactions/history" className="text-sm font-medium text-teal-700 hover:underline">Histórico →</a>
+      </div>
       <p className="mt-1 text-sm text-slate-500">Cruze dois ou mais medicamentos e veja as interações da base clínica do PRM Care.</p>
 
       {/* entrada de medicamentos */}
