@@ -12,6 +12,8 @@ import {
   RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS, ADHERENCE_LABELS
 } from '@/lib/utils'
 import { DeleteMedicationButton } from '@/components/patients/DeleteMedicationButton'
+import { PatientInteractionBanner } from '@/components/patients/PatientInteractionBanner'
+import { checkInteractions } from '@/lib/prm-engine'
 import { ExportMenu } from '@/components/export/ExportMenu'
 import { PatientNotes } from '@/components/patients/PatientNotes'
 import { ClinicalScales } from '@/components/patients/ClinicalScales'
@@ -83,12 +85,21 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
   const age = patient.dateOfBirth ? calculateAge(patient.dateOfBirth) : patient.age
 
+  // Alerta proativo de interações na lista de medicamentos ativos (ciente do contexto)
+  const ddi = checkInteractions(
+    patient.medications.map(m => m.activeIngredient),
+    { age: age ?? undefined, tfg: patient.creatinineClearance ?? undefined, pregnant: patient.isPregnant },
+  )
+
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Back link */}
       <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
         <ArrowLeft className="h-4 w-4" /> Pacientes
       </Link>
+
+      {/* Alerta proativo de interações na lista atual */}
+      <PatientInteractionBanner result={ddi} />
 
       {/* Patient header — stacks on mobile */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
