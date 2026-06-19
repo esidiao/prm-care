@@ -9,6 +9,7 @@ import { getPKProfile } from '@/lib/pharma-pk-db'
 import { MedScheduleGrid } from '@/components/reconciliation/MedScheduleGrid'
 import { PrintButton } from '@/components/reconciliation/PrintButton'
 import { ReconciliationReportPanel } from '@/components/reconciliation/ReconciliationReportPanel'
+import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 
 // ── Exported types (used by MedScheduleGrid) ─────────────────────────────────
 
@@ -171,6 +172,7 @@ export default async function ReconciliationPage({ params }: { params: { id: str
             patientName={patient.name || patient.code}
             patientAge={age ?? null}
           />
+          <PgxAlerts drugs={patient.medications.map(m => m.activeIngredient)} />
           <ReconciliationReportPanel
             patientId={params.id}
             patientName={patient.name || patient.code}

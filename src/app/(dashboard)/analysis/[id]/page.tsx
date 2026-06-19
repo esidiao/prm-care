@@ -10,6 +10,7 @@ import { formatDateTime, RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS } from '@/lib/ut
 import { RiskLevel, PRMCategory } from '@prisma/client'
 import { FindingsPanel } from '@/components/analysis/FindingsPanel'
 import { AnalysisComparison } from '@/components/analysis/AnalysisComparison'
+import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -183,6 +184,9 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
         analysisId={analysis.id}
         totalPRMs={analysis.totalPRMs}
       />
+
+      {/* Farmacogenômica (CPIC) — derivada automaticamente dos medicamentos */}
+      <PgxAlerts drugs={analysis.patient.medications.map(m => m.activeIngredient)} />
 
       {/* SOAP — compact 2-column grid */}
       {analysis.soapRecord && (
