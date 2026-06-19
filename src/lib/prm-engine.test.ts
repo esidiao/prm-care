@@ -479,6 +479,19 @@ describe('Interações classe×classe', () => {
     expect(r.interactions[0].severity).toBe('contraindicated') // contraindicada vem primeiro
   })
 
+  it('expansão: amiodarona + sotalol (contraindicada, QT)', () => {
+    const r = checkInteractions(['amiodarona', 'sotalol'])
+    expect(r.interactions[0]?.severity).toBe('contraindicated')
+  })
+
+  it('expansão: ondansetrona + haloperidol (QT)', () => {
+    expect(checkInteractions(['ondansetrona', 'haloperidol']).interactions.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('expansão: dabigatrana + verapamil (P-gp)', () => {
+    expect(checkInteractions(['dabigatrana', 'verapamil']).interactions.length).toBeGreaterThanOrEqual(1)
+  })
+
   it('checkInteractions: par inócuo retorna vazio e sem risco', () => {
     const r = checkInteractions(['paracetamol', 'loratadina'])
     expect(r.interactions).toHaveLength(0)
