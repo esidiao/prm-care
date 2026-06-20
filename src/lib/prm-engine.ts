@@ -2169,20 +2169,28 @@ function findSafetyPRMs(context: PatientContext): PRMFindingResult[] {
       : interaction.severity === 'major' ? RiskLevel.HIGH
       : interaction.severity === 'moderate' ? RiskLevel.MODERATE
       : RiskLevel.LOW
+    // Mesmo rigor do módulo de interações: monitoramento específico (ISMP/mecanismo)
+    // e fonte citável (CredibleMeds para QT) dobrados nos campos persistidos.
+    const refs = ddiReferences(med1.activeIngredient, med2.activeIngredient, `${interaction.mechanism} ${interaction.clinicalEffect}`)
+    const monitoring = interaction.monitoring
+      || ddiMonitoring(med1.activeIngredient, med2.activeIngredient, `${interaction.mechanism} ${interaction.clinicalEffect} ${interaction.management}`)
+      || 'Monitorar sinais de toxicidade ou falha terapêutica.'
+    const confidenceLevel: PRMFindingResult['confidenceLevel'] =
+      interaction.evidenceLevel === 'Baixa' ? 'low' : interaction.evidenceLevel === 'Moderada' ? 'moderate' : 'high'
     findings.push({
       category: PRMCategory.SAFETY,
       riskLevel,
       title: `Interação medicamentosa ${interaction.severity === 'contraindicated' ? 'CONTRAINDICADA' : interaction.severity === 'major' ? 'GRAVE' : interaction.severity === 'moderate' ? 'MODERADA' : 'MENOR'}: ${med1.activeIngredient} + ${med2.activeIngredient}`,
       description: `Interação ${interaction.severity} entre ${med1.activeIngredient} e ${med2.activeIngredient}.`,
-      clinicalEvidence: `Mecanismo: ${interaction.mechanism}. Efeito clínico: ${interaction.clinicalEffect}.`,
+      clinicalEvidence: `Mecanismo: ${interaction.mechanism}. Efeito clínico: ${interaction.clinicalEffect}.${refs ? ` Fonte: ${refs.join('; ')}.` : ''}`,
       potentialImpact: interaction.clinicalEffect,
       pharmacistConduct: interaction.management,
       patientGuidance: 'Não altere seus medicamentos por conta própria. Informe seu médico sobre esta interação e fique atento a sintomas incomuns.',
       needsReferral: riskLevel === RiskLevel.URGENT,
       needsPrescriberContact: riskLevel === RiskLevel.HIGH || riskLevel === RiskLevel.URGENT,
-      monitoring: 'Monitorar sinais de toxicidade ou falha terapêutica.',
+      monitoring,
       reevaluationPeriod: riskLevel === RiskLevel.URGENT ? 'Imediato' : '7-15 dias',
-      confidenceLevel: 'high',
+      confidenceLevel,
       validationNote: 'A relevância clínica depende de fatores individuais. Avaliação profissional essencial.',
       interventionDeadline: riskLevel === RiskLevel.URGENT ? 'Imediato' : riskLevel === RiskLevel.HIGH ? '24-48h' : 'Próxima consulta',
       medicationId: med1.id,

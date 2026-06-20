@@ -1,7 +1,7 @@
 'use client'
 import { useState, useRef } from 'react'
 import { toPng } from 'html-to-image'
-import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2, Image as ImageIcon } from 'lucide-react'
+import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2, Image as ImageIcon, AlertTriangle, Search } from 'lucide-react'
 
 type Med = { name: string; dosage: string | null; frequency: string | null; isSelfMedication?: boolean; adherence?: string | null }
 type Props = {
@@ -12,6 +12,13 @@ type Props = {
   allergies: string[]
   meds: Med[]
 }
+type DetInt = {
+  drugs: [string, string]; severity: string; severityLabel: string; severityRank: number
+  mechanism: string; clinicalEffect: string; management: string
+  monitoring?: string; evidenceLevel?: string; references?: string[]; source?: string; contextFlags?: string[]
+}
+type DetFood = { agent: string; emoji: string; type: string; severityLabel: string; drugs: string[]; clinicalEffect: string; management: string }
+const SEV_COLOR: Record<string, string> = { contraindicated: '#dc2626', major: '#ea580c', moderate: '#d97706', minor: '#16a34a' }
 const DISCLAIMER = 'Este documento é um instrumento de cuidado farmacêutico e não substitui a avaliação médica.'
 
 export function ReconciliationReportPanel(p: Props) {
@@ -26,6 +33,47 @@ export function ReconciliationReportPanel(p: Props) {
   const [anon, setAnon] = useState(false)
   const [consent, setConsent] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
+  // Detecção automática de riscos (mesmo motor do módulo de interações)
+  const [detected, setDetected] = useState<DetInt[]>([])
+  const [detFood, setDetFood] = useState<DetFood[]>([])
+  const [detRisk, setDetRisk] = useState<string>('')
+  const [detecting, setDetecting] = useState(false)
+  const [detDone, setDetDone] = useState(false)
+
+  const detectRisks = async () => {
+    setDetecting(true); setMsg('')
+    try {
+      // Usa o princípio ativo limpo (remove a marca entre parênteses) p/ casar a base externa
+      const drugs = p.meds.map(m => m.name.replace(/\s*\([^)]*\)\s*/g, ' ').trim()).filter(Boolean)
+      if (drugs.length < 2) { setMsg('São necessários ao menos 2 medicamentos para detectar interações.'); return }
+      const r = await fetch('/api/interactions/check', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ drugs, context: { age: p.patientAge } }),
+      })
+      const data = await r.json()
+      if (!r.ok) throw new Error(data.error || 'Falha na verificação')
+      setDetected((data.interactions || []) as DetInt[])
+      setDetFood((data.foodSupplements || []) as DetFood[])
+      setDetRisk(data.globalLabel || '')
+      setDetDone(true)
+    } catch (e) { setMsg(e instanceof Error ? e.message : 'Erro na detecção') }
+    finally { setDetecting(false) }
+  }
+
+  // Pré-preenche as notas clínicas a partir dos riscos detectados.
+  const draftFromDetected = () => {
+    const join = (a: string, b: string) => [a, b].filter(Boolean).join('\n')
+    const riscos = detected.map(i => `• [${i.severityLabel}] ${i.drugs[0]} + ${i.drugs[1]}: ${i.clinicalEffect}`).join('\n')
+    const fsRiscos = detFood.map(f => `• [${f.severityLabel}] ${f.agent} × ${f.drugs.join(', ')}: ${f.clinicalEffect}`).join('\n')
+    const interv = detected.filter(i => i.severityRank >= 2).map(i => `• ${i.drugs[0]} + ${i.drugs[1]}: ${i.management}`).join('\n')
+    const monit = detected.filter(i => i.monitoring).map(i => `• ${i.drugs[0]} + ${i.drugs[1]}: ${i.monitoring}`).join('\n')
+    setNotes(n => ({
+      ...n,
+      riscos: join(n.riscos, [riscos, fsRiscos].filter(Boolean).join('\n')),
+      intervencoes: join(n.intervencoes, interv),
+      plano: join(n.plano, monit ? `Monitorização:\n${monit}` : ''),
+    }))
+  }
 
   const genPng = async () => {
     if (!cardRef.current) return
@@ -64,6 +112,10 @@ export function ReconciliationReportPanel(p: Props) {
          <b>Data:</b> ${today} &nbsp; <b>Farmacêutico(a):</b> ${p.pharmacist}</p>
       <h3>Medicamentos em uso</h3><ul>${medRows || '<li>—</li>'}</ul>
       ${p.allergies.length ? `<h3>Alergias</h3><p>${p.allergies.join(', ')}</p>` : ''}
+      ${tech && detected.length ? `<h3>Interações detectadas automaticamente</h3><ul>${detected.map(i =>
+        `<li><b style="color:${SEV_COLOR[i.severity] || '#475569'}">[${i.severityLabel}]</b> ${i.drugs[0]} + ${i.drugs[1]} — ${i.clinicalEffect}. <i>Conduta:</i> ${i.management}${i.monitoring ? ` <i>Monitorar:</i> ${i.monitoring}` : ''}${i.references && i.references.length ? ` <i>Fonte:</i> ${i.references.join(', ')}` : ''}</li>`).join('')}</ul>` : ''}
+      ${tech && detFood.length ? `<h3>Alimentos/álcool/suplementos</h3><ul>${detFood.map(f =>
+        `<li><b>[${f.severityLabel}]</b> ${f.agent} × ${f.drugs.join(', ')} — ${f.clinicalEffect}. <i>Conduta:</i> ${f.management}</li>`).join('')}</ul>` : ''}
       ${block('Riscos identificados', notes.riscos)}
       ${block('Intervenções farmacêuticas', notes.intervencoes)}
       ${block('Orientações ao paciente', notes.orientacoes)}
@@ -124,6 +176,43 @@ export function ReconciliationReportPanel(p: Props) {
                 {v === 'TECNICA' ? 'Versão técnica' : 'Versão paciente'}
               </button>
             ))}
+          </div>
+
+          {/* detecção automática de riscos */}
+          <div className="rounded-xl border border-amber-200 bg-amber-50/40 p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-semibold text-amber-900"><AlertTriangle className="h-4 w-4" /> Detecção automática de riscos</div>
+              <button onClick={detectRisks} disabled={detecting} className="flex items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white disabled:opacity-50">
+                {detecting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />} Detectar nos medicamentos
+              </button>
+            </div>
+            {detDone && (
+              <div className="mt-3">
+                {detected.length === 0 && detFood.length === 0 ? (
+                  <p className="text-sm text-emerald-700">Nenhuma interação relevante detectada na base disponível.</p>
+                ) : (
+                  <>
+                    {detRisk && <p className="mb-2 text-sm text-amber-900">Risco global: <b>{detRisk}</b> · {detected.length} interação(ões){detFood.length ? ` · ${detFood.length} alimento/suplemento` : ''}</p>}
+                    <div className="space-y-1.5">
+                      {detected.slice(0, 12).map((i, k) => (
+                        <div key={k} className="rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs">
+                          <span className="font-semibold" style={{ color: SEV_COLOR[i.severity] }}>[{i.severityLabel}]</span>{' '}
+                          <b>{i.drugs[0]} + {i.drugs[1]}</b>
+                          {i.evidenceLevel && <span className="ml-1 text-gray-400">(Evid.: {i.evidenceLevel}{i.source ? ', DDInter' : ''})</span>}
+                          <div className="text-gray-600">{i.clinicalEffect}</div>
+                          {i.monitoring && <div className="text-gray-500">👁 {i.monitoring}</div>}
+                          {i.references && i.references.length > 0 && <div className="text-gray-400">Fonte: {i.references.join(' · ')}</div>}
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={draftFromDetected} className="mt-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-sm font-medium text-amber-800 hover:bg-amber-100">
+                      Inserir nas notas (riscos/intervenções/plano)
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+            {!detDone && <p className="mt-2 text-xs text-amber-700">Cruza os medicamentos do paciente pela base (interações + alimentos/suplementos), já com contexto de idade.</p>}
           </div>
 
           {/* notas clínicas */}

@@ -750,3 +750,21 @@ describe('Curadoria fina — varfarina × fluoroquinolonas', () => {
     expect(it.monitoring!.toLowerCase()).toMatch(/antiplaquet|trombó/)
   })
 })
+
+describe('Rigor no fluxo analyzePRM — achado de interação', () => {
+  const findInt = (meds: MedicationContext[]) =>
+    analyzePRM(ctx(meds)).findings.find(f => /Interação medicamentosa/i.test(f.title))
+
+  it('monitoramento específico (não genérico) — varfarina + ciprofloxacino → INR', () => {
+    const f = findInt([med('varfarina'), med('ciprofloxacino')])
+    expect(f).toBeTruthy()
+    expect(f!.monitoring).toBeTruthy()
+    expect(f!.monitoring!.toUpperCase()).toContain('INR')
+    expect(f!.monitoring).not.toBe('Monitorar sinais de toxicidade ou falha terapêutica.')
+  })
+  it('cita CredibleMeds em par de QT — varfarina + moxifloxacino', () => {
+    const f = findInt([med('varfarina'), med('moxifloxacino')])
+    expect(f).toBeTruthy()
+    expect(f!.clinicalEvidence).toMatch(/CredibleMeds/i)
+  })
+})
