@@ -3487,6 +3487,18 @@ function contextFlagsFor(a: string, b: string, ctx?: DdiPatientContext): string[
   return flags
 }
 
+// Map memoizado da camada externa (pairKey normalizado -> severidade), construído 1x.
+let _externalMap: Map<string, string> | null = null
+function getExternalMap(): Map<string, string> {
+  if (!_externalMap) {
+    _externalMap = new Map()
+    for (const [a, b, s] of EXTERNAL_INTERACTIONS) {
+      _externalMap.set([norm(a), norm(b)].sort().join('|'), s)
+    }
+  }
+  return _externalMap
+}
+
 /** Cruza ≥2 medicamentos (por princípio ativo/nome) e retorna as interações da base. */
 export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext): DdiCheckResult {
   const meds: MedicationContext[] = drugNames
@@ -3516,19 +3528,16 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
     contextFlags: contextFlagsFor(r.med1.activeIngredient, r.med2.activeIngredient, ctx),
   }))
 
-  // 2) camada externa DDInter (apenas pares ainda não cobertos) — com atribuição
+  // 2) camada externa DDInter (apenas pares ainda não cobertos) — lookup O(1) por Map
+  const extMap = getExternalMap()
   for (let i = 0; i < meds.length; i++) {
     for (let j = i + 1; j < meds.length; j++) {
       const key = [meds[i].id, meds[j].id].sort().join('|')
       if (covered.has(key)) continue
-      const n1 = norm(meds[i].activeIngredient), n2 = norm(meds[j].activeIngredient)
-      const hit = EXTERNAL_INTERACTIONS.find(([a, b]) => {
-        const na = norm(a), nb = norm(b)
-        return (n1.includes(na) && n2.includes(nb)) || (n1.includes(nb) && n2.includes(na))
-      })
-      if (!hit) continue
+      const pairKey = [norm(meds[i].activeIngredient), norm(meds[j].activeIngredient)].sort().join('|')
+      const sev = extMap.get(pairKey) as KnownInteraction['severity'] | undefined
+      if (!sev) continue
       covered.add(key)
-      const sev = hit[2] as KnownInteraction['severity']
       interactions.push({
         drugs: [meds[i].activeIngredient, meds[j].activeIngredient],
         severity: sev,
