@@ -571,5 +571,61 @@ describe('Inferência qualitativa de mecanismo (pares externos)', () => {
     expect(maxSeverity('minor', 'major')).toBe('major')
     expect(maxSeverity('major', 'moderate')).toBe('major')
     expect(maxSeverity('moderate', 'moderate')).toBe('moderate')
+    expect(maxSeverity('moderate', 'contraindicated')).toBe('contraindicated')
+  })
+})
+
+describe('Inferência qualitativa — domínios expandidos (workflow verificado)', () => {
+  it('IMAO + simpaticomimético → contraindicado (crise hipertensiva)', () => {
+    const hit = inferExternalMechanism('tranilcipromina', 'pseudoefedrina')
+    expect(hit).not.toBeNull()
+    expect(hit!.severityFloor).toBe('contraindicated')
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('hipertensiva')
+  })
+  it('dois pró-convulsivantes → risco de convulsões (major)', () => {
+    const hit = inferExternalMechanism('bupropiona', 'teofilina')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('convuls')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('inibidor de P-gp + substrato JTE (verapamil + digoxina) → toxicidade', () => {
+    const hit = inferExternalMechanism('verapamil', 'digoxina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('glicoprote')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('inibidor CYP2C19 + clopidogrel → perda de eficácia antiplaquetária', () => {
+    const hit = inferExternalMechanism('omeprazol', 'clopidogrel')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toUpperCase()).toContain('CYP2C19')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('espoliador de potássio + digoxina → toxicidade digitálica', () => {
+    const hit = inferExternalMechanism('furosemida', 'digoxina')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('digit')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('cátion polivalente + fármaco quelável → ↓absorção', () => {
+    const hit = inferExternalMechanism('sulfato ferroso', 'ciprofloxacino')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('absor')
+  })
+  it('dois mielossupressores → mielossupressão aditiva (major)', () => {
+    const hit = inferExternalMechanism('metotrexato', 'azatioprina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('mielossup')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('redutor de depuração de lítio + lítio → ↑litemia', () => {
+    const hit = inferExternalMechanism('ibuprofeno', 'litio')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('litemia')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('entre várias regras, escolhe a de maior severidade', () => {
+    // verapamil×digoxina casa P-gp (major) e bradicárdico×bradicárdico (moderate)
+    const hit = inferExternalMechanism('verapamil', 'digoxina')
+    expect(hit!.severityFloor).toBe('major')
   })
 })

@@ -14,6 +14,8 @@ export interface DdiInputInteraction {
   mechanism: string
   clinicalEffect: string
   management: string
+  /** Origem do par: presente => base externa DDInter (sem evidência graduada própria). */
+  source?: string
 }
 export interface DdiExplanation {
   pair: string
@@ -37,8 +39,14 @@ const RespSchema = z.object({ items: z.array(ItemSchema).optional().default([]) 
 const SYSTEM = `Você é farmacêutico clínico sênior. Sua tarefa é ORGANIZAR e ENRIQUECER interações
 medicamentosas JÁ IDENTIFICADAS por um motor determinístico. VOCÊ NÃO PODE INVENTAR, INFERIR
 NEM ADICIONAR qualquer interação que não esteja na lista fornecida.
+Cada interação traz mecanismo/efeito/conduta já apurados — USE-OS como âncora factual e seja
+COERENTE com eles (não contradiga o mecanismo informado).
 Para CADA interação fornecida (e SOMENTE essas), produza, com base em conhecimento consolidado:
-- evidenceLevel: nível de evidência (Alta | Moderada | Baixa | Teórica);
+- evidenceLevel: nível de evidência (Alta | Moderada | Baixa | Teórica). CALIBRE pela origem:
+  • Pares com "fonte: DDInter" provêm de base computacional/literatura SEM evidência clínica graduada
+    própria — NUNCA classifique como "Alta"; use "Moderada" quando o mecanismo for farmacologia
+    bem estabelecida, ou "Teórica/Baixa" quando o efeito for apenas potencial.
+  • Pares SEM fonte externa (curadoria interna) podem ser "Alta/Moderada" conforme o consenso.
 - warningSigns: sinais/sintomas de alerta a observar;
 - alternatives: alternativas terapêuticas possíveis (ou "—" se não houver clara);
 - monitoring: parâmetros laboratoriais/clínicos a monitorar;
@@ -69,7 +77,7 @@ export async function explainInteractions(
   const userPrompt = [
     context && Object.keys(context).length ? `CONTEXTO DO PACIENTE: ${JSON.stringify(context)}` : '',
     'INTERAÇÕES IDENTIFICADAS (organize/enriqueça SOMENTE estas; "pair" deve ser reusado igual):',
-    JSON.stringify(interactions.map(i => ({ pair: i.drugs.join(' + '), gravidade: i.severityLabel, mecanismo: i.mechanism, efeito: i.clinicalEffect, conduta: i.management }))),
+    JSON.stringify(interactions.map(i => ({ pair: i.drugs.join(' + '), gravidade: i.severityLabel, mecanismo: i.mechanism, efeito: i.clinicalEffect, conduta: i.management, fonte: i.source || 'curadoria interna' }))),
     sources.length ? `\nTRECHOS DE FONTES (cite o título quando pertinente; NÃO invente outras fontes):\n${sources.map((c, i) => `[${i + 1}] ${c.citation}: ${c.content}`).join('\n')}` : '',
   ].filter(Boolean).join('\n')
 
