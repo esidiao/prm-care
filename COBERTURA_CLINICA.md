@@ -51,6 +51,29 @@ Disparam para **qualquer membro** de cada classe (não só pares enumerados):
 Suplemento de potássio (KCl/citrato) com IECA/BRA ou poupador de potássio
 (espironolactona/eplerenona/amilorida/triantereno) → alto risco de hipercalemia (HIGH).
 
+## 1f. Módulo de consulta de Interações (`/interactions`, `checkInteractions`)
+Ferramenta dedicada de checagem fármaco×fármaco (≥2 medicamentos), em camadas:
+
+1. **Base curada própria** (`KNOWN_INTERACTIONS`, ~200 pares + classe×classe) — mecanismo,
+   efeito e manejo redigidos; **evidência "Alta"**.
+2. **Camada externa DDInter 2.0** (CC BY-NC-SA) — **~89.600 pares** cobrindo **1.011
+   princípios ativos** (ponte PT↔EN). Só aparece para pares ainda não cobertos pela base curada.
+3. **Camada qualitativa de mecanismo** — atribui *tags* farmacológicas aos princípios ativos
+   (**48 tags**) e, por **35 regras tag×tag**, infere mecanismo/efeito/conduta ESPECÍFICOS
+   para os pares externos (serotoninérgico, QT, depressor SNC, anticolinérgico, sangramento,
+   hipercalemia, nefrotóxico, bradicardizante, hipoglicemiante, CYP3A4/2D6/2C9/2C19, P-gp,
+   quelação, mielossupressão, fotossensibilidade, xantina-oxidase×tiopurina, CYP1A2,
+   UGT-lamotrigina, etc.). Pode **elevar** (nunca rebaixar) a severidade da DDInter.
+4. **Evidência e monitoramento** — todo resultado traz nível de evidência (Alta/Moderada/Baixa,
+   conforme a origem) e os **parâmetros a monitorar**, derivados da base de medicamentos de alta
+   vigilância (ISMP/MAR) ou do mecanismo (INR, QTc/eletrólitos, K⁺, litemia, digoxinemia, hemograma…).
+5. **Ajuste ao paciente** — flags por idade (≥65: sedação/quedas, carga anticolinérgica, QT) e
+   função renal (TFG<60: lítio/digoxina/metotrexato/nefrotóxicos), sem alterar a severidade.
+6. **Fonte citável** — pares com risco de QT citam **CredibleMeds® (QTdrugs.org/AZCERT)**.
+7. **Alimentos/álcool/suplementos** (`checkFoodAndSupplements`) e **farmacogenômica CPIC**
+   (`PgxAlerts`) integrados na mesma consulta; **IA explicadora** opcional (Groq) enriquece
+   sinais de alerta/alternativas/orientação, com evidência calibrada por fonte e guardrail anti-alucinação.
+
 ## 2. "Triple whammy"
 AINE + (IECA **ou** BRA) + diurético (alça/tiazídico) em uso simultâneo → risco de
 **lesão renal aguda** (HIGH). Distinto da regra de AINE em DRC.

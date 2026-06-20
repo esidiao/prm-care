@@ -54,6 +54,11 @@ interface KnownInteraction {
 }
 
 const KNOWN_INTERACTIONS: KnownInteraction[] = [
+  // ── Curadoria fina: varfarina × fluoroquinolonas (2026-06) ──
+  { drug1: 'varfarina', drug2: 'ciprofloxacino', severity: 'major', mechanism: 'Ciprofloxacino inibe o metabolismo da varfarina (CYP1A2/CYP3A4 do R-enantiômero) e reduz a flora intestinal produtora de vitamina K', clinicalEffect: 'Elevação do INR e aumento do risco de sangramento (efeito em 3–7 dias)', management: 'Monitorar INR 3–5 dias após iniciar e ao suspender o antibiótico; ajustar a dose de varfarina. Preferir antimicrobiano sem interação quando possível.', evidenceLevel: 'Moderada', monitoring: 'INR em 3–5 dias após o início e ao suspender o antibiótico; sinais de sangramento.' },
+  { drug1: 'varfarina', drug2: 'levofloxacino', severity: 'major', mechanism: 'Levofloxacino potencializa o efeito anticoagulante da varfarina (redução da flora produtora de vitamina K e possível interferência metabólica)', clinicalEffect: 'Elevação do INR e aumento do risco de sangramento', management: 'Monitorar INR 3–5 dias após iniciar e ao suspender; ajustar a dose de varfarina.', evidenceLevel: 'Moderada', monitoring: 'INR em 3–5 dias após o início e ao suspender; sinais de sangramento.' },
+  { drug1: 'varfarina', drug2: 'moxifloxacino', severity: 'major', mechanism: 'Moxifloxacino potencializa o efeito anticoagulante da varfarina e também prolonga o intervalo QT', clinicalEffect: 'Elevação do INR/risco de sangramento; risco adicional de prolongamento de QT', management: 'Monitorar INR e ECG (QTc)/eletrólitos; ajustar varfarina e preferir alternativa quando possível.', evidenceLevel: 'Moderada', monitoring: 'INR em 3–5 dias; ECG (QTc) e eletrólitos; sinais de sangramento.' },
+  { drug1: 'varfarina', drug2: 'norfloxacino', severity: 'moderate', mechanism: 'Norfloxacino pode elevar o efeito anticoagulante da varfarina (redução da flora produtora de vitamina K)', clinicalEffect: 'Possível elevação do INR e risco de sangramento', management: 'Monitorar INR ao iniciar/suspender o antibiótico.', evidenceLevel: 'Baixa', monitoring: 'INR após início e ao suspender; sinais de sangramento.' },
   // ── Expansao verificada (workflow clinico 2026-06) ──
   { drug1: 'varfarina', drug2: 'sertralina', severity: 'moderate', mechanism: 'Sertralina (ISRS) inibe a recaptacao plaquetaria de serotonina, reduzindo a agregacao, e exerce inibicao fraca da CYP2C9, podendo elevar discretamente os niveis de varfarina', clinicalEffect: 'Aumento do risco de sangramento (sobretudo gastrointestinal) e possivel elevacao do INR', management: 'Monitorar INR e sinais de sangramento ao iniciar/ajustar a sertralina. Considerar gastroprotecao com IBP em pacientes de risco.' },
   { drug1: 'varfarina', drug2: 'sinvastatina', severity: 'moderate', mechanism: 'Sinvastatina pode potencializar o efeito anticoagulante da varfarina (provavel competicao metabolica via CYP)', clinicalEffect: 'Elevacao do INR e aumento do risco de sangramento', management: 'Monitorar INR ao iniciar, ajustar ou suspender a sinvastatina. Ajustar a dose de varfarina conforme necessario.' },
@@ -3530,6 +3535,8 @@ function ddiMonitoring(a: string, b: string, contextText: string): string | unde
   if (/\bqt\b|qtc|torsade|arritm/.test(t)) return 'ECG (QTc) e eletrólitos (K⁺, Mg²⁺).'
   if (/hipercalem|potassi|calemia/.test(t)) return 'Potássio sérico e função renal.'
   if (/hipoglicem|glicem/.test(t)) return 'Glicemia capilar e sinais de hipoglicemia.'
+  if (/clopidogrel|antiplaquet|antiagreg|aterotromb|trombose de stent/.test(t)) return 'Resposta antiplaquetária; vigiar eventos trombóticos (ex.: trombose de stent, SCA).'
+  if (/exantema|stevens|\brash\b|cutane/.test(t)) return 'Sinais cutâneos (exantema/rash); suspender ao primeiro sinal e reavaliar.'
   if (/serotonin/.test(t)) return 'Sinais de síndrome serotoninérgica (agitação, tremor, hipertermia, hiper-reflexia).'
   if (/mielossup|pancitop|neutropen|agranuloc|hemograma/.test(t)) return 'Hemograma seriado.'
   if (/nefrotox|creatinin|renal|nefro/.test(t)) return 'Creatinina/TFG e diurese.'

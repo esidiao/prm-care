@@ -703,3 +703,50 @@ describe('Inferência qualitativa — interações enzimáticas clássicas', () 
     expect(hit!.severityFloor).toBe('major')
   })
 })
+
+describe('Integração end-to-end — polifarmácia idoso (todas as camadas)', () => {
+  // Idoso 78a, TFG 45: anticoagulante + antiarrítmico + digoxina + estatina + ISRS +
+  // opioide + IBP + antiagregante + quinolona + diurético de alça.
+  const drugs = ['varfarina', 'amiodarona', 'digoxina', 'sinvastatina', 'fluoxetina',
+    'tramadol', 'omeprazol', 'clopidogrel', 'ciprofloxacino', 'furosemida']
+  const r = checkInteractions(drugs, { age: 78, tfg: 45 })
+
+  it('detecta múltiplas interações com risco global elevado', () => {
+    expect(r.interactions.length).toBeGreaterThanOrEqual(8)
+    expect(['major', 'contraindicated']).toContain(r.globalRisk)
+  })
+  it('todo resultado traz evidência e (quase sempre) monitoramento', () => {
+    expect(r.interactions.every(i => i.evidenceLevel)).toBe(true)
+    expect(r.interactions.filter(i => i.monitoring).length).toBeGreaterThanOrEqual(5)
+  })
+  it('pares de QT citam CredibleMeds', () => {
+    expect(r.interactions.some(i => i.references?.some(x => /CredibleMeds/i.test(x)))).toBe(true)
+  })
+  it('contexto (idoso/TFG) gera flags de ajuste', () => {
+    expect(r.interactions.flatMap(i => i.contextFlags).length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('varfarina + ciprofloxacino agora é CURADO (não-DDInter) com INR no monitoramento', () => {
+    const it = r.interactions.find(i =>
+      i.drugs.includes('varfarina') && i.drugs.includes('ciprofloxacino'))
+    expect(it).toBeTruthy()
+    expect(it!.source).toBeUndefined()        // curado, não cai mais na camada externa
+    expect(it!.severity).toBe('major')
+    expect(it!.monitoring!.toUpperCase()).toContain('INR')
+  })
+})
+
+describe('Curadoria fina — varfarina × fluoroquinolonas', () => {
+  it('ciprofloxacino/levofloxacino/moxifloxacino são major; norfloxacino moderate', () => {
+    const sev = (d: string) => checkInteractions(['varfarina', d]).interactions[0]
+    expect(sev('ciprofloxacino').severity).toBe('major')
+    expect(sev('levofloxacino').severity).toBe('major')
+    expect(sev('moxifloxacino').severity).toBe('major')
+    expect(sev('norfloxacino').severity).toBe('moderate')
+  })
+  it('omeprazol + clopidogrel agora tem monitoramento (resposta antiplaquetária)', () => {
+    const it = checkInteractions(['omeprazol', 'clopidogrel']).interactions[0]
+    expect(it.monitoring).toBeTruthy()
+    expect(it.monitoring!.toLowerCase()).toMatch(/antiplaquet|trombó/)
+  })
+})
