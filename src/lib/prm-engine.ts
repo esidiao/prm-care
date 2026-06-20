@@ -24,7 +24,7 @@ import { PRMCategory, RiskLevel, AdherenceLevel } from '@prisma/client'
 import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS } from '@/lib/utils'
 import { canonicalizeDrug } from '@/lib/drug-aliases'
 import { EXTERNAL_INTERACTIONS, EXTERNAL_SOURCE } from '@/lib/ddi-external'
-import { inferExternalMechanism, maxSeverity } from '@/lib/ddi-mechanisms'
+import { inferExternalMechanism, maxSeverity, drugHasTag } from '@/lib/ddi-mechanisms'
 
 function labelRenal(v?: string | null) { return v ? (RENAL_FUNCTION_LABELS[v] || v) : '—' }
 function labelHepatic(v?: string | null) { return v ? (HEPATIC_FUNCTION_LABELS[v] || v) : '—' }
@@ -3474,18 +3474,38 @@ function drugInClass(name: string, className: string): boolean {
 const RENAL_SENSITIVE = ['ibuprofeno', 'naproxeno', 'diclofenaco', 'meloxicam', 'indometacina', 'celecoxibe', 'nimesulida', 'cetorolaco', 'piroxicam', 'enalapril', 'captopril', 'lisinopril', 'ramipril', 'perindopril', 'losartana', 'valsartana', 'candesartana', 'irbesartana', 'telmisartana', 'olmesartana', 'espironolactona', 'eplerenona', 'amilorida', 'metformina', 'dabigatrana', 'rivaroxabana', 'apixabana', 'edoxabana', 'digoxina', 'litio', 'lítio', 'gabapentina', 'pregabalina']
 const ELDERLY_CNS_CLASSES = ['Benzodiazepínico', 'Opioide', 'Hipnótico Z', 'Antipsicótico', 'Antidepressivo tricíclico']
 
+const anyHasTag = (pair: string[], tag: string) => pair.some(d => drugHasTag(d, tag))
+
 /** Flags de amplificação de risco pelo contexto do paciente (não altera a severidade curada). */
 function contextFlagsFor(a: string, b: string, ctx?: DdiPatientContext): string[] {
   if (!ctx) return []
   const flags: string[] = []
   const pair = [a, b]
-  if (ctx.age != null && ctx.age >= 65 && pair.some(d => ELDERLY_CNS_CLASSES.some(c => drugInClass(d, c)))) {
-    flags.push('Idoso: maior risco de sedação, quedas e declínio cognitivo — priorizar revisão.')
+  const elderly = ctx.age != null && ctx.age >= 65
+  if (elderly && (pair.some(d => ELDERLY_CNS_CLASSES.some(c => drugInClass(d, c))) || anyHasTag(pair, 'cns_depressant'))) {
+    flags.push('Idoso: maior risco de sedação, quedas e declínio cognitivo — priorizar revisão (critérios de Beers).')
   }
-  if (ctx.tfg != null && ctx.tfg < 60 && pair.some(d => RENAL_SENSITIVE.some(k => norm(d).includes(norm(k))))) {
-    flags.push(ctx.tfg < 30
-      ? `Função renal muito reduzida (TFG ${ctx.tfg}): alto risco de acúmulo/hipercalemia/nefrotoxicidade — revisar dose/contraindicação.`
-      : `Função renal reduzida (TFG ${ctx.tfg}): risco aumentado — reavaliar dose e monitorar.`)
+  if (elderly && anyHasTag(pair, 'anticholinergic')) {
+    flags.push('Idoso: carga anticolinérgica eleva risco de confusão, retenção urinária, constipação e quedas — minimizar.')
+  }
+  if (elderly && anyHasTag(pair, 'qt_prolong')) {
+    flags.push('Idoso: maior suscetibilidade ao prolongamento de QT — atenção a eletrólitos e ECG.')
+  }
+  if (ctx.tfg != null && ctx.tfg < 60) {
+    if (pair.some(d => RENAL_SENSITIVE.some(k => norm(d).includes(norm(k)))) || anyHasTag(pair, 'nephrotoxic')) {
+      flags.push(ctx.tfg < 30
+        ? `Função renal muito reduzida (TFG ${ctx.tfg}): alto risco de acúmulo/hipercalemia/nefrotoxicidade — revisar dose/contraindicação.`
+        : `Função renal reduzida (TFG ${ctx.tfg}): risco aumentado — reavaliar dose e monitorar.`)
+    }
+    if (anyHasTag(pair, 'lithium')) {
+      flags.push(`TFG ${ctx.tfg}: depuração de lítio reduzida — risco de litemia tóxica; dosar litemia e ajustar dose.`)
+    }
+    if (anyHasTag(pair, 'digoxin')) {
+      flags.push(`TFG ${ctx.tfg}: acúmulo de digoxina — monitorar digoxinemia e eletrólitos, considerar reduzir a dose.`)
+    }
+    if (anyHasTag(pair, 'mtx_high_dose')) {
+      flags.push(`TFG ${ctx.tfg}: depuração de metotrexato reduzida — risco de toxicidade; evitar nefrotóxicos e monitorar.`)
+    }
   }
   if (ctx.pregnant) {
     flags.push('Gestante: reavaliar segurança/contraindicação na gestação.')

@@ -168,6 +168,11 @@ function tagsOf(drug: string): Set<string> {
   return out
 }
 
+/** True se o fármaco carrega a propriedade farmacológica (tag). Usado p/ flags de contexto. */
+export function drugHasTag(drug: string, tag: string): boolean {
+  return tagsOf(drug).has(tag)
+}
+
 export interface MechanismHit {
   mechanism: string
   clinicalEffect: string

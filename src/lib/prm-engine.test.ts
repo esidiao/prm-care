@@ -549,6 +549,21 @@ describe('Eixo 1 — evidência e monitoramento', () => {
   })
 })
 
+describe('Eixo 2 — contexto do paciente estendido às novas tags', () => {
+  it('idoso + par que prolonga QT → flag de QT (amiodarona + sotalol, 78a)', () => {
+    const flags = checkInteractions(['amiodarona', 'sotalol'], { age: 78 }).interactions.flatMap(i => i.contextFlags)
+    expect(flags.some(f => /QT/i.test(f))).toBe(true)
+  })
+  it('TFG baixa + digoxina → flag de acúmulo de digoxina (amiodarona + digoxina, TFG 40)', () => {
+    const flags = checkInteractions(['amiodarona', 'digoxina'], { tfg: 40 }).interactions.flatMap(i => i.contextFlags)
+    expect(flags.some(f => /digoxinemia/i.test(f))).toBe(true)
+  })
+  it('sem contexto não gera flags', () => {
+    const flags = checkInteractions(['amiodarona', 'sotalol']).interactions.flatMap(i => i.contextFlags)
+    expect(flags.length).toBe(0)
+  })
+})
+
 describe('Inferência qualitativa de mecanismo (pares externos)', () => {
   it('dois serotoninérgicos → síndrome serotoninérgica (piso major)', () => {
     const hit = inferExternalMechanism('fluoxetina', 'tramadol')
