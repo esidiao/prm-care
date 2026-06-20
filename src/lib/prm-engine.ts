@@ -49,6 +49,8 @@ interface KnownInteraction {
   mechanism: string
   clinicalEffect: string
   management: string
+  evidenceLevel?: 'Alta' | 'Moderada' | 'Baixa'  // curadoria opcional; default 'Alta' p/ base própria
+  monitoring?: string                              // parâmetros a monitorar (curadoria opcional)
 }
 
 const KNOWN_INTERACTIONS: KnownInteraction[] = [
@@ -3451,6 +3453,9 @@ export interface DdiInteractionResult {
   management: string
   contextFlags: string[]   // amplificadores de risco ajustados ao paciente (idade/TFG/gestação)
   source?: string          // origem quando externa (ex.: DDInter); ausente = base curada própria
+  evidenceLevel?: string   // Alta (curada) | Moderada/Baixa (externa) — não depende da IA
+  monitoring?: string      // parâmetros laboratoriais/clínicos a monitorar
+  references?: string[]    // fontes citáveis adicionais (ex.: CredibleMeds para QT)
 }
 
 export interface DdiCheckResult {
@@ -3486,6 +3491,32 @@ function contextFlagsFor(a: string, b: string, ctx?: DdiPatientContext): string[
     flags.push('Gestante: reavaliar segurança/contraindicação na gestação.')
   }
   return flags
+}
+
+/**
+ * Eixo 1 (curadoria): parâmetros a monitorar para o par. Prioriza a monitorização
+ * dos medicamentos de alta vigilância (ISMP/MAR) presentes no par; senão deriva do
+ * texto do mecanismo/efeito. Retorna undefined quando não há recomendação específica.
+ */
+function ddiMonitoring(a: string, b: string, contextText: string): string | undefined {
+  const fromIsmp = [a, b]
+    .map(d => ISMP_HIGH_ALERT_DRUGS[norm(d)]?.monitoring)
+    .filter((m): m is string => Boolean(m))
+  if (fromIsmp.length) return Array.from(new Set(fromIsmp)).join(' ')
+  const t = norm(contextText)
+  if (/litio|litemia/.test(t)) return 'Litemia, função renal e estado de hidratação.'
+  if (/digox|digital/.test(t)) return 'Digoxinemia, potássio, magnésio e função renal.'
+  if (/inr|anticoag|sangrament|hemorr/.test(t)) return 'INR/coagulograma e sinais de sangramento.'
+  if (/\bqt\b|qtc|torsade|arritm/.test(t)) return 'ECG (QTc) e eletrólitos (K⁺, Mg²⁺).'
+  if (/hipercalem|potassi|calemia/.test(t)) return 'Potássio sérico e função renal.'
+  if (/hipoglicem|glicem/.test(t)) return 'Glicemia capilar e sinais de hipoglicemia.'
+  if (/serotonin/.test(t)) return 'Sinais de síndrome serotoninérgica (agitação, tremor, hipertermia, hiper-reflexia).'
+  if (/mielossup|pancitop|neutropen|agranuloc|hemograma/.test(t)) return 'Hemograma seriado.'
+  if (/nefrotox|creatinin|renal|nefro/.test(t)) return 'Creatinina/TFG e diurese.'
+  if (/hepato|transaminase/.test(t)) return 'Transaminases (TGO/TGP) e bilirrubinas.'
+  if (/sedaç|sedacao|depress|respirat/.test(t)) return 'Nível de sedação e frequência respiratória.'
+  if (/absor|quela|complexo/.test(t)) return 'Resposta terapêutica do fármaco-alvo (eficácia clínica).'
+  return undefined
 }
 
 // Map memoizado da camada externa (pairKey normalizado -> severidade), construído 1x.
@@ -3527,6 +3558,11 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
     clinicalEffect: r.interaction.clinicalEffect,
     management: r.interaction.management,
     contextFlags: contextFlagsFor(r.med1.activeIngredient, r.med2.activeIngredient, ctx),
+    // Eixo 1: base própria = evidência consolidada ('Alta', salvo curadoria explícita)
+    evidenceLevel: r.interaction.evidenceLevel || 'Alta',
+    monitoring: r.interaction.monitoring
+      || ddiMonitoring(r.med1.activeIngredient, r.med2.activeIngredient,
+        `${r.interaction.mechanism} ${r.interaction.clinicalEffect} ${r.interaction.management}`),
   }))
 
   // 2) camada externa DDInter (apenas pares ainda não cobertos) — lookup O(1) por Map
@@ -3542,23 +3578,29 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
       // Camada qualitativa: infere mecanismo/efeito/manejo específicos pela farmacologia.
       const inferred = inferExternalMechanism(meds[i].activeIngredient, meds[j].activeIngredient)
       const sev = inferred ? maxSeverity(sevRaw, inferred.severityFloor) : sevRaw
+      const mech = inferred
+        ? inferred.mechanism
+        : 'Interação registrada na base DDInter (mecanismo não detalhado nesta fonte).'
+      const effect = inferred
+        ? inferred.clinicalEffect
+        : `Interação potencial de gravidade ${SEVERITY_LABEL[sev].toLowerCase()} — avaliar relevância clínica.`
+      const manage = inferred
+        ? `${inferred.management} Fonte: ${EXTERNAL_SOURCE}.`
+        : `Revisar a associação e confirmar a conduta conforme o contexto do paciente. Fonte: ${EXTERNAL_SOURCE}.`
       interactions.push({
         drugs: [meds[i].activeIngredient, meds[j].activeIngredient],
         severity: sev,
         severityLabel: SEVERITY_LABEL[sev],
         severityRank: SEVERITY_RANK[sev],
         riskLevel: riskOf(sev),
-        mechanism: inferred
-          ? inferred.mechanism
-          : 'Interação registrada na base DDInter (mecanismo não detalhado nesta fonte).',
-        clinicalEffect: inferred
-          ? inferred.clinicalEffect
-          : `Interação potencial de gravidade ${SEVERITY_LABEL[sev].toLowerCase()} — avaliar relevância clínica.`,
-        management: inferred
-          ? `${inferred.management} Fonte: ${EXTERNAL_SOURCE}.`
-          : `Revisar a associação e confirmar a conduta conforme o contexto do paciente. Fonte: ${EXTERNAL_SOURCE}.`,
+        mechanism: mech,
+        clinicalEffect: effect,
+        management: manage,
         contextFlags: contextFlagsFor(meds[i].activeIngredient, meds[j].activeIngredient, ctx),
         source: EXTERNAL_SOURCE,
+        // Eixo 1: externa = evidência farmacológica (Moderada) quando há mecanismo inferido; senão Baixa
+        evidenceLevel: inferred ? 'Moderada' : 'Baixa',
+        monitoring: ddiMonitoring(meds[i].activeIngredient, meds[j].activeIngredient, `${mech} ${effect} ${manage}`),
       })
     }
   }

@@ -16,6 +16,9 @@ type Interaction = {
   management: string
   contextFlags?: string[]
   source?: string
+  evidenceLevel?: string
+  monitoring?: string
+  references?: string[]
 }
 type CheckResp = {
   count: number
@@ -126,11 +129,12 @@ export default function InteractionsPage() {
       const ex = e[`${i.drugs[0]} + ${i.drugs[1]}`.toLowerCase()]
       return `
       <div style="border:1px solid #e2e8f0;border-left:5px solid ${cor[i.severity]};border-radius:8px;padding:10px 14px;margin:8px 0">
-        <b style="color:${cor[i.severity]}">[${i.severityLabel}]</b> <b>${i.drugs[0]} + ${i.drugs[1]}</b>${ex?.evidenceLevel ? ` <span style="font-size:11px;color:#64748b">(Evidência: ${ex.evidenceLevel})</span>` : ''}
+        <b style="color:${cor[i.severity]}">[${i.severityLabel}]</b> <b>${i.drugs[0]} + ${i.drugs[1]}</b>${(i.evidenceLevel || ex?.evidenceLevel) ? ` <span style="font-size:11px;color:#64748b">(Evidência: ${i.evidenceLevel || ex?.evidenceLevel})</span>` : ''}
         <div style="font-size:13px;margin-top:4px"><b>Mecanismo:</b> ${i.mechanism}</div>
         <div style="font-size:13px"><b>Efeito clínico:</b> ${i.clinicalEffect}</div>
         <div style="font-size:13px"><b>Conduta:</b> ${i.management}</div>
-        ${ex?.monitoring ? `<div style="font-size:13px"><b>Monitorar:</b> ${ex.monitoring}</div>` : ''}
+        ${(i.monitoring || ex?.monitoring) ? `<div style="font-size:13px"><b>Monitorar:</b> ${i.monitoring || ex?.monitoring}</div>` : ''}
+        ${(i.references && i.references.length) ? `<div style="font-size:12px;color:#475569"><b>Fontes:</b> ${i.references.join(' · ')}</div>` : ''}
         ${(i.contextFlags || []).map(f => `<div style="font-size:12px;color:#92400e">⚠ Ajuste ao paciente: ${f}</div>`).join('')}
       </div>`
     }).join('')
@@ -262,7 +266,7 @@ export default function InteractionsPage() {
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${s.chip}`}>{it.severityLabel}</span>
                     <span className="font-semibold text-slate-800">{it.drugs[0]} + {it.drugs[1]}</span>
-                    {e?.evidenceLevel && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">Evidência: {e.evidenceLevel}</span>}
+                    {(it.evidenceLevel || e?.evidenceLevel) && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">Evidência: {it.evidenceLevel || e?.evidenceLevel}</span>}
                     {it.source && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] text-violet-800">DDInter</span>}
                   </div>
                   <dl className="mt-2 space-y-1.5 text-sm">
@@ -270,8 +274,9 @@ export default function InteractionsPage() {
                     <div><dt className="inline font-semibold text-slate-600">Efeito clínico: </dt><dd className="inline text-slate-700">{it.clinicalEffect}</dd></div>
                     <div><dt className="inline font-semibold text-slate-600">Conduta farmacêutica: </dt><dd className="inline text-slate-700">{it.management}</dd></div>
                     {e?.warningSigns && <div><dt className="inline font-semibold text-slate-600">Sinais de alerta: </dt><dd className="inline text-slate-700">{e.warningSigns}</dd></div>}
-                    {e?.monitoring && <div><dt className="inline font-semibold text-slate-600">Monitorar: </dt><dd className="inline text-slate-700">{e.monitoring}</dd></div>}
+                    {(it.monitoring || e?.monitoring) && <div><dt className="inline font-semibold text-slate-600">Monitorar: </dt><dd className="inline text-slate-700">{it.monitoring || e?.monitoring}</dd></div>}
                     {e?.alternatives && e.alternatives !== '—' && <div><dt className="inline font-semibold text-slate-600">Alternativas: </dt><dd className="inline text-slate-700">{e.alternatives}</dd></div>}
+                    {it.references && it.references.length > 0 && <div><dt className="inline font-semibold text-slate-600">Fontes: </dt><dd className="inline text-slate-700">{it.references.join(' · ')}</dd></div>}
                   </dl>
                   {it.contextFlags && it.contextFlags.length > 0 && (
                     <div className="mt-2 space-y-1">

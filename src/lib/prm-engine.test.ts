@@ -534,6 +534,21 @@ describe('Camada externa DDInter', () => {
   })
 })
 
+describe('Eixo 1 — evidência e monitoramento', () => {
+  it('par curado tem evidência Alta e monitoramento (varfarina + ibuprofeno)', () => {
+    const top = checkInteractions(['varfarina', 'ibuprofeno']).interactions[0]
+    expect(top.evidenceLevel).toBe('Alta')
+    expect(top.monitoring).toBeTruthy()
+    expect(top.monitoring!.toUpperCase()).toContain('INR')
+  })
+  it('par com MAR deriva monitoramento da base ISMP (digoxina + claritromicina)', () => {
+    const r = checkInteractions(['digoxina', 'claritromicina'])
+    const it = r.interactions.find(x => x.drugs.includes('digoxina'))
+    expect(it?.monitoring).toBeTruthy()
+    expect(it!.monitoring!.toLowerCase()).toMatch(/digoxin|potássio|nível sérico/i)
+  })
+})
+
 describe('Inferência qualitativa de mecanismo (pares externos)', () => {
   it('dois serotoninérgicos → síndrome serotoninérgica (piso major)', () => {
     const hit = inferExternalMechanism('fluoxetina', 'tramadol')
