@@ -15,6 +15,7 @@ type Interaction = {
   clinicalEffect: string
   management: string
   contextFlags?: string[]
+  source?: string
 }
 type CheckResp = {
   count: number
@@ -262,6 +263,7 @@ export default function InteractionsPage() {
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${s.chip}`}>{it.severityLabel}</span>
                     <span className="font-semibold text-slate-800">{it.drugs[0]} + {it.drugs[1]}</span>
                     {e?.evidenceLevel && <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">Evidência: {e.evidenceLevel}</span>}
+                    {it.source && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] text-violet-800">DDInter</span>}
                   </div>
                   <dl className="mt-2 space-y-1.5 text-sm">
                     <div><dt className="inline font-semibold text-slate-600">Mecanismo: </dt><dd className="inline text-slate-700">{it.mechanism}</dd></div>
@@ -329,6 +331,10 @@ export default function InteractionsPage() {
           )}
 
           <p className="mt-5 rounded-lg bg-teal-50 px-4 py-3 text-xs leading-relaxed text-teal-900">{resp.advisory}</p>
+
+          {resp.interactions.some(i => i.source) && (
+            <p className="mt-2 text-[11px] text-slate-400">Parte das interações provém da base <b>DDInter 2.0</b> (ddinter.scbdd.com), licença CC BY-NC-SA 4.0 — uso não-comercial/assistencial, com atribuição.</p>
+          )}
 
           {/* Decisão clínica — disponível após salvar a consulta */}
           {savedId && (

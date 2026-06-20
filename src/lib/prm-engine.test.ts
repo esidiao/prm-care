@@ -520,3 +520,15 @@ describe('Interações classe×classe', () => {
     expect(interações.length).toBe(1)
   })
 })
+
+describe('Camada externa DDInter', () => {
+  it('par presente só no DDInter é detectado com source', () => {
+    const r = checkInteractions(['tramadol', 'claritromicina'])
+    expect(r.interactions.length).toBeGreaterThanOrEqual(1)
+    expect(r.interactions.some(i => i.source && /ddinter/i.test(i.source))).toBe(true)
+  })
+  it('par curado NÃO é marcado como externo (varfarina + AAS)', () => {
+    const r = checkInteractions(['varfarina', 'acido acetilsalicilico'])
+    expect(r.interactions[0].source).toBeUndefined()
+  })
+})

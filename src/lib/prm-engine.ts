@@ -23,6 +23,7 @@ import type {
 import { PRMCategory, RiskLevel, AdherenceLevel } from '@prisma/client'
 import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS } from '@/lib/utils'
 import { canonicalizeDrug } from '@/lib/drug-aliases'
+import { EXTERNAL_INTERACTIONS, EXTERNAL_SOURCE } from '@/lib/ddi-external'
 
 function labelRenal(v?: string | null) { return v ? (RENAL_FUNCTION_LABELS[v] || v) : '—' }
 function labelHepatic(v?: string | null) { return v ? (HEPATIC_FUNCTION_LABELS[v] || v) : '—' }
@@ -3448,6 +3449,7 @@ export interface DdiInteractionResult {
   clinicalEffect: string
   management: string
   contextFlags: string[]   // amplificadores de risco ajustados ao paciente (idade/TFG/gestação)
+  source?: string          // origem quando externa (ex.: DDInter); ausente = base curada própria
 }
 
 export interface DdiCheckResult {
@@ -3496,21 +3498,52 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
       durationOfUse: null, adherence: AdherenceLevel.UNKNOWN, adverseEffects: null,
     }))
 
-  const interactions: DdiInteractionResult[] = findInteractions(meds)
-    .map(r => ({
-      drugs: [r.med1.activeIngredient, r.med2.activeIngredient] as [string, string],
-      severity: r.interaction.severity,
-      severityLabel: SEVERITY_LABEL[r.interaction.severity],
-      severityRank: SEVERITY_RANK[r.interaction.severity],
-      riskLevel: r.interaction.severity === 'contraindicated' ? RiskLevel.URGENT
-        : r.interaction.severity === 'major' ? RiskLevel.HIGH
-        : r.interaction.severity === 'moderate' ? RiskLevel.MODERATE : RiskLevel.LOW,
-      mechanism: r.interaction.mechanism,
-      clinicalEffect: r.interaction.clinicalEffect,
-      management: r.interaction.management,
-      contextFlags: contextFlagsFor(r.med1.activeIngredient, r.med2.activeIngredient, ctx),
-    }))
-    .sort((a, b) => b.severityRank - a.severityRank)
+  const riskOf = (sev: KnownInteraction['severity']) => sev === 'contraindicated' ? RiskLevel.URGENT
+    : sev === 'major' ? RiskLevel.HIGH : sev === 'moderate' ? RiskLevel.MODERATE : RiskLevel.LOW
+
+  // 1) base curada própria (KNOWN + classe)
+  const curated = findInteractions(meds)
+  const covered = new Set(curated.map(r => [r.med1.id, r.med2.id].sort().join('|')))
+  const interactions: DdiInteractionResult[] = curated.map(r => ({
+    drugs: [r.med1.activeIngredient, r.med2.activeIngredient] as [string, string],
+    severity: r.interaction.severity,
+    severityLabel: SEVERITY_LABEL[r.interaction.severity],
+    severityRank: SEVERITY_RANK[r.interaction.severity],
+    riskLevel: riskOf(r.interaction.severity),
+    mechanism: r.interaction.mechanism,
+    clinicalEffect: r.interaction.clinicalEffect,
+    management: r.interaction.management,
+    contextFlags: contextFlagsFor(r.med1.activeIngredient, r.med2.activeIngredient, ctx),
+  }))
+
+  // 2) camada externa DDInter (apenas pares ainda não cobertos) — com atribuição
+  for (let i = 0; i < meds.length; i++) {
+    for (let j = i + 1; j < meds.length; j++) {
+      const key = [meds[i].id, meds[j].id].sort().join('|')
+      if (covered.has(key)) continue
+      const n1 = norm(meds[i].activeIngredient), n2 = norm(meds[j].activeIngredient)
+      const hit = EXTERNAL_INTERACTIONS.find(([a, b]) => {
+        const na = norm(a), nb = norm(b)
+        return (n1.includes(na) && n2.includes(nb)) || (n1.includes(nb) && n2.includes(na))
+      })
+      if (!hit) continue
+      covered.add(key)
+      const sev = hit[2] as KnownInteraction['severity']
+      interactions.push({
+        drugs: [meds[i].activeIngredient, meds[j].activeIngredient],
+        severity: sev,
+        severityLabel: SEVERITY_LABEL[sev],
+        severityRank: SEVERITY_RANK[sev],
+        riskLevel: riskOf(sev),
+        mechanism: 'Interação registrada na base DDInter (mecanismo não detalhado nesta fonte).',
+        clinicalEffect: `Interação potencial de gravidade ${SEVERITY_LABEL[sev].toLowerCase()} — avaliar relevância clínica.`,
+        management: `Revisar a associação e confirmar a conduta conforme o contexto do paciente. Fonte: ${EXTERNAL_SOURCE}.`,
+        contextFlags: contextFlagsFor(meds[i].activeIngredient, meds[j].activeIngredient, ctx),
+        source: EXTERNAL_SOURCE,
+      })
+    }
+  }
+  interactions.sort((a, b) => b.severityRank - a.severityRank)
 
   const top = interactions[0]?.severity ?? null
   return { interactions, globalRisk: top, globalLabel: top ? SEVERITY_LABEL[top] : 'Nenhuma interação na base disponível' }
