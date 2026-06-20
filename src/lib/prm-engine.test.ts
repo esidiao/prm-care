@@ -629,3 +629,35 @@ describe('Inferência qualitativa — domínios expandidos (workflow verificado)
     expect(hit!.severityFloor).toBe('major')
   })
 })
+
+describe('Inferência qualitativa — interações enzimáticas clássicas', () => {
+  it('inibidor de xantina-oxidase + tiopurina (alopurinol + azatioprina) → mielossupressão', () => {
+    const hit = inferExternalMechanism('alopurinol', 'azatioprina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('xantina')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('inibidor CYP1A2 + substrato JTE (ciprofloxacino + tizanidina) → toxicidade', () => {
+    const hit = inferExternalMechanism('ciprofloxacino', 'tizanidina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toUpperCase()).toContain('CYP1A2')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('inibidor CYP2C9 + sulfonilureia (fluconazol + glibenclamida) → hipoglicemia', () => {
+    const hit = inferExternalMechanism('fluconazol', 'glibenclamida')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('hipoglicemia')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('valproato + lamotrigina → risco de exantema grave (UGT)', () => {
+    const hit = inferExternalMechanism('valproato', 'lamotrigina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('glicuron')
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('stevens')
+  })
+  it('divalproato também casa (valproato é substring) + lamotrigina', () => {
+    const hit = inferExternalMechanism('divalproato de sodio', 'lamotrigina')
+    expect(hit).not.toBeNull()
+    expect(hit!.severityFloor).toBe('major')
+  })
+})

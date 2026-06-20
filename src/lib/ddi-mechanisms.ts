@@ -455,6 +455,43 @@ const EXTRA_RULES: Rule[] = [
 
 RULES.push(...EXTRA_RULES)
 
+// ── Amplificação 2 (interações enzimáticas/metabólicas clássicas; verificada por
+// 2 lentes adversariais; regra IMAO×serotoninérgico descartada por super-escalar). ──
+const NEW_TAGS_2: Record<string, string[]> = {
+  cyp1a2_inhibitor: ['fluvoxamina', 'ciprofloxacino', 'enoxacino', 'cimetidina', 'vemurafenibe'],
+  cyp1a2_substrate_nti: ['teofilina', 'aminofilina', 'tizanidina', 'clozapina', 'ramelteona', 'pirfenidona'],
+  xo_inhibitor: ['alopurinol', 'febuxostate'],
+  thiopurine: ['azatioprina', 'mercaptopurina'],
+  ugt_valproate: ['valproato', 'acido valproico'],
+  lamotrigine: ['lamotrigina'],
+  sulfonylurea_2c9: ['glibenclamida', 'glimepirida', 'glipizida', 'gliclazida', 'tolbutamida', 'clorpropamida'],
+}
+for (const [t, s] of Object.entries(NEW_TAGS_2)) TAGS[t] = Array.from(new Set([...(TAGS[t] || []), ...s]))
+
+const EXTRA_RULES_2: Rule[] = [
+  { a: 'xo_inhibitor', b: 'thiopurine', hit: {
+    mechanism: 'A inibição da xantina-oxidase (alopurinol/febuxostate) bloqueia a principal via de catabolismo da mercaptopurina/azatioprina, elevando seus níveis ativos.',
+    clinicalEffect: 'Mielossupressão grave (pancitopenia), potencialmente fatal.',
+    management: 'Evitar a associação. Com alopurinol, se imprescindível, reduzir a tiopurina para ~25–33% da dose e monitorar hemograma de perto; com febuxostate, a associação é contraindicada.',
+    severityFloor: 'major' } },
+  { a: 'cyp1a2_inhibitor', b: 'cyp1a2_substrate_nti', hit: {
+    mechanism: 'Inibição do CYP1A2 reduz o metabolismo do substrato de janela terapêutica estreita.',
+    clinicalEffect: 'Acúmulo do substrato com toxicidade: convulsões/arritmias por teofilina; hipotensão e sedação intensas por tizanidina; toxicidade por clozapina (sedação, convulsões).',
+    management: 'Evitar a associação — tizanidina, ramelteona e pirfenidona têm contraindicação em bula com fluvoxamina/ciprofloxacino. Se inevitável, reduzir a dose do substrato e monitorar níveis/efeitos (teofilinemia, clozapinemia).',
+    severityFloor: 'major' } },
+  { a: 'cyp2c9_inhibitor', b: 'sulfonylurea_2c9', hit: {
+    mechanism: 'Inibição do CYP2C9 reduz o metabolismo da sulfonilureia, aumentando sua exposição.',
+    clinicalEffect: 'Hipoglicemia prolongada e potencialmente grave (ex.: fluconazol/sulfametoxazol + glibenclamida/glimepirida).',
+    management: 'Monitorar a glicemia de perto e orientar sinais de hipoglicemia; considerar reduzir a dose da sulfonilureia durante o curso do inibidor (azol/sulfa/metronidazol).',
+    severityFloor: 'major' } },
+  { a: 'ugt_valproate', b: 'lamotrigine', hit: {
+    mechanism: 'O valproato inibe a glicuronidação (UGT) da lamotrigina, podendo dobrar ou triplicar seus níveis séricos.',
+    clinicalEffect: 'Aumento do risco de exantema grave (Stevens-Johnson/NET) e de toxicidade da lamotrigina.',
+    management: 'Usar o esquema de titulação mais lento e doses-alvo menores de lamotrigina quando associada ao valproato (conforme bula); orientar busca imediata se surgir rash.',
+    severityFloor: 'major' } },
+]
+RULES.push(...EXTRA_RULES_2)
+
 const SEV_RANK: Record<Severity, number> = { contraindicated: 3, major: 2, moderate: 1, minor: 0 }
 
 /**
