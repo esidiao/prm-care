@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { analyzePRM, checkInteractions, checkFoodAndSupplements } from '@/lib/prm-engine'
+import { inferExternalMechanism, maxSeverity } from '@/lib/ddi-mechanisms'
 import type { PatientContext, MedicationContext } from '@/types'
 
 function med(activeIngredient: string, id = activeIngredient): MedicationContext {
@@ -530,5 +531,45 @@ describe('Camada externa DDInter', () => {
   it('par curado NÃO é marcado como externo (varfarina + AAS)', () => {
     const r = checkInteractions(['varfarina', 'acido acetilsalicilico'])
     expect(r.interactions[0].source).toBeUndefined()
+  })
+})
+
+describe('Inferência qualitativa de mecanismo (pares externos)', () => {
+  it('dois serotoninérgicos → síndrome serotoninérgica (piso major)', () => {
+    const hit = inferExternalMechanism('fluoxetina', 'tramadol')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('serotonin')
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('serotonin')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('dois fármacos que prolongam QT → torsades (piso major)', () => {
+    const hit = inferExternalMechanism('amiodarona', 'ondansetrona')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toUpperCase()).toContain('QT')
+    expect(hit!.severityFloor).toBe('major')
+  })
+  it('dois depressores do SNC → sedação (piso moderate)', () => {
+    const hit = inferExternalMechanism('zolpidem', 'difenidramina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('sistema nervoso central')
+    expect(hit!.severityFloor).toBe('moderate')
+  })
+  it('inibidor CYP3A4 + substrato de janela estreita → toxicidade', () => {
+    const hit = inferExternalMechanism('claritromicina', 'sinvastatina')
+    expect(hit).not.toBeNull()
+    expect(hit!.mechanism.toLowerCase()).toContain('cyp3a4')
+  })
+  it('estatina + fibrato → miopatia/rabdomiólise', () => {
+    const hit = inferExternalMechanism('atorvastatina', 'fenofibrato')
+    expect(hit).not.toBeNull()
+    expect(hit!.clinicalEffect.toLowerCase()).toContain('rabdomi')
+  })
+  it('par sem propriedade comum → null (mantém texto genérico)', () => {
+    expect(inferExternalMechanism('paracetamol', 'loratadina')).toBeNull()
+  })
+  it('maxSeverity nunca rebaixa, mas eleva ao piso', () => {
+    expect(maxSeverity('minor', 'major')).toBe('major')
+    expect(maxSeverity('major', 'moderate')).toBe('major')
+    expect(maxSeverity('moderate', 'moderate')).toBe('moderate')
   })
 })

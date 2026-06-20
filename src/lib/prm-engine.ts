@@ -24,6 +24,7 @@ import { PRMCategory, RiskLevel, AdherenceLevel } from '@prisma/client'
 import { RENAL_FUNCTION_LABELS, HEPATIC_FUNCTION_LABELS } from '@/lib/utils'
 import { canonicalizeDrug } from '@/lib/drug-aliases'
 import { EXTERNAL_INTERACTIONS, EXTERNAL_SOURCE } from '@/lib/ddi-external'
+import { inferExternalMechanism, maxSeverity } from '@/lib/ddi-mechanisms'
 
 function labelRenal(v?: string | null) { return v ? (RENAL_FUNCTION_LABELS[v] || v) : '—' }
 function labelHepatic(v?: string | null) { return v ? (HEPATIC_FUNCTION_LABELS[v] || v) : '—' }
@@ -3535,18 +3536,27 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
       const key = [meds[i].id, meds[j].id].sort().join('|')
       if (covered.has(key)) continue
       const pairKey = [norm(meds[i].activeIngredient), norm(meds[j].activeIngredient)].sort().join('|')
-      const sev = extMap.get(pairKey) as KnownInteraction['severity'] | undefined
-      if (!sev) continue
+      const sevRaw = extMap.get(pairKey) as KnownInteraction['severity'] | undefined
+      if (!sevRaw) continue
       covered.add(key)
+      // Camada qualitativa: infere mecanismo/efeito/manejo específicos pela farmacologia.
+      const inferred = inferExternalMechanism(meds[i].activeIngredient, meds[j].activeIngredient)
+      const sev = inferred ? maxSeverity(sevRaw, inferred.severityFloor) : sevRaw
       interactions.push({
         drugs: [meds[i].activeIngredient, meds[j].activeIngredient],
         severity: sev,
         severityLabel: SEVERITY_LABEL[sev],
         severityRank: SEVERITY_RANK[sev],
         riskLevel: riskOf(sev),
-        mechanism: 'Interação registrada na base DDInter (mecanismo não detalhado nesta fonte).',
-        clinicalEffect: `Interação potencial de gravidade ${SEVERITY_LABEL[sev].toLowerCase()} — avaliar relevância clínica.`,
-        management: `Revisar a associação e confirmar a conduta conforme o contexto do paciente. Fonte: ${EXTERNAL_SOURCE}.`,
+        mechanism: inferred
+          ? inferred.mechanism
+          : 'Interação registrada na base DDInter (mecanismo não detalhado nesta fonte).',
+        clinicalEffect: inferred
+          ? inferred.clinicalEffect
+          : `Interação potencial de gravidade ${SEVERITY_LABEL[sev].toLowerCase()} — avaliar relevância clínica.`,
+        management: inferred
+          ? `${inferred.management} Fonte: ${EXTERNAL_SOURCE}.`
+          : `Revisar a associação e confirmar a conduta conforme o contexto do paciente. Fonte: ${EXTERNAL_SOURCE}.`,
         contextFlags: contextFlagsFor(meds[i].activeIngredient, meds[j].activeIngredient, ctx),
         source: EXTERNAL_SOURCE,
       })
