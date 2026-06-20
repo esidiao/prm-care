@@ -564,6 +564,18 @@ describe('Eixo 2 — contexto do paciente estendido às novas tags', () => {
   })
 })
 
+describe('Eixo 3 — fonte citável CredibleMeds (QT)', () => {
+  it('par que prolonga QT cita CredibleMeds (amiodarona + sotalol)', () => {
+    const top = checkInteractions(['amiodarona', 'sotalol']).interactions[0]
+    expect(top.references).toBeTruthy()
+    expect(top.references!.join(' ')).toMatch(/CredibleMeds/i)
+  })
+  it('par não-QT não cita CredibleMeds (varfarina + ibuprofeno)', () => {
+    const top = checkInteractions(['varfarina', 'ibuprofeno']).interactions[0]
+    expect(top.references).toBeUndefined()
+  })
+})
+
 describe('Inferência qualitativa de mecanismo (pares externos)', () => {
   it('dois serotoninérgicos → síndrome serotoninérgica (piso major)', () => {
     const hit = inferExternalMechanism('fluoxetina', 'tramadol')

@@ -3539,6 +3539,20 @@ function ddiMonitoring(a: string, b: string, contextText: string): string | unde
   return undefined
 }
 
+const QT_CITATION = 'CredibleMeds® — QTdrugs.org (AZCERT)'
+
+/**
+ * Eixo 3: fontes citáveis adicionais para o par. Hoje cobre o risco de QT/torsades
+ * (lista de referência CredibleMeds/AZCERT), reforçando a evidência além da DDInter.
+ */
+function ddiReferences(a: string, b: string, contextText: string): string[] | undefined {
+  const refs: string[] = []
+  const qtRelated = /\bqt\b|qtc|torsade/.test(norm(contextText))
+    || (drugHasTag(a, 'qt_prolong') && drugHasTag(b, 'qt_prolong'))
+  if (qtRelated) refs.push(QT_CITATION)
+  return refs.length ? refs : undefined
+}
+
 // Map memoizado da camada externa (pairKey normalizado -> severidade), construído 1x.
 let _externalMap: Map<string, string> | null = null
 function getExternalMap(): Map<string, string> {
@@ -3583,6 +3597,9 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
     monitoring: r.interaction.monitoring
       || ddiMonitoring(r.med1.activeIngredient, r.med2.activeIngredient,
         `${r.interaction.mechanism} ${r.interaction.clinicalEffect} ${r.interaction.management}`),
+    // Eixo 3: fonte citável adicional (ex.: CredibleMeds para QT)
+    references: ddiReferences(r.med1.activeIngredient, r.med2.activeIngredient,
+      `${r.interaction.mechanism} ${r.interaction.clinicalEffect}`),
   }))
 
   // 2) camada externa DDInter (apenas pares ainda não cobertos) — lookup O(1) por Map
@@ -3621,6 +3638,8 @@ export function checkInteractions(drugNames: string[], ctx?: DdiPatientContext):
         // Eixo 1: externa = evidência farmacológica (Moderada) quando há mecanismo inferido; senão Baixa
         evidenceLevel: inferred ? 'Moderada' : 'Baixa',
         monitoring: ddiMonitoring(meds[i].activeIngredient, meds[j].activeIngredient, `${mech} ${effect} ${manage}`),
+        // Eixo 3: fonte citável adicional (ex.: CredibleMeds para QT)
+        references: ddiReferences(meds[i].activeIngredient, meds[j].activeIngredient, `${mech} ${effect}`),
       })
     }
   }
