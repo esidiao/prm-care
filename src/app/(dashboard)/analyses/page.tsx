@@ -81,7 +81,7 @@ export default async function AnalysesHistoryPage({
           </p>
         </div>
         <Link href="/analysis/new"
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#16304f] transition-colors shadow-sm">
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 transition-colors shadow-sm">
           <FlaskConical className="h-4 w-4" /> Nova análise
         </Link>
       </div>
@@ -116,16 +116,16 @@ export default async function AnalysesHistoryPage({
             name="patient"
             defaultValue={patientFilter}
             placeholder="Buscar paciente…"
-            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none flex-1 min-w-[160px]"
+            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:border-brand-800 focus:outline-none flex-1 min-w-[160px]"
           />
           <select name="risk" defaultValue={riskFilter}
-            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none">
+            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none">
             <option value="">Todos os riscos</option>
             <option value="urgent">Com PRMs urgentes</option>
             <option value="high">Com PRMs alto risco</option>
           </select>
           <button type="submit"
-            className="rounded-lg bg-[#1e3a5f] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#16304f] transition-colors">
+            className="rounded-lg bg-brand-800 px-4 py-1.5 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             Filtrar
           </button>
           {(patientFilter || riskFilter) && (
@@ -150,7 +150,7 @@ export default async function AnalysesHistoryPage({
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:border-gray-700 py-16 text-center">
           <FlaskConical className="h-10 w-10 text-gray-200 dark:text-gray-700 mb-3" />
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Nenhuma análise encontrada</p>
-          <Link href="/analysis/new" className="mt-4 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#16304f] transition-colors">
+          <Link href="/analysis/new" className="mt-4 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             Iniciar primeira análise
           </Link>
         </div>
@@ -187,7 +187,7 @@ export default async function AnalysesHistoryPage({
                       </td>
                       <td className="px-5 py-3.5">
                         <Link href={`/patients/${analysis.patient.id}`}
-                          className="font-medium text-gray-900 dark:text-gray-100 hover:text-[#1e3a5f] dark:hover:text-blue-400 transition-colors">
+                          className="font-medium text-gray-900 dark:text-gray-100 hover:text-brand-800 dark:hover:text-blue-400 transition-colors">
                           {analysis.patient.name || analysis.patient.code}
                         </Link>
                       </td>
@@ -227,7 +227,7 @@ export default async function AnalysesHistoryPage({
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <Link href={`/analysis/${analysis.id}`}
-                          className="inline-flex items-center gap-1 text-xs font-medium text-[#1e3a5f] dark:text-blue-400 hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
+                          className="inline-flex items-center gap-1 text-xs font-medium text-brand-800 dark:text-blue-400 hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
                           Ver <ArrowRight className="h-3 w-3" />
                         </Link>
                       </td>

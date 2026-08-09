@@ -260,7 +260,7 @@ export function MobileNav({ user }: SidebarProps) {
       {/* Drawer */}
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-72 bg-[#0f2744] text-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden',
+          'fixed inset-y-0 left-0 z-50 w-72 bg-brand-900 text-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >

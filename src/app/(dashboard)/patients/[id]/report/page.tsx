@@ -20,7 +20,7 @@ const SCALE_NAMES: Record<string, string> = {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="mb-6 page-break-inside-avoid">
-      <h2 className="mb-2 border-b border-gray-300 pb-1 text-xs font-bold uppercase tracking-wider text-[#1e3a5f]">
+      <h2 className="mb-2 border-b border-gray-300 pb-1 text-xs font-bold uppercase tracking-wider text-brand-800">
         {title}
       </h2>
       {children}
@@ -108,11 +108,11 @@ export default async function PatientReportPage({ params }: { params: { id: stri
       <div className="mx-auto max-w-[740px] px-10 py-10 print:px-6 print:py-8 font-sans text-xs">
 
         {/* ── Cover header ───────────────────────────────────────────── */}
-        <div className="mb-8 border-b-2 border-[#1e3a5f] pb-5">
+        <div className="mb-8 border-b-2 border-brand-800 pb-5">
           <div className="flex items-start justify-between">
             <div>
               <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">PRM Care — Método Dáder</p>
-              <h1 className="text-2xl font-bold text-[#1e3a5f]">
+              <h1 className="text-2xl font-bold text-brand-800">
                 Relatório Completo do Paciente
               </h1>
               <p className="text-sm text-gray-500 mt-1">
@@ -138,7 +138,7 @@ export default async function PatientReportPage({ params }: { params: { id: stri
               ...(assessments.length > 0 ? [{ label: 'Escalas aplicadas', value: assessments.length }] : []),
             ].map(({ label, value }) => (
               <div key={label} className="rounded border border-gray-200 bg-gray-50 px-3 py-1.5 text-center">
-                <p className="text-base font-bold text-[#1e3a5f]">{value}</p>
+                <p className="text-base font-bold text-brand-800">{value}</p>
                 <p className="text-[10px] text-gray-500">{label}</p>
               </div>
             ))}
@@ -180,7 +180,7 @@ export default async function PatientReportPage({ params }: { params: { id: stri
             <div className="space-y-1">
               {patient.diagnoses.map((d) => (
                 <div key={d.id} className="flex items-start gap-2">
-                  <span className={`mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-[#1e3a5f]' : 'bg-gray-400'}`} />
+                  <span className={`mt-1 h-1.5 w-1.5 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-brand-800' : 'bg-gray-400'}`} />
                   <span className="text-gray-900">{d.name}{d.icd10Code ? ` (${d.icd10Code})` : ''}</span>
                   {d.isPrimary && <span className="text-[10px] text-gray-400">(principal)</span>}
                 </div>

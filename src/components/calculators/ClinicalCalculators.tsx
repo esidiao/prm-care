@@ -14,13 +14,13 @@ function Field({ label, unit, value, onChange, min = 0, max = 999, step = 1, hin
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-700">{label}{unit ? <span className="text-gray-400 font-normal"> ({unit})</span> : ''}</label>
+      <label className="text-xs font-medium text-foreground">{label}{unit ? <span className="text-muted-foreground font-normal"> ({unit})</span> : ''}</label>
       <input
         type="number" value={value} onChange={e => onChange(e.target.value)}
         min={min} max={max} step={step}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
       />
-      {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
+      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
     </div>
   )
 }
@@ -31,9 +31,9 @@ function Select({ label, value, onChange, options }: {
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-700">{label}</label>
+      <label className="text-xs font-medium text-foreground">{label}</label>
       <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]">
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800">
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -65,7 +65,7 @@ function ResultBox({ label, value, unit, interpretation, color = 'blue', note }:
 
 function InfoBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 space-y-1">
+    <div className="rounded-lg bg-muted border border-border p-3 text-xs text-muted-foreground space-y-1">
       {children}
     </div>
   )
@@ -125,8 +125,8 @@ function CKDEPICalc() {
             interpretation={`Estágio ${result.stage} — ${result.desc}`}
             color={result.color}
           />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Implicações clínicas</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Implicações clínicas</p>
             {[
               { cond: result.gfr >= 60, text: '✓ Metformina: segura (monitorar com TFG 45-60)', ok: true },
               { cond: result.gfr < 60,  text: `${result.gfr < 30 ? '🚫' : '⚠️'} Metformina: ${result.gfr < 30 ? 'contraindicada' : 'reduzir dose'}`, ok: false },
@@ -142,14 +142,14 @@ function CKDEPICalc() {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular a TFG
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gray-700">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar detalhes' : 'Sobre a equação CKD-EPI 2021'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -165,7 +165,7 @@ function CKDEPICalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gray-600">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -220,8 +220,8 @@ function CockcroftGaultCalc() {
             interpretation={result.stage}
             color={result.color}
           />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Ajuste de dose sugerido</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Ajuste de dose sugerido</p>
             {[
               { cond: result.clcr >= 50,   text: '✓ Maioria dos medicamentos: dose normal', ok: true },
               { cond: result.clcr < 50 && result.clcr >= 30, text: '⚠️ Metformina: dose máx. 1500 mg/dia. Monitorar', ok: false },
@@ -238,14 +238,14 @@ function CockcroftGaultCalc() {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular o ClCr
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gray-700">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar detalhes' : 'Sobre Cockcroft-Gault'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -261,7 +261,7 @@ function CockcroftGaultCalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gray-600">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -329,26 +329,26 @@ function CharlsonCalc() {
             hint="A idade pontua: 50-59=1, 60-69=2, 70-79=3, ≥80=4" />
           {a > 0 && <p className="text-xs text-blue-600 mt-1">Pontos pela idade: {agePoints}</p>}
         </div>
-        <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-500">
-          <p className="font-semibold text-gray-700 mb-1">Como usar</p>
+        <div className="rounded-lg bg-muted border border-border p-3 text-xs text-muted-foreground">
+          <p className="font-semibold text-foreground mb-1">Como usar</p>
           <p>Marque as condições presentes. O escore prediz mortalidade em 10 anos e complexidade clínica.</p>
         </div>
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-gray-700 mb-2">Comorbidades</p>
+        <p className="text-xs font-semibold text-foreground mb-2">Comorbidades</p>
         <div className="grid gap-1.5 sm:grid-cols-2">
           {CHARLSON_CONDITIONS.map(c => (
             <label key={c.key}
               className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-all text-sm ${
                 selected.has(c.key)
-                  ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f]'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  ? 'border-brand-800 bg-brand-800/5 text-brand-800'
+                  : 'border-border bg-card text-foreground hover:border-gray-300'
               }`}>
               <input type="checkbox" checked={selected.has(c.key)} onChange={() => toggle(c.key)}
-                className="accent-[#1e3a5f] h-3.5 w-3.5 flex-shrink-0" />
+                className="accent-brand-800 h-3.5 w-3.5 flex-shrink-0" />
               <span className="flex-1 leading-tight">{c.label}</span>
-              <span className={`text-xs font-bold flex-shrink-0 ${selected.has(c.key) ? 'text-[#1e3a5f]' : 'text-gray-400'}`}>
+              <span className={`text-xs font-bold flex-shrink-0 ${selected.has(c.key) ? 'text-brand-800' : 'text-muted-foreground'}`}>
                 +{c.points}
               </span>
             </label>
@@ -363,9 +363,9 @@ function CharlsonCalc() {
           <ResultBox label="Mortalidade estimada" value={`${mortality10y}`} unit="%"
             interpretation="em 10 anos" color={total >= 4 ? 'red' : total >= 2 ? 'orange' : 'green'}
             note="Estimativa baseada em coortes originais" />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-gray-700">Interpretação clínica</p>
-            <p className="text-xs text-gray-600">
+          <div className="rounded-xl border border-border bg-card p-4 space-y-1.5">
+            <p className="text-xs font-semibold text-foreground">Interpretação clínica</p>
+            <p className="text-xs text-muted-foreground">
               {total === 0 ? 'Sem comorbidades significativas. Baixa complexidade farmacoterapêutica esperada.'
                : total <= 2 ? 'Comorbidades leves. Considerar interações medicamentosas e ajuste de doses.'
                : total <= 5 ? 'Alta carga de comorbidades. Risco elevado de PRMs, polifarmácia e interações.'
@@ -380,7 +380,7 @@ function CharlsonCalc() {
         </div>
       )}
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gray-600">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -508,27 +508,27 @@ function CardiovascularRiskCalc() {
           <ResultBox label="Risco cardiovascular" value={`${result.risk}`} unit="%"
             interpretation={`${riskLabel} — em 10 anos`} color={riskColor}
             note="Framingham Risk Score (Eventos coronarianos maiores)" />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Implicações terapêuticas</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Implicações terapêuticas</p>
             {result.risk >= 20 && <p className="text-xs text-red-700">🚨 Alto risco — estatina indicada independente do LDL</p>}
             {result.risk >= 20 && <p className="text-xs text-red-700">🚨 AAS 75-100 mg/dia se sem contraindicação</p>}
             {result.risk >= 10 && result.risk < 20 && <p className="text-xs text-orange-700">⚠️ Risco intermediário — discutir estatina com prescritor</p>}
             {result.risk < 10 && <p className="text-xs text-green-700">✓ Baixo risco — foco em mudanças de estilo de vida</p>}
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Meta LDL: {result.risk >= 20 ? '< 70 mg/dL (alto risco)' : result.risk >= 10 ? '< 100 mg/dL (int.)' : '< 130 mg/dL (baixo)'}
             </p>
-            <p className="text-xs text-gray-500">Meta PA: &lt;130/80 mmHg (ACC/AHA 2017)</p>
+            <p className="text-xs text-muted-foreground">Meta PA: &lt;130/80 mmHg (ACC/AHA 2017)</p>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular o risco cardiovascular
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-gray-700">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar' : 'Sobre o Escore de Framingham'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -543,7 +543,7 @@ function CardiovascularRiskCalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-gray-600">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -568,8 +568,8 @@ export function ClinicalCalculators() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Calculadoras Clínicas</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Ferramentas de suporte à decisão farmacêutica — resultados não substituem avaliação clínica</p>
+        <h1 className="text-2xl font-bold text-foreground">Calculadoras Clínicas</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Ferramentas de suporte à decisão farmacêutica — resultados não substituem avaliação clínica</p>
       </div>
 
       {/* Tabs */}
@@ -581,13 +581,13 @@ export function ClinicalCalculators() {
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all ${
                 active
-                  ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white shadow-md'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-brand-800 bg-brand-800 text-white shadow-md'
+                  : 'border-border bg-card text-foreground hover:border-gray-300 hover:bg-muted'
               }`}>
-              <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-[#1e3a5f]'}`} />
+              <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-brand-800'}`} />
               <div>
                 <p className="text-xs font-semibold leading-tight">{t.label}</p>
-                <p className={`text-[10px] leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-gray-400'}`}>{t.description}</p>
+                <p className={`text-[10px] leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-muted-foreground'}`}>{t.description}</p>
               </div>
             </button>
           )
@@ -595,12 +595,12 @@ export function ClinicalCalculators() {
       </div>
 
       {/* Calculadora ativa */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-          {React.createElement(current.icon, { className: 'h-5 w-5 text-[#1e3a5f]' })}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+          {React.createElement(current.icon, { className: 'h-5 w-5 text-brand-800' })}
           <div>
-            <h2 className="font-semibold text-gray-900">{current.label}</h2>
-            <p className="text-xs text-gray-500">{current.description}</p>
+            <h2 className="font-semibold text-foreground">{current.label}</h2>
+            <p className="text-xs text-muted-foreground">{current.description}</p>
           </div>
         </div>
 

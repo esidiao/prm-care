@@ -101,7 +101,7 @@ export function PatientEvolution({ analyses }: Props) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 px-5 py-4">
         <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <Activity className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+          <Activity className="h-4 w-4 text-brand-800 dark:text-blue-400" />
           Evolução clínica — {analyses.length} análises
         </h2>
         <TrendBadge analyses={[...analyses].sort((a, b) =>

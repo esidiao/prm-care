@@ -144,16 +144,16 @@ function MedEditRow({ med, onSave, onDelete }: {
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
+    <div className="border border-border rounded-lg overflow-hidden">
       {/* Header row */}
-      <div className="flex items-center justify-between px-4 py-3 bg-white hover:bg-gray-50">
+      <div className="flex items-center justify-between px-4 py-3 bg-card hover:bg-muted">
         <button type="button" onClick={() => setExpanded(!expanded)} className="flex-1 text-left">
           <div className="flex items-center gap-3">
-            <Pill className="h-4 w-4 text-[#1e3a5f] shrink-0" />
+            <Pill className="h-4 w-4 text-brand-800 shrink-0" />
             <div>
-              <span className="font-medium text-gray-900 text-sm">{med.activeIngredient}</span>
-              {med.tradeName && <span className="text-xs text-gray-400 ml-2">({med.tradeName})</span>}
-              <span className="text-xs text-gray-500 ml-3">
+              <span className="font-medium text-foreground text-sm">{med.activeIngredient}</span>
+              {med.tradeName && <span className="text-xs text-muted-foreground ml-2">({med.tradeName})</span>}
+              <span className="text-xs text-muted-foreground ml-3">
                 {med.dose ? `${med.dose}${med.doseUnit || ''}` : ''} {med.frequency ? `· ${med.frequency}` : ''}
               </span>
             </div>
@@ -164,7 +164,7 @@ function MedEditRow({ med, onSave, onDelete }: {
           <button
             type="button"
             onClick={() => setExpanded(!expanded)}
-            className="text-xs text-[#1e3a5f] hover:underline px-2 py-1"
+            className="text-xs text-brand-800 hover:underline px-2 py-1"
           >
             {expanded ? 'Fechar' : 'Editar'}
           </button>
@@ -172,7 +172,7 @@ function MedEditRow({ med, onSave, onDelete }: {
             type="button"
             onClick={handleDelete}
             disabled={deleting}
-            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+            className="p-1.5 text-muted-foreground hover:text-red-600 hover:bg-red-50 rounded transition-colors"
           >
             {deleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
           </button>
@@ -181,83 +181,83 @@ function MedEditRow({ med, onSave, onDelete }: {
 
       {/* Expanded edit form */}
       {expanded && (
-        <form onSubmit={handleSubmit(onSubmit)} className="border-t border-gray-200 p-4 bg-gray-50 space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="border-t border-border p-4 bg-muted space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Princípio ativo *</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Princípio ativo *</label>
               <input {...register('activeIngredient')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Atorvastatina" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Nome comercial</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Nome comercial</label>
               <input {...register('tradeName')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Lipitor" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Dose</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Dose</label>
               <input {...register('dose')} type="number" step="0.01"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: 20" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Unidade da dose</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Unidade da dose</label>
               <input {...register('doseUnit')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: mg, mcg, UI" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Forma farmacêutica</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Forma farmacêutica</label>
               <input {...register('pharmaceuticalForm')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Comprimido, Cápsula, Solução" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Via de administração</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Via de administração</label>
               <select {...register('route')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 {ROUTE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Frequência / Posologia</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Frequência / Posologia</label>
               <input {...register('frequency')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: 1x ao dia, 8/8h" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Indicação / Motivo do uso</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Indicação / Motivo do uso</label>
               <input {...register('indication')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Hipertensão arterial" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Adesão ao tratamento</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Adesão ao tratamento</label>
               <select {...register('adherence')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 {ADHERENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div className="flex items-center gap-2 pt-5">
               <input type="checkbox" {...register('isSelfMedication')} id={`self-${med.id}`}
-                className="rounded border-gray-300 text-blue-600" />
-              <label htmlFor={`self-${med.id}`} className="text-sm text-gray-600">Automedicação</label>
+                className="rounded border-border text-blue-600" />
+              <label htmlFor={`self-${med.id}`} className="text-sm text-muted-foreground">Automedicação</label>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-gray-600 mb-1">Efeitos adversos / Observações</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">Efeitos adversos / Observações</label>
               <textarea {...register('adverseEffects')} rows={2}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 placeholder="Ex: Relata mialgia leve, dificuldade de deglutição..." />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={() => setExpanded(false)}
-              className="px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100">
+              className="px-3 py-1.5 text-sm text-muted-foreground border border-border rounded-lg hover:bg-muted">
               Cancelar
             </button>
             <button type="submit" disabled={saving}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-[#1e3a5f] text-white text-sm rounded-lg hover:bg-[#162d4a] disabled:opacity-50">
+              className="flex items-center gap-1.5 px-4 py-1.5 bg-brand-800 text-white text-sm rounded-lg hover:bg-brand-900 disabled:opacity-50">
               {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
               {saving ? 'Salvando...' : 'Salvar medicamento'}
             </button>
@@ -399,7 +399,7 @@ export default function EditPatientPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1e3a5f]" />
+        <Loader2 className="h-8 w-8 animate-spin text-brand-800" />
       </div>
     )
   }
@@ -408,12 +408,12 @@ export default function EditPatientPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href={`/patients/${patientId}`} className="text-gray-500 hover:text-gray-700">
+        <Link href={`/patients/${patientId}`} className="text-muted-foreground hover:text-foreground">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Editar Paciente</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Atualize os dados do paciente e seus medicamentos</p>
+          <h1 className="text-2xl font-bold text-foreground">Editar Paciente</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Atualize os dados do paciente e seus medicamentos</p>
         </div>
       </div>
 
@@ -429,13 +429,13 @@ export default function EditPatientPage() {
       )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div className="bg-card rounded-xl shadow-sm border border-border">
           {/* Tabs */}
-          <div className="flex overflow-x-auto border-b border-gray-200">
+          <div className="flex overflow-x-auto border-b border-border">
             {tabs.map(tab => (
               <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 px-4 py-3.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
-                  activeTab === tab.id ? 'border-[#1e3a5f] text-[#1e3a5f]' : 'border-transparent text-gray-500 hover:text-gray-700'
+                  activeTab === tab.id ? 'border-brand-800 text-brand-800' : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}>
                 <tab.icon className="w-4 h-4" />
                 {tab.label}
@@ -453,61 +453,61 @@ export default function EditPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo *</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Nome completo *</label>
                     <input {...register('name')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Nome do paciente" />
                     {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Data de nascimento</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Data de nascimento</label>
                     <input type="date" {...register('birthDate')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Idade (se sem data de nascimento)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Idade (se sem data de nascimento)</label>
                     <input type="number" {...register('age')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 65" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sexo biológico</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Sexo biológico</label>
                     <select {...register('sex')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       <option value="MALE">Masculino</option>
                       <option value="FEMALE">Feminino</option>
                       <option value="OTHER">Outro</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Peso (kg)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Peso (kg)</label>
                     <input type="number" step="0.1" {...register('weight')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 70.5" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Altura (cm)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Altura (cm)</label>
                     <input type="number" step="0.1" {...register('height')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 168" />
                   </div>
                   {watch('sex') === 'FEMALE' && (
                     <>
                       <div className="flex items-center gap-3">
-                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                          <input type="checkbox" {...register('isPregnant')} className="rounded border-gray-300 text-blue-600" />
+                        <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                          <input type="checkbox" {...register('isPregnant')} className="rounded border-border text-blue-600" />
                           Gestante
                         </label>
-                        <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                          <input type="checkbox" {...register('isLactating')} className="rounded border-gray-300 text-blue-600" />
+                        <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                          <input type="checkbox" {...register('isLactating')} className="rounded border-border text-blue-600" />
                           Lactante
                         </label>
                       </div>
                       {watch('isPregnant') && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Idade gestacional (semanas)</label>
+                          <label className="block text-sm font-medium text-foreground mb-1">Idade gestacional (semanas)</label>
                           <input type="number" {...register('gestationalAge')}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Ex: 28" />
                         </div>
                       )}
@@ -522,41 +522,41 @@ export default function EditPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Função renal</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Função renal</label>
                     <select {...register('renalFunction')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       {RENAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Clearance de creatinina (mL/min)</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Clearance de creatinina (mL/min)</label>
                     <input type="number" step="0.1" {...register('creatinineClearance')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 55" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Função hepática</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Função hepática</label>
                     <select {...register('hepaticFunction')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       {HEPATIC_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Queixa principal</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Queixa principal</label>
                     <input {...register('chiefComplaint')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: Dor torácica, falta de ar, tontura..." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">História clínica</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">História clínica</label>
                     <textarea {...register('clinicalHistory')} rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                       placeholder="Resumo da história clínica relevante..." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Observações gerais</label>
+                    <label className="block text-sm font-medium text-foreground mb-1">Observações gerais</label>
                     <textarea {...register('observations')} rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                      className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                       placeholder="Informações adicionais relevantes..." />
                   </div>
                 </div>
@@ -567,29 +567,29 @@ export default function EditPatientPage() {
             {activeTab === 'comorbidities' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Condições de saúde do paciente</p>
+                  <p className="text-sm text-muted-foreground">Condições de saúde do paciente</p>
                   <button type="button" onClick={() => comorbidities.append({ name: '', icd10Code: '' })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a]">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900">
                     <Plus className="w-4 h-4" /> Adicionar
                   </button>
                 </div>
                 {comorbidities.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <Heart className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhuma comorbidade registrada</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {comorbidities.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={field.id} className="flex gap-3 items-center p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div className="col-span-2">
                             <input {...register(`comorbidities.${idx}.name`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Hipertensão arterial" />
                           </div>
                           <input {...register(`comorbidities.${idx}.icd10Code`)}
-                            className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                            className="px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                             placeholder="CID-10 (Ex: I10)" />
                         </div>
                         <button type="button" onClick={() => comorbidities.remove(idx)}
@@ -607,32 +607,32 @@ export default function EditPatientPage() {
             {activeTab === 'allergies' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Alergias e intolerâncias</p>
+                  <p className="text-sm text-muted-foreground">Alergias e intolerâncias</p>
                   <button type="button" onClick={() => allergies.append({ substance: '', severity: 'MODERATE', reaction: '' })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a]">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900">
                     <Plus className="w-4 h-4" /> Adicionar
                   </button>
                 </div>
                 {allergies.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <AlertTriangle className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhuma alergia registrada</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {allergies.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Substância</label>
+                            <label className="block text-xs text-muted-foreground mb-1">Substância</label>
                             <input {...register(`allergies.${idx}.substance`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Penicilina" />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Gravidade</label>
+                            <label className="block text-xs text-muted-foreground mb-1">Gravidade</label>
                             <select {...register(`allergies.${idx}.severity`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                               <option value="MILD">Leve</option>
                               <option value="MODERATE">Moderada</option>
                               <option value="SEVERE">Grave</option>
@@ -640,9 +640,9 @@ export default function EditPatientPage() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Tipo de reação</label>
+                            <label className="block text-xs text-muted-foreground mb-1">Tipo de reação</label>
                             <input {...register(`allergies.${idx}.reaction`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Urticária, Anafilaxia" />
                           </div>
                         </div>
@@ -661,38 +661,38 @@ export default function EditPatientPage() {
             {activeTab === 'diagnoses' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Diagnósticos atuais</p>
+                  <p className="text-sm text-muted-foreground">Diagnósticos atuais</p>
                   <button type="button" onClick={() => diagnoses.append({ name: '', icd10Code: '', isPrimary: false })}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a]">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900">
                     <Plus className="w-4 h-4" /> Adicionar
                   </button>
                 </div>
                 {diagnoses.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <Stethoscope className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhum diagnóstico registrado</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {diagnoses.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div className="col-span-2">
-                            <label className="block text-xs text-gray-500 mb-1">Diagnóstico</label>
+                            <label className="block text-xs text-muted-foreground mb-1">Diagnóstico</label>
                             <input {...register(`diagnoses.${idx}.name`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Insuficiência cardíaca congestiva" />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">CID-10</label>
+                            <label className="block text-xs text-muted-foreground mb-1">CID-10</label>
                             <input {...register(`diagnoses.${idx}.icd10Code`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: I50" />
                           </div>
                         </div>
                         <div className="flex flex-col items-center gap-2 pt-5">
-                          <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
-                            <input type="checkbox" {...register(`diagnoses.${idx}.isPrimary`)} className="rounded border-gray-300 text-blue-600" />
+                          <label className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer whitespace-nowrap">
+                            <input type="checkbox" {...register(`diagnoses.${idx}.isPrimary`)} className="rounded border-border text-blue-600" />
                             Principal
                           </label>
                           <button type="button" onClick={() => diagnoses.remove(idx)}
@@ -711,14 +711,14 @@ export default function EditPatientPage() {
             {activeTab === 'medications' && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm text-gray-500">Clique em <strong>Editar</strong> para alterar os dados de cada medicamento</p>
+                  <p className="text-sm text-muted-foreground">Clique em <strong>Editar</strong> para alterar os dados de cada medicamento</p>
                   <Link href={`/patients/${patientId}/medications/new`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a]">
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900">
                     <Plus className="w-4 h-4" /> Novo medicamento
                   </Link>
                 </div>
                 {medications.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <Pill className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhum medicamento cadastrado</p>
                   </div>
@@ -738,11 +738,11 @@ export default function EditPatientPage() {
         {activeTab !== 'medications' && (
           <div className="flex items-center justify-between">
             <Link href={`/patients/${patientId}`}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted">
               Cancelar
             </Link>
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 px-5 py-2 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a] disabled:opacity-50">
+              className="flex items-center gap-2 px-5 py-2 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900 disabled:opacity-50">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               {saving ? 'Salvando...' : 'Salvar alterações'}
             </button>

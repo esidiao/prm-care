@@ -74,7 +74,10 @@ export async function PATCH(req: NextRequest) {
   const session = await getSession()
   if (!session || session.user.role !== 'ADMIN') return NextResponse.json({ error: 'Não autorizado' }, { status: 403 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { id, ...data } = body
 
   if (!id) return NextResponse.json({ error: 'id obrigatório' }, { status: 400 })

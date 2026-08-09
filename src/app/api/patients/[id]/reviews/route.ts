@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const reviews = await prisma.patientReview.findMany({
     where: { patientId: params.id, userId: session.user.id },
@@ -27,16 +27,19 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   // Verify patient belongs to user
   const patient = await prisma.patient.findFirst({
     where: { id: params.id, userId: session.user.id },
     select: { id: true },
   })
-  if (!patient) return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
+  if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { scheduledDate, type, title, notes } = body as {
     scheduledDate: string
     type: string
@@ -45,14 +48,19 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   }
 
   if (!scheduledDate || !type || !title?.trim()) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    return NextResponse.json({ error: 'Campos obrigatórios ausentes' }, { status: 400 })
+  }
+
+  const parsedDate = new Date(scheduledDate)
+  if (isNaN(parsedDate.getTime())) {
+    return NextResponse.json({ error: 'Data agendada inválida' }, { status: 400 })
   }
 
   const review = await prisma.patientReview.create({
     data: {
       patientId: params.id,
       userId: session.user.id,
-      scheduledDate: new Date(scheduledDate),
+      scheduledDate: parsedDate,
       type,
       title: title.trim(),
       notes: notes?.trim() || null,

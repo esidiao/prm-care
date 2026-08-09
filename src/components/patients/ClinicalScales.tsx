@@ -159,7 +159,7 @@ function ScaleForm({
             )}
           </span>
           {complete && severity && (
-            <span className="font-medium text-[#1e3a5f] dark:text-blue-400">
+            <span className="font-medium text-brand-800 dark:text-blue-400">
               Score: <strong>{totalScore}/{scale.maxScore}</strong>
             </span>
           )}
@@ -167,7 +167,7 @@ function ScaleForm({
         <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${
-              complete ? 'bg-emerald-500' : 'bg-[#1e3a5f]'
+              complete ? 'bg-emerald-500' : 'bg-brand-800'
             }`}
             style={{ width: `${(answered / scale.questionCount) * 100}%` }}
           />
@@ -190,7 +190,7 @@ function ScaleForm({
                     key={opt.value}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
                       isSelected
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-300'
+                        ? 'border-brand-800 bg-brand-800/5 text-brand-800 dark:bg-brand-800/20 dark:text-blue-300'
                         : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                     }`}
                   >
@@ -204,7 +204,7 @@ function ScaleForm({
                     />
                     <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 flex-shrink-0 transition-colors ${
                       isSelected
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f] dark:border-blue-400 dark:bg-blue-500'
+                        ? 'border-brand-800 bg-brand-800 dark:border-blue-400 dark:bg-blue-500'
                         : 'border-gray-300 dark:border-gray-600'
                     }`}>
                       {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
@@ -231,7 +231,7 @@ function ScaleForm({
 
       {/* Result preview */}
       {complete && severity && (
-        <div className="rounded-lg border-2 border-[#1e3a5f]/20 bg-[#1e3a5f]/5 dark:bg-[#1e3a5f]/10 p-4">
+        <div className="rounded-lg border-2 border-brand-800/20 bg-brand-800/5 dark:bg-brand-800/10 p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               Score: {totalScore}/{scale.maxScore}
@@ -252,7 +252,7 @@ function ScaleForm({
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           placeholder="Contexto clínico relevante, medicamentos suspeitos, encaminhamentos realizados..."
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
         />
       </div>
 
@@ -270,7 +270,7 @@ function ScaleForm({
           onClick={handleSubmit}
           disabled={!complete || saving}
           title={!complete ? `Responda todas as ${scale.questionCount} questões para salvar` : ''}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
           {saving ? 'Salvando...' : complete ? 'Salvar avaliação' : `Faltam ${scale.questionCount - answered} questão(ões)`}
@@ -513,7 +513,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-5 py-4">
         <div className="flex items-center gap-2">
-          <Brain className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+          <Brain className="h-4 w-4 text-brand-800 dark:text-blue-400" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100">
             Escalas Clínicas Validadas
           </h2>
@@ -539,7 +539,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
             <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
-                className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] active:bg-[#162d4a] transition-colors"
+                className="flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-900 active:bg-brand-900 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Nova aplicação</span>
@@ -586,7 +586,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
       <div className="p-5 space-y-4">
         {/* Active form */}
         {activeForm && (
-          <div className="rounded-xl border-2 border-[#1e3a5f]/20 bg-gray-50 dark:bg-gray-900 p-5">
+          <div className="rounded-xl border-2 border-brand-800/20 bg-gray-50 dark:bg-gray-900 p-5">
             <ScaleForm
               scale={SCALES[activeForm]}
               patientId={patientId}
@@ -618,7 +618,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
                     onClick={() => setActiveTab(activeTab === s.type ? 'all' : s.type)}
                     className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                       activeTab === s.type
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white'
+                        ? 'border-brand-800 bg-brand-800 text-white'
                         : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300'
                     }`}
                   >

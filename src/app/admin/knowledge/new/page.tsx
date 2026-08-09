@@ -114,15 +114,15 @@ export default function NewKnowledgePage() {
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin/knowledge" className="text-gray-500 hover:text-gray-700 transition-colors">
+        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-gray-700 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
             Nova Entrada na Base de Conhecimento
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">
+          <p className="text-sm text-muted-foreground mt-0.5">
             Adicione diretrizes, interações, protocolos ou alertas clínicos
           </p>
         </div>
@@ -137,19 +137,19 @@ export default function NewKnowledgePage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Section 1: Basic Info */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
+          <h2 className="font-semibold text-foreground flex items-center gap-2">
             <FileText className="w-4 h-4 text-blue-600" />
             Informações básicas
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Título <span className="text-red-500">*</span>
             </label>
             <input
               {...register('title')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ex: Interação entre Varfarina e AINEs"
             />
             {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>}
@@ -157,12 +157,12 @@ export default function NewKnowledgePage() {
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Tipo <span className="text-red-500">*</span>
               </label>
               <select
                 {...register('type')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {TYPE_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -171,10 +171,10 @@ export default function NewKnowledgePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status inicial</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Status inicial</label>
               <select
                 {...register('status')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {STATUS_OPTIONS.map(opt => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -184,25 +184,25 @@ export default function NewKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Resumo
-              <span className="ml-1 text-xs text-gray-400">(exibido na listagem)</span>
+              <span className="ml-1 text-xs text-muted-foreground">(exibido na listagem)</span>
             </label>
             <input
               {...register('summary')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Breve descrição do conteúdo..."
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Conteúdo completo <span className="text-red-500">*</span>
             </label>
             <textarea
               {...register('content')}
               rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
               placeholder="Conteúdo clínico detalhado, mecanismo de ação, recomendações, evidências..."
             />
             {errors.content && <p className="mt-1 text-xs text-red-600">{errors.content.message}</p>}
@@ -210,66 +210,66 @@ export default function NewKnowledgePage() {
         </div>
 
         {/* Section 2: Source & Dates */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900">Fonte e datas</h2>
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
+          <h2 className="font-semibold text-foreground">Fonte e datas</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Fonte <span className="text-red-500">*</span>
               </label>
               <input
                 {...register('source')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: ANVISA, CFF, Ministério da Saúde"
               />
               {errors.source && <p className="mt-1 text-xs text-red-600">{errors.source.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL da fonte</label>
+              <label className="block text-sm font-medium text-foreground mb-1">URL da fonte</label>
               <input
                 type="url"
                 {...register('sourceUrl')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="https://..."
               />
               {errors.sourceUrl && <p className="mt-1 text-xs text-red-600">{errors.sourceUrl.message}</p>}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Data de publicação</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Data de publicação</label>
               <input
                 type="date"
                 {...register('publishedAt')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Data de expiração
-                <span className="ml-1 text-xs text-gray-400">(quando revisar)</span>
+                <span className="ml-1 text-xs text-muted-foreground">(quando revisar)</span>
               </label>
               <input
                 type="date"
                 {...register('expiresAt')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
         </div>
 
         {/* Section 3: Classification */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
+          <h2 className="font-semibold text-foreground flex items-center gap-2">
             <Tag className="w-4 h-4 text-blue-600" />
             Classificação e indexação
           </h2>
 
           {/* Drug Names */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-1">
               <Pill className="w-3.5 h-3.5 text-blue-500" />
               Medicamentos relacionados
             </label>
@@ -278,7 +278,7 @@ export default function NewKnowledgePage() {
                 value={drugInput}
                 onChange={e => setDrugInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(drugInput, 'drugNames', setDrugInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: varfarina, ibuprofeno (Enter para adicionar)"
               />
               <button
@@ -306,13 +306,13 @@ export default function NewKnowledgePage() {
 
           {/* ICD-10 Codes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Códigos CID-10</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Códigos CID-10</label>
             <div className="flex gap-2">
               <input
                 value={icdInput}
                 onChange={e => setIcdInput(e.target.value.toUpperCase())}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(icdInput, 'icd10Codes', setIcdInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: I10, E11 (Enter para adicionar)"
               />
               <button
@@ -339,13 +339,13 @@ export default function NewKnowledgePage() {
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Tags</label>
             <div className="flex gap-2">
               <input
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addTag(tagInput, 'tags', setTagInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: anticoagulante, idoso, risco alto (Enter para adicionar)"
               />
               <button
@@ -359,7 +359,7 @@ export default function NewKnowledgePage() {
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {tags.map((t, i) => (
-                  <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                  <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-muted text-foreground text-xs rounded-full">
                     <Tag className="w-3 h-3" />
                     {t}
                     <button type="button" onClick={() => removeItem('tags', i)}>
@@ -373,11 +373,11 @@ export default function NewKnowledgePage() {
 
           {/* Observations */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Observações internas</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Observações internas</label>
             <textarea
               {...register('observations')}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
               placeholder="Notas para a equipe de revisão..."
             />
           </div>
@@ -387,7 +387,7 @@ export default function NewKnowledgePage() {
         <div className="flex items-center justify-between">
           <Link
             href="/admin/knowledge"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors"
           >
             Cancelar
           </Link>

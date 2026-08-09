@@ -152,7 +152,7 @@ export function MedScheduleGrid({ meds, alerts, patientName, patientAge }: Props
 
       {/* ── SCHEDULE GRID ── */}
       <div className="rounded-2xl border border-gray-200 bg-white overflow-hidden print:border-gray-400">
-        <div className="bg-gradient-to-r from-[#0f2744] to-[#1e3a5f] px-5 py-3 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-brand-900 to-brand-800 px-5 py-3 flex items-center justify-between">
           <div>
             <h2 className="text-white font-bold text-sm">Grade de Horários</h2>
             <p className="text-white/60 text-xs mt-0.5">Posologia visual — {patientName}</p>

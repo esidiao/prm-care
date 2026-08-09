@@ -44,7 +44,7 @@ export default function MyDataPage() {
       {/* Direitos */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-4 w-4 text-[#1e3a5f]" />
+          <Shield className="h-4 w-4 text-brand-800" />
           <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Seus direitos garantidos pela LGPD</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -55,13 +55,13 @@ export default function MyDataPage() {
             { icon: Trash2, label: 'Exclusão', desc: 'Solicite a exclusão dos seus dados pessoais', art: 'Art. 18, VI' },
           ].map(({ icon: Icon, label, desc, art }) => (
             <div key={label} className="flex items-start gap-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-3">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10">
-                <Icon className="h-4 w-4 text-[#1e3a5f]" />
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10">
+                <Icon className="h-4 w-4 text-brand-800" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{desc}</p>
-                <p className="text-[10px] text-[#1e3a5f] mt-0.5 font-medium">{art}</p>
+                <p className="text-[10px] text-brand-800 mt-0.5 font-medium">{art}</p>
               </div>
             </div>
           ))}
@@ -157,7 +157,7 @@ export default function MyDataPage() {
 
       {/* Contato DPO */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4 text-xs text-gray-500 dark:text-gray-400">
-        <p><strong className="text-gray-700 dark:text-gray-300">Encarregado de Dados (DPO):</strong> Para dúvidas sobre privacidade e proteção de dados, entre em contato pelo e-mail <span className="text-[#1e3a5f] dark:text-blue-400">privacidade@prmcare.com.br</span></p>
+        <p><strong className="text-gray-700 dark:text-gray-300">Encarregado de Dados (DPO):</strong> Para dúvidas sobre privacidade e proteção de dados, entre em contato pelo e-mail <span className="text-brand-800 dark:text-blue-400">privacidade@prmcare.com.br</span></p>
         <p className="mt-1">Referência legal: Lei Geral de Proteção de Dados Pessoais — Lei nº 13.709, de 14 de agosto de 2018.</p>
       </div>
     </div>

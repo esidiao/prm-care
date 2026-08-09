@@ -369,7 +369,7 @@ function DbCard({
         {searchUrl && (
           <button
             onClick={() => handleOpen(searchUrl)}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#16304f] transition-colors"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-900 transition-colors"
           >
             <Search className="h-3.5 w-3.5" />
             Buscar "{searchTerm.slice(0, 12)}{searchTerm.length > 12 ? '…' : ''}"
@@ -447,7 +447,7 @@ export default function ResourcesPage() {
           value={q}
           onChange={e => setQ(e.target.value)}
           placeholder="Digite um medicamento, patologia ou tema para buscar em todas as bases…"
-          className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-12 pr-12 py-3.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 shadow-sm"
+          className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-12 pr-12 py-3.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/20 shadow-sm"
         />
         {q && (
           <button
@@ -470,7 +470,7 @@ export default function ResourcesPage() {
         <select
           value={filterCategory}
           onChange={e => setFilterCategory(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todas as categorias</option>
           {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -479,7 +479,7 @@ export default function ResourcesPage() {
         <select
           value={filterLang}
           onChange={e => setFilterLang(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todos os idiomas</option>
           <option value="PT">🇧🇷 Português</option>

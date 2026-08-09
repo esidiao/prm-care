@@ -3,21 +3,8 @@ import { NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { logAudit, getClientIp } from '@/lib/audit'
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function esc(val: string | number | boolean | null | undefined): string {
-  if (val === null || val === undefined) return ''
-  const str = String(val)
-  if (str.includes(',') || str.includes('\n') || str.includes('"')) {
-    return `"${str.replace(/"/g, '""')}"`
-  }
-  return str
-}
-
-function row(cells: (string | number | boolean | null | undefined)[]): string {
-  return cells.map(esc).join(',')
-}
+import { escCsv, csvRow } from '@/lib/csv-export'
+import { exportLimiter } from '@/lib/rate-limit'
 
 const RISK_LABELS: Record<string, string> = {
   URGENT: 'Urgente',
@@ -39,6 +26,15 @@ export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  // Exportação em massa de dados clínicos — limita exfiltração por conta comprometida
+  const rl = await exportLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas exportações em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
   }
 
   await logAudit({
@@ -112,12 +108,12 @@ export async function GET(req: NextRequest) {
     'Notas de Resolução',
   ]
 
-  const lines: string[] = [headers.map(esc).join(',')]
+  const lines: string[] = [headers.map(escCsv).join(',')]
 
   for (const analysis of analyses) {
     if (analysis.findings.length === 0) continue
     for (const f of analysis.findings) {
-      lines.push(row([
+      lines.push(csvRow([
         analysis.id,
         analysis.createdAt.toISOString().slice(0, 10),
         analysis.patient.code,

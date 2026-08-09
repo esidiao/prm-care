@@ -630,6 +630,17 @@ model ConsentRecord {
   @@map("consent_records")
 }
 
+// Standalone (sem @relation) — tabela aditiva via prisma/sql, segue o padrão de ddi_*/reconciliations.
+model PasswordHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("password_history")
+}
+
 // ─── ESCALAS CLÍNICAS ─────────────────────────────────────────────────────────
 
 model ScaleAssessment {

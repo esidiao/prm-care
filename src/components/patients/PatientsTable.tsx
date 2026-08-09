@@ -106,17 +106,17 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
       <div className="flex flex-wrap items-center gap-2">
         {/* Text search */}
         <div className="relative flex-1 min-w-48">
-          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Filtrar por nome ou código…"
-            className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-8 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+            className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:border-blue-600 dark:focus:ring-blue-900/30 transition-all"
           />
           {search && (
             <button onClick={() => setSearch('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300">
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted/70">
               <X className="h-2.5 w-2.5" />
             </button>
           )}
@@ -127,8 +127,8 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
           onClick={() => setShowFilters(s => !s)}
           className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors ${
             hasActiveFilters
-              ? 'border-blue-300 bg-blue-50 text-blue-700'
-              : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'
+              ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-400'
+              : 'border-border bg-card text-muted-foreground hover:border-foreground/20'
           }`}
         >
           <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -144,21 +144,21 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
         <ExportMenu mode="all" />
 
         {/* Results count */}
-        <span className="ml-auto text-xs text-gray-400">
+        <span className="ml-auto text-xs text-muted-foreground">
           {filtered.length} de {patients.length} paciente{patients.length !== 1 ? 's' : ''}
         </span>
       </div>
 
       {/* Filter panel */}
       {showFilters && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3">
+        <div className="rounded-xl border border-border bg-muted/40 p-4 space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 flex items-center gap-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               <Filter className="h-3 w-3" /> Filtros avançados
             </p>
             {hasActiveFilters && (
               <button onClick={clearFilters}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors">
                 Limpar filtros
               </button>
             )}
@@ -167,16 +167,16 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Risk filter */}
             <div>
-              <p className="mb-1.5 text-xs font-medium text-gray-600">Nível de risco (última análise)</p>
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground">Nível de risco (última análise)</p>
               <div className="flex flex-wrap gap-1.5">
                 {(Object.keys(RISK_LABELS) as RiskFilter[]).map(k => (
                   <button key={k} onClick={() => setRiskFilter(k)}
                     className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                       riskFilter === k
-                        ? k === 'urgent' ? 'bg-red-100 text-red-700 ring-1 ring-red-300'
-                          : k === 'high' ? 'bg-orange-100 text-orange-700 ring-1 ring-orange-300'
-                          : 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
-                        : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                        ? k === 'urgent' ? 'bg-red-100 text-red-700 ring-1 ring-red-300 dark:bg-red-950/30 dark:text-red-400 dark:ring-red-800'
+                          : k === 'high' ? 'bg-orange-100 text-orange-700 ring-1 ring-orange-300 dark:bg-orange-950/30 dark:text-orange-400 dark:ring-orange-800'
+                          : 'bg-blue-100 text-blue-700 ring-1 ring-blue-300 dark:bg-blue-950/30 dark:text-blue-400 dark:ring-blue-800'
+                        : 'bg-card border border-border text-muted-foreground hover:border-foreground/20'
                     }`}>
                     {RISK_LABELS[k]}
                   </button>
@@ -186,14 +186,14 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
 
             {/* Activity filter */}
             <div>
-              <p className="mb-1.5 text-xs font-medium text-gray-600">Última análise</p>
+              <p className="mb-1.5 text-xs font-medium text-muted-foreground">Última análise</p>
               <div className="flex flex-wrap gap-1.5">
                 {(Object.keys(ACTIVITY_LABELS) as ActivityFilter[]).map(k => (
                   <button key={k} onClick={() => setActivityFilter(k)}
                     className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                       activityFilter === k
-                        ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300'
-                        : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+                        ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300 dark:bg-blue-950/30 dark:text-blue-400 dark:ring-blue-800'
+                        : 'bg-card border border-border text-muted-foreground hover:border-foreground/20'
                     }`}>
                     {ACTIVITY_LABELS[k]}
                   </button>
@@ -206,10 +206,10 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
 
       {/* Table */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border bg-white p-10 text-center">
-          <p className="text-sm font-medium text-gray-500">Nenhum paciente encontrado com os filtros atuais.</p>
+        <div className="rounded-xl border bg-card p-10 text-center">
+          <p className="text-sm font-medium text-muted-foreground">Nenhum paciente encontrado com os filtros atuais.</p>
           <button onClick={() => { setSearch(''); clearFilters() }}
-            className="mt-2 text-sm text-blue-600 hover:text-blue-800 font-medium">
+            className="mt-2 text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">
             Limpar filtros
           </button>
         </div>
@@ -217,7 +217,7 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr className="border-b border-border">
                 <th className="table-header-cell">Paciente</th>
                 <th className="table-header-cell">Idade / Sexo</th>
                 <th className="table-header-cell">Análises</th>
@@ -226,7 +226,7 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
                 <th className="table-header-cell w-36"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {filtered.map((patient) => {
                 const age = patient.dateOfBirth ? calculateAge(patient.dateOfBirth) : patient.age
                 const lastAnalysis = patient.analyses[0]
@@ -236,38 +236,38 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
                 const isStale = days !== null && days > 30
 
                 return (
-                  <tr key={patient.id} className="hover:bg-gray-50/70 transition-colors group">
+                  <tr key={patient.id} className="hover:bg-muted/40 transition-colors group">
                     <td className="table-cell">
                       <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10 text-xs font-bold text-[#1e3a5f]">
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10 text-xs font-bold text-brand-800">
                           {initials}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900">{patient.name || patient.code}</p>
-                          {patient.name && <p className="text-xs text-gray-400">{patient.code}</p>}
+                          <p className="font-semibold text-foreground">{patient.name || patient.code}</p>
+                          {patient.name && <p className="text-xs text-muted-foreground">{patient.code}</p>}
                         </div>
                       </div>
                     </td>
-                    <td className="table-cell text-gray-600">
+                    <td className="table-cell text-muted-foreground">
                       {age ? `${age} anos` : '—'}
-                      {sexLabel && <span className="ml-1.5 inline-flex items-center rounded-full bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-600">{sexLabel}</span>}
+                      {sexLabel && <span className="ml-1.5 inline-flex items-center rounded-full bg-muted px-1.5 py-0.5 text-xs font-medium text-muted-foreground">{sexLabel}</span>}
                     </td>
                     <td className="table-cell">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-950/30 dark:text-blue-400">
                         {patient._count.analyses}
                       </span>
                     </td>
-                    <td className="table-cell text-gray-500">
+                    <td className="table-cell text-muted-foreground">
                       {lastAnalysis ? (
                         <div className={`flex items-center gap-1.5 ${isStale ? 'text-amber-600' : ''}`}>
-                          <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                           <span>{formatDate(lastAnalysis.createdAt)}</span>
                           {isStale && (
                             <span className="text-[10px] text-amber-500 font-medium">({days}d)</span>
                           )}
                         </div>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-muted-foreground">—</span>
                       )}
                     </td>
                     <td className="table-cell">
@@ -292,7 +292,7 @@ export function PatientsTable({ patients }: { patients: PatientRow[] }) {
                             <CheckCircle className="h-3 w-3" /> Sem PRMs
                           </span>
                         ) : null}
-                        {!lastAnalysis && <span className="text-xs text-gray-400">Sem análise</span>}
+                        {!lastAnalysis && <span className="text-xs text-muted-foreground">Sem análise</span>}
                       </div>
                     </td>
                     <td className="table-cell">

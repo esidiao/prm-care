@@ -130,7 +130,7 @@ export function AlertBadge() {
         onClick={() => setOpen((o) => !o)}
         className={`relative flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${
           open
-            ? 'border-[#1e3a5f] bg-[#1e3a5f]/10 text-[#1e3a5f] dark:border-blue-400 dark:text-blue-400'
+            ? 'border-brand-800 bg-brand-800/10 text-brand-800 dark:border-blue-400 dark:text-blue-400'
             : 'border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
         }`}
         aria-label="Alertas"
@@ -227,7 +227,7 @@ export function AlertBadge() {
                                 <Link
                                   href={alert.href}
                                   onClick={() => setOpen(false)}
-                                  className="flex items-center gap-0.5 text-[10px] font-semibold text-[#1e3a5f] dark:text-blue-400 hover:underline shrink-0"
+                                  className="flex items-center gap-0.5 text-[10px] font-semibold text-brand-800 dark:text-blue-400 hover:underline shrink-0"
                                 >
                                   Ver <ExternalLink className="h-2.5 w-2.5 ml-0.5" />
                                 </Link>

@@ -105,24 +105,24 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  // Enriquecer pagamentos com dados do usuário
+  // Enriquecimento independente — busca usuários e pacotes em paralelo
   const userIds = Array.from(new Set(recentPayments.map(p => p.userId).filter(Boolean) as string[]))
-  const users = userIds.length > 0
-    ? await prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, name: true, email: true },
-      })
-    : []
-  const userMap = Object.fromEntries(users.map(u => [u.id, u]))
-
-  // Enriquecer com nome do pacote
   const packageIds = Array.from(new Set(topPackages.map(p => p.packageId).filter(Boolean) as string[]))
-  const pkgs = packageIds.length > 0
-    ? await prisma.tokenPackage.findMany({
-        where: { id: { in: packageIds } },
-        select: { id: true, name: true, tokens: true, priceInCents: true },
-      })
-    : []
+  const [users, pkgs] = await Promise.all([
+    userIds.length > 0
+      ? prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, name: true, email: true },
+        })
+      : Promise.resolve([]),
+    packageIds.length > 0
+      ? prisma.tokenPackage.findMany({
+          where: { id: { in: packageIds } },
+          select: { id: true, name: true, tokens: true, priceInCents: true },
+        })
+      : Promise.resolve([]),
+  ])
+  const userMap = Object.fromEntries(users.map(u => [u.id, u]))
   const pkgMap = Object.fromEntries(pkgs.map(p => [p.id, p]))
 
   // Agrupar receita por dia

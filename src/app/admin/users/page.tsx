@@ -115,15 +115,15 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Users className="w-6 h-6 text-blue-600" />
             Gestão de Usuários
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">{total} usuário{total !== 1 ? 's' : ''} cadastrado{total !== 1 ? 's' : ''}</p>
+          <p className="text-sm text-muted-foreground mt-0.5">{total} usuário{total !== 1 ? 's' : ''} cadastrado{total !== 1 ? 's' : ''}</p>
         </div>
         <button
           onClick={fetchUsers}
-          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Atualizar
@@ -144,19 +144,19 @@ export default function AdminUsersPage() {
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(1) }}
             placeholder="Buscar por nome ou e-mail..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
         <select
           value={roleFilter}
           onChange={e => { setRoleFilter(e.target.value); setPage(1) }}
-          className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-card"
         >
           <option value="">Todos os perfis</option>
           {Object.entries(roleLabels).map(([v, { label }]) => (
@@ -166,7 +166,7 @@ export default function AdminUsersPage() {
         <select
           value={planFilter}
           onChange={e => { setPlanFilter(e.target.value); setPage(1) }}
-          className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          className="px-3 py-2 text-sm border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-card"
         >
           <option value="">Todos os planos</option>
           {Object.entries(planLabels).map(([v, { label }]) => (
@@ -176,29 +176,29 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
           </div>
         ) : users.length === 0 ? (
-          <div className="text-center py-16 text-gray-400">
+          <div className="text-center py-16 text-muted-foreground">
             <Users className="w-12 h-12 mx-auto mb-2 opacity-30" />
             <p className="text-sm">Nenhum usuário encontrado</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-200">
+              <thead className="bg-muted border-b border-border">
                 <tr>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Usuário</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Perfil</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Plano</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">Tokens</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">Pacientes</th>
-                  <th className="text-right px-4 py-3 font-medium text-gray-500">Análises</th>
-                  <th className="text-left px-4 py-3 font-medium text-gray-500">Último acesso</th>
-                  <th className="text-center px-4 py-3 font-medium text-gray-500">Status</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Usuário</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Perfil</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Plano</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">Tokens</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">Pacientes</th>
+                  <th className="text-right px-4 py-3 font-medium text-muted-foreground">Análises</th>
+                  <th className="text-left px-4 py-3 font-medium text-muted-foreground">Último acesso</th>
+                  <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -210,12 +210,12 @@ export default function AdminUsersPage() {
                   const isLoading = actionLoading === user.id
 
                   return (
-                    <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${!user.isActive ? 'opacity-60' : ''}`}>
+                    <tr key={user.id} className={`hover:bg-muted transition-colors ${!user.isActive ? 'opacity-60' : ''}`}>
                       <td className="px-4 py-3">
                         <div>
-                          <p className="font-medium text-gray-900">{user.name}</p>
-                          <p className="text-xs text-gray-500">{user.email}</p>
-                          {user.crfNumber && <p className="text-xs text-gray-400">CRF: {user.crfNumber}</p>}
+                          <p className="font-medium text-foreground">{user.name}</p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                          {user.crfNumber && <p className="text-xs text-muted-foreground">CRF: {user.crfNumber}</p>}
                         </div>
                       </td>
                       <td className="px-4 py-3">
@@ -233,9 +233,9 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 text-right">
                         <span className="font-semibold text-amber-700">{user.tokenBalance}</span>
                       </td>
-                      <td className="px-4 py-3 text-right text-gray-600">{user._count.patients}</td>
-                      <td className="px-4 py-3 text-right text-gray-600">{user._count.analyses}</td>
-                      <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(user.lastLoginAt)}</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">{user._count.patients}</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">{user._count.analyses}</td>
+                      <td className="px-4 py-3 text-muted-foreground text-xs">{formatDate(user.lastLoginAt)}</td>
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => handleAction(user.id, 'toggle_active')}
@@ -259,30 +259,30 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 relative">
                         <button
                           onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
-                          className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+                          className="p-1 text-muted-foreground hover:text-gray-600 rounded-lg hover:bg-muted transition-colors"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
 
                         {openMenuId === user.id && (
-                          <div className="absolute right-4 top-10 z-10 bg-white border border-gray-200 rounded-lg shadow-lg w-44 py-1">
+                          <div className="absolute right-4 top-10 z-10 bg-card border border-border rounded-lg shadow-lg w-44 py-1">
                             <button
                               onClick={() => { setModal({ userId: user.id, userName: user.name, action: 'change_plan' }); setModalValue(user.plan) }}
-                              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted flex items-center gap-2"
                             >
                               <Crown className="w-4 h-4 text-amber-500" />
                               Alterar plano
                             </button>
                             <button
                               onClick={() => { setModal({ userId: user.id, userName: user.name, action: 'change_role' }); setModalValue(user.role) }}
-                              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted flex items-center gap-2"
                             >
                               <Shield className="w-4 h-4 text-blue-500" />
                               Alterar perfil
                             </button>
                             <button
                               onClick={() => { setModal({ userId: user.id, userName: user.name, action: 'add_tokens' }); setModalValue('') }}
-                              className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                              className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-muted flex items-center gap-2"
                             >
                               <Coins className="w-4 h-4 text-amber-500" />
                               Adicionar tokens
@@ -300,20 +300,20 @@ export default function AdminUsersPage() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
-            <p className="text-xs text-gray-500">Página {page} de {totalPages}</p>
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+            <p className="text-xs text-muted-foreground">Página {page} de {totalPages}</p>
             <div className="flex gap-2">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="p-1.5 text-gray-500 disabled:opacity-30 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 text-muted-foreground disabled:opacity-30 hover:bg-muted rounded-lg transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="p-1.5 text-gray-500 disabled:opacity-30 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1.5 text-muted-foreground disabled:opacity-30 hover:bg-muted rounded-lg transition-colors"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -325,19 +325,19 @@ export default function AdminUsersPage() {
       {/* Action Modal */}
       {modal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
-            <h3 className="font-semibold text-gray-900 mb-1">
+          <div className="bg-card rounded-xl shadow-xl w-full max-w-sm p-6">
+            <h3 className="font-semibold text-foreground mb-1">
               {modal.action === 'change_plan' && 'Alterar plano'}
               {modal.action === 'change_role' && 'Alterar perfil'}
               {modal.action === 'add_tokens' && 'Adicionar tokens'}
             </h3>
-            <p className="text-sm text-gray-500 mb-4">{modal.userName}</p>
+            <p className="text-sm text-muted-foreground mb-4">{modal.userName}</p>
 
             {modal.action === 'change_plan' && (
               <select
                 value={modalValue}
                 onChange={e => setModalValue(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               >
                 {Object.entries(planLabels).map(([v, { label }]) => (
                   <option key={v} value={v}>{label}</option>
@@ -349,7 +349,7 @@ export default function AdminUsersPage() {
               <select
                 value={modalValue}
                 onChange={e => setModalValue(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               >
                 {Object.entries(roleLabels).map(([v, { label }]) => (
                   <option key={v} value={v}>{label}</option>
@@ -365,17 +365,17 @@ export default function AdminUsersPage() {
                   max="10000"
                   value={modalValue}
                   onChange={e => setModalValue(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   placeholder="Quantidade de tokens (ex: 50)"
                 />
-                <p className="text-xs text-gray-400 mt-1">Os tokens serão creditados como bônus administrativo.</p>
+                <p className="text-xs text-muted-foreground mt-1">Os tokens serão creditados como bônus administrativo.</p>
               </div>
             )}
 
             <div className="flex gap-3 mt-5">
               <button
                 onClick={() => { setModal(null); setOpenMenuId(null) }}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               >
                 Cancelar
               </button>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 import { payment as mpPayment } from '@/lib/mercadopago'
 import prisma from '@/lib/prisma'
-import { addTokens } from '@/lib/token-service'
+import { addTokensTx } from '@/lib/token-service'
 import { TransactionType } from '@prisma/client'
 
 // ── Verificação de assinatura HMAC-SHA256 do Mercado Pago ────────────────────
@@ -113,30 +113,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ received: true })
     }
 
-    // ── 5. Registrar pagamento e creditar tokens ────────────────────────────
-    const paymentRecord = await prisma.payment.create({
-      data: {
-        userId,
-        amountInCents: Math.round((mpPaymentData.transaction_amount ?? 0) * 100),
-        currency: mpPaymentData.currency_id ?? 'BRL',
-        status: 'completed',
-        method: mpPaymentData.payment_type_id ?? null,
-        gateway: 'mercadopago',
-        externalId: String(paymentId),
-        paidAt: mpPaymentData.date_approved ? new Date(mpPaymentData.date_approved) : new Date(),
-        // Não salvar body completo no metadata — pode conter dados sensíveis do comprador
-        metadata: { type: body.type, paymentId } as object,
-      },
-    })
+    // ── 5. Registrar pagamento e creditar tokens ATOMICAMENTE ───────────────
+    // Ambos numa única transação: se o crédito falhar, o registro de pagamento
+    // também é revertido — assim o MP retenta e a idempotência (passo 4) não
+    // bloqueia o reprocessamento. Evita o cenário "pagou mas não recebeu tokens".
+    const paymentRecord = await prisma.$transaction(async (tx) => {
+      const rec = await tx.payment.create({
+        data: {
+          userId,
+          amountInCents: Math.round((mpPaymentData.transaction_amount ?? 0) * 100),
+          currency: mpPaymentData.currency_id ?? 'BRL',
+          status: 'completed',
+          method: mpPaymentData.payment_type_id ?? null,
+          gateway: 'mercadopago',
+          externalId: String(paymentId),
+          paidAt: mpPaymentData.date_approved ? new Date(mpPaymentData.date_approved) : new Date(),
+          // Não salvar body completo no metadata — pode conter dados sensíveis do comprador
+          metadata: { type: body.type, paymentId } as object,
+        },
+      })
 
-    await addTokens(
-      userId,
-      pkg.tokens,
-      TransactionType.PURCHASE,
-      `Compra de pacote: ${pkg.name} (${pkg.tokens} tokens) via Mercado Pago`,
-      packageId,
-      paymentRecord.id,
-    )
+      await addTokensTx(
+        tx,
+        userId,
+        pkg.tokens,
+        TransactionType.PURCHASE,
+        `Compra de pacote: ${pkg.name} (${pkg.tokens} tokens) via Mercado Pago`,
+        packageId,
+        rec.id,
+      )
+
+      return rec
+    })
 
     await prisma.auditLog.create({
       data: {
@@ -155,8 +163,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ received: true })
   } catch (err) {
-    // Sempre retornar 200 para o MP não retentar infinitamente
-    console.error('[PAYMENTS_WEBHOOK]', err instanceof Error ? err.message : 'Erro desconhecido')
-    return NextResponse.json({ received: true })
+    // Retornar 500 para erros transientes (banco, addTokens, etc.) — o MP vai retentar.
+    // Eventos intencionalmente ignorados (tipo diferente, status não aprovado, idempotência)
+    // já retornam 200 dentro do bloco try acima.
+    console.error('[PAYMENTS_WEBHOOK] Erro ao processar pagamento:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: 'Erro interno ao processar pagamento.' }, { status: 500 })
   }
 }

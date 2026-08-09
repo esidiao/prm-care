@@ -6,10 +6,10 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-white">
       <nav className="border-b px-6 py-4 flex items-center gap-4">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1e3a5f]">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-800">
             <Pill className="h-4 w-4 text-white" />
           </div>
-          <span className="font-bold text-[#1e3a5f]">PRM Care</span>
+          <span className="font-bold text-brand-800">PRM Care</span>
         </Link>
         <Link href="/" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700">
           <ArrowLeft className="h-4 w-4" /> Voltar
@@ -71,7 +71,7 @@ export default function PrivacyPage() {
               <li>Revogação do consentimento a qualquer momento;</li>
               <li>Informação sobre compartilhamento de dados.</li>
             </ul>
-            <p className="mt-2">Para exercer estes direitos, envie solicitação para: <a href="mailto:privacidade@prmcare.com.br" className="text-[#1e3a5f] underline">privacidade@prmcare.com.br</a></p>
+            <p className="mt-2">Para exercer estes direitos, envie solicitação para: <a href="mailto:privacidade@prmcare.com.br" className="text-brand-800 underline">privacidade@prmcare.com.br</a></p>
           </section>
           <section>
             <h2 className="text-xl font-semibold text-gray-900">7. Compartilhamento de Dados</h2>
@@ -88,7 +88,7 @@ export default function PrivacyPage() {
           </section>
           <section>
             <h2 className="text-xl font-semibold text-gray-900">9. Encarregado de Dados (DPO)</h2>
-            <p>Nosso encarregado de proteção de dados pode ser contatado em: <a href="mailto:dpo@prmcare.com.br" className="text-[#1e3a5f] underline">dpo@prmcare.com.br</a></p>
+            <p>Nosso encarregado de proteção de dados pode ser contatado em: <a href="mailto:dpo@prmcare.com.br" className="text-brand-800 underline">dpo@prmcare.com.br</a></p>
           </section>
         </div>
       </div>

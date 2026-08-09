@@ -44,7 +44,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
       allergies: true,
       diagnoses: true,
       medications: { where: { isActive: true }, orderBy: { createdAt: 'asc' } },
-      labResults: { orderBy: { collectedAt: 'desc' } },
+      labResults: { orderBy: { collectedAt: 'desc' }, take: 30 },
       analyses: {
         include: { findings: { select: { riskLevel: true, category: true } } },
         orderBy: { createdAt: 'desc' },

@@ -5,6 +5,12 @@ import { addTokens } from '@/lib/token-service'
 import { TransactionType } from '@prisma/client'
 
 export async function POST(req: NextRequest) {
+  // Rota de simulação — desabilitada em produção até integração com Mercado Pago ser finalizada.
+  // Em produção, use /api/payments/checkout.
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Não disponível.' }, { status: 404 })
+  }
+
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 

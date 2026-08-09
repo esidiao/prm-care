@@ -7,12 +7,22 @@ import { sanitizeAiFindings, dedupeAgainstLocal } from '@/lib/ai-guardrails'
 import { hashContext, getCachedAi, setCachedAi, logAi } from '@/lib/ai-cache'
 import { enrichWithFDA } from '@/lib/drug-lookup-service'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
+import { analysisLimiter } from '@/lib/rate-limit'
 import { AnalysisStatus, RouteOfAdministration, AdherenceLevel, KnowledgeStatus } from '@prisma/client'
 import type { PatientContext } from '@/types'
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  // Análise dispara chamadas de IA e consome tokens — limita abuso por usuário
+  const rl = await analysisLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas análises em pouco tempo. Aguarde alguns instantes.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
+  }
 
   try {
     const body = await req.json()
@@ -177,9 +187,9 @@ export async function POST(req: NextRequest) {
         console.warn('[FDA] Enriquecimento não disponível:', err?.message)
         return { labels: new Map(), directInteractions: [], fdaContextSummary: '' }
       }),
-      // Buscar protocolos clínicos ativos da base de conhecimento
+      // Buscar protocolos clínicos ativos da base de conhecimento filtrados pelos medicamentos do paciente
       prisma.knowledgeBase.findMany({
-        where: { status: KnowledgeStatus.VALIDATED },
+        where: { status: KnowledgeStatus.VALIDATED, drugNames: { hasSome: drugNames } },
         select: { title: true, content: true, type: true, drugNames: true },
         orderBy: { updatedAt: 'desc' },
         take: 10,
@@ -330,15 +340,13 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Update token transaction with reference
-    await prisma.tokenTransaction.updateMany({
-      where: {
-        userId: session.user.id,
-        referenceId: null,
-        type: 'CONSUMPTION',
-      },
-      data: { referenceId: analysis.id },
-    })
+    // Update token transaction with precise reference (avoid touching unrelated transactions)
+    if (tokenOp.txId) {
+      await prisma.tokenTransaction.update({
+        where: { id: tokenOp.txId },
+        data: { referenceId: analysis.id },
+      })
+    }
 
     return NextResponse.json({
       success: true,

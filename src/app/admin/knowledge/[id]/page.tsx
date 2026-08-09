@@ -141,11 +141,11 @@ export default function EditKnowledgePage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin/knowledge" className="text-gray-500 hover:text-gray-700 transition-colors">
+        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-gray-700 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
             Editar Entrada — Base de Conhecimento
           </h1>
@@ -161,84 +161,84 @@ export default function EditKnowledgePage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Conteúdo principal */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Título *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Título *</label>
             <input
               {...register('title')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
             />
             {errors.title && <p className="mt-1 text-xs text-red-600">{errors.title.message}</p>}
           </div>
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-              <select {...register('type')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <label className="block text-sm font-medium text-foreground mb-1">Tipo *</label>
+              <select {...register('type')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                 {TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status *</label>
-              <select {...register('status')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <label className="block text-sm font-medium text-foreground mb-1">Status *</label>
+              <select {...register('status')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                 {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Resumo</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Resumo</label>
             <input
               {...register('summary')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               placeholder="Exibido na listagem"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Conteúdo completo *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Conteúdo completo *</label>
             <textarea
               {...register('content')}
               rows={8}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none font-mono"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none font-mono"
             />
             {errors.content && <p className="mt-1 text-xs text-red-600">{errors.content.message}</p>}
           </div>
         </div>
 
         {/* Fonte e datas */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900">Fonte e datas</h2>
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
+          <h2 className="font-semibold text-foreground">Fonte e datas</h2>
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fonte *</label>
-              <input {...register('source')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1">Fonte *</label>
+              <input {...register('source')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
               {errors.source && <p className="mt-1 text-xs text-red-600">{errors.source.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL da fonte</label>
-              <input type="url" {...register('sourceUrl')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="https://..." />
+              <label className="block text-sm font-medium text-foreground mb-1">URL da fonte</label>
+              <input type="url" {...register('sourceUrl')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="https://..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Publicado em</label>
-              <input type="date" {...register('publishedAt')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1">Publicado em</label>
+              <input type="date" {...register('publishedAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Expira em</label>
-              <input type="date" {...register('expiresAt')} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1">Expira em</label>
+              <input type="date" {...register('expiresAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
         </div>
 
         {/* Classificação */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-5">
-          <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
+          <h2 className="font-semibold text-foreground flex items-center gap-2">
             <Tag className="w-4 h-4 text-blue-600" /> Classificação
           </h2>
 
           {/* Medicamentos */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-1">
               <Pill className="w-3.5 h-3.5 text-blue-500" /> Medicamentos
             </label>
             <div className="flex gap-2">
@@ -246,7 +246,7 @@ export default function EditKnowledgePage() {
                 value={drugInput}
                 onChange={e => setDrugInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChip(drugInput, drugNames, setDrugNames, setDrugInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter para adicionar"
               />
               <button type="button" onClick={() => addChip(drugInput, drugNames, setDrugNames, setDrugInput)}
@@ -268,13 +268,13 @@ export default function EditKnowledgePage() {
 
           {/* CID-10 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">CID-10</label>
+            <label className="block text-sm font-medium text-foreground mb-1">CID-10</label>
             <div className="flex gap-2">
               <input
                 value={icdInput}
                 onChange={e => setIcdInput(e.target.value.toUpperCase())}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChip(icdInput, icd10Codes, setIcd10Codes, setIcdInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: I10"
               />
               <button type="button" onClick={() => addChip(icdInput, icd10Codes, setIcd10Codes, setIcdInput)}
@@ -296,13 +296,13 @@ export default function EditKnowledgePage() {
 
           {/* Tags */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Tags</label>
             <div className="flex gap-2">
               <input
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addChip(tagInput, tags, setTags, setTagInput) } }}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                className="flex-1 px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter para adicionar"
               />
               <button type="button" onClick={() => addChip(tagInput, tags, setTags, setTagInput)}
@@ -312,7 +312,7 @@ export default function EditKnowledgePage() {
             </div>
             <div className="flex flex-wrap gap-1.5 mt-2">
               {tags.map(t => (
-                <span key={t} className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded-full">
+                <span key={t} className="flex items-center gap-1 px-2 py-0.5 bg-muted text-foreground text-xs rounded-full">
                   <Tag className="w-3 h-3" />{t}
                   <button type="button" onClick={() => removeChip(t, tags, setTags)}>
                     <X className="w-3 h-3" />
@@ -323,11 +323,11 @@ export default function EditKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Observações internas</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Observações internas</label>
             <textarea
               {...register('observations')}
               rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
         </div>
@@ -335,7 +335,7 @@ export default function EditKnowledgePage() {
         {/* Footer */}
         <div className="flex items-center justify-between">
           <Link href="/admin/knowledge"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+            className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors">
             Cancelar
           </Link>
           <button

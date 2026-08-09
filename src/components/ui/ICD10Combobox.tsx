@@ -97,14 +97,14 @@ export function ICD10Combobox({
           autoComplete="off"
           placeholder={namePlaceholder}
           className={`w-full pl-3 pr-8 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-            nameError ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'
+            nameError ? 'border-red-400 bg-red-50 dark:border-red-500 dark:bg-red-950' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
           }`}
         />
         <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-300 pointer-events-none" />
 
         {/* Dropdown */}
         {aberto && sugestoes.length > 0 && (
-          <div className="absolute z-[100] top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
+          <div className="absolute z-[100] top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto dark:border-gray-600 dark:bg-gray-800">
             {sugestoes.map((e, i) => (
               <button
                 key={e.code}
@@ -136,7 +136,7 @@ export function ICD10Combobox({
           onChange={e => onCodeChange(e.target.value.toUpperCase())}
           placeholder="CID-10"
           maxLength={8}
-          className="w-full pl-3 pr-7 py-2 border border-gray-300 bg-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          className="w-full pl-3 pr-7 py-2 border border-gray-300 bg-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
         />
         {codeValue && (
           <button type="button" onClick={() => onCodeChange('')}

@@ -81,7 +81,7 @@ export function ExportMenu({ patientId, mode = 'all', variant = 'button' }: Expo
         <button
           onClick={() => setOpen(o => !o)}
           title="Exportar dados"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors shadow-sm"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:border-gray-300 hover:text-gray-700 transition-colors shadow-sm dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
           disabled={anyLoading}
         >
           {anyLoading
@@ -98,7 +98,7 @@ export function ExportMenu({ patientId, mode = 'all', variant = 'button' }: Expo
       <button
         onClick={() => setOpen(o => !o)}
         disabled={anyLoading}
-        className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-600 shadow-sm hover:border-gray-300 hover:text-gray-800 transition-colors disabled:opacity-60"
+        className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-600 shadow-sm hover:border-gray-300 hover:text-gray-800 transition-colors disabled:opacity-60 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:text-gray-100"
       >
         {anyLoading
           ? <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
@@ -121,7 +121,7 @@ function DropdownPanel({
   onSelect: (url: string, key: string) => void
 }) {
   return (
-    <div className="absolute right-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-gray-200 bg-white shadow-xl">
+    <div className="absolute right-0 top-full z-50 mt-1.5 w-72 rounded-xl border border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-800">
       <div className="border-b border-gray-100 px-4 py-2.5">
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">Exportar como CSV</p>
       </div>

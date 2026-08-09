@@ -104,7 +104,7 @@ export function AvatarUpload({ currentImage, userName }: Props) {
     <div className="flex flex-col sm:flex-row items-center gap-5">
       {/* Avatar circle */}
       <div
-        className={`relative flex-shrink-0 cursor-pointer group ${isDragging ? 'ring-2 ring-[#1e3a5f] ring-offset-2' : ''}`}
+        className={`relative flex-shrink-0 cursor-pointer group ${isDragging ? 'ring-2 ring-brand-800 ring-offset-2' : ''}`}
         onClick={() => !saving && inputRef.current?.click()}
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
         onDragLeave={() => setIsDragging(false)}
@@ -130,7 +130,7 @@ export function AvatarUpload({ currentImage, userName }: Props) {
 
         {/* Camera badge */}
         {!saving && (
-          <div className="absolute bottom-0.5 right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-[#1e3a5f] border-2 border-white dark:border-gray-800 shadow-md">
+          <div className="absolute bottom-0.5 right-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-800 border-2 border-white dark:border-gray-800 shadow-md">
             <Camera className="h-3.5 w-3.5 text-white" />
           </div>
         )}

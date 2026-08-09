@@ -65,15 +65,15 @@ export function AnalysisComparison({ currentAnalysisId, previousAnalysis, curren
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4 bg-gradient-to-r from-[#1e3a5f]/5 to-transparent">
+      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4 bg-gradient-to-r from-brand-800/5 to-transparent">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+          <Sparkles className="h-4 w-4 text-brand-800 dark:text-blue-400" />
           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
             Comparação com análise anterior
           </h3>
         </div>
         <Link href={`/analysis/${previousAnalysis.id}`}
-          className="flex items-center gap-1 text-xs text-[#1e3a5f] dark:text-blue-400 hover:underline">
+          className="flex items-center gap-1 text-xs text-brand-800 dark:text-blue-400 hover:underline">
           Ver anterior <ArrowRight className="h-3 w-3" />
         </Link>
       </div>

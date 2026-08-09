@@ -195,7 +195,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative flex-1 min-w-48">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
               <input
                 type="text"
                 value={search}
@@ -293,7 +293,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
       {reports.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-20 text-center">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-700 mb-4">
-            <FileText className="h-8 w-8 text-gray-400" />
+            <FileText className="h-8 w-8 text-gray-400 dark:text-gray-500" />
           </div>
           <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200">Nenhum relatório gerado</h3>
           <p className="mt-1 text-sm text-gray-400 dark:text-gray-500 max-w-xs">
@@ -347,7 +347,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border border-transparent ${TYPE_COLORS[r.type] ?? 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border border-transparent ${TYPE_COLORS[r.type] ?? 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'}`}>
                         {TYPE_LABELS[r.type] ?? r.type}
                       </span>
                     </td>
@@ -371,7 +371,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                     </td>
                     <td className="table-cell text-gray-500 dark:text-gray-400">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        <Calendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
                         {formatDateTime(r.generatedAt)}
                       </div>
                     </td>
@@ -384,7 +384,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                     <td className="table-cell">
                       <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link href={`/analysis/${r.analysisId}`}
-                          className="flex items-center gap-1 text-xs font-medium text-[#1e3a5f] hover:underline dark:text-blue-400">
+                          className="flex items-center gap-1 text-xs font-medium text-brand-800 hover:underline dark:text-blue-400">
                           Análise <ArrowRight className="h-3 w-3" />
                         </Link>
                         <a href={`/api/reports/${r.id}/download`}

@@ -7,9 +7,12 @@ export async function PATCH(
   { params }: { params: { id: string; reviewId: string } },
 ) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { status, completedNote, scheduledDate, title, notes, type } = body as {
     status?: string
     completedNote?: string
@@ -22,7 +25,7 @@ export async function PATCH(
   const review = await prisma.patientReview.findFirst({
     where: { id: params.reviewId, patientId: params.id, userId: session.user.id },
   })
-  if (!review) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (!review) return NextResponse.json({ error: 'Revisão não encontrada' }, { status: 404 })
 
   const updated = await prisma.patientReview.update({
     where: { id: params.reviewId },
@@ -50,12 +53,12 @@ export async function DELETE(
   { params }: { params: { id: string; reviewId: string } },
 ) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const review = await prisma.patientReview.findFirst({
     where: { id: params.reviewId, patientId: params.id, userId: session.user.id },
   })
-  if (!review) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (!review) return NextResponse.json({ error: 'Revisão não encontrada' }, { status: 404 })
 
   await prisma.patientReview.delete({ where: { id: params.reviewId } })
   return NextResponse.json({ ok: true })

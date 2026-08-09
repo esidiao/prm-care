@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { logAudit, getClientIp } from '@/lib/audit'
+import { ConsentType } from '@prisma/client'
+import { z } from 'zod'
+
+const consentTypeSchema = z.nativeEnum(ConsentType)
 
 const CURRENT_VERSION = '1.0'
 
@@ -22,7 +26,7 @@ export async function GET() {
   }).catch(() => [])
 
   const given = new Set(records.map(r => r.type))
-  const allGiven = required.every(t => given.has(t as any))
+  const allGiven = required.every(t => given.has(t as ConsentType))
 
   return NextResponse.json({ allGiven, given: Array.from(given), required })
 }
@@ -37,8 +41,13 @@ export async function POST(req: NextRequest) {
   const body      = await req.json().catch(() => ({}))
   const { types, accepted = true } = body as { types?: string[]; accepted?: boolean }
 
-  const allTypes = ['TERMS_OF_USE', 'PRIVACY_POLICY', 'DATA_PROCESSING', 'CLINICAL_DISCLAIMER']
-  const toProcess = (types ?? allTypes) as any[]
+  const allTypes: ConsentType[] = ['TERMS_OF_USE', 'PRIVACY_POLICY', 'DATA_PROCESSING', 'CLINICAL_DISCLAIMER']
+  const rawTypes = types ?? allTypes
+  const parseResult = z.array(consentTypeSchema).safeParse(rawTypes)
+  if (!parseResult.success) {
+    return NextResponse.json({ error: 'Tipo de consentimento inválido', details: parseResult.error.errors }, { status: 400 })
+  }
+  const toProcess: ConsentType[] = parseResult.data
 
   await Promise.all(
     toProcess.map(type =>

@@ -82,12 +82,12 @@ function formatDateShort(iso: string) {
 
 // compara dois números e retorna ícone de tendência
 function Trend({ curr, prev, lowerIsBetter = true }: { curr: number; prev: number; lowerIsBetter?: boolean }) {
-  if (prev === 0 && curr === 0) return <Minus className="h-3.5 w-3.5 text-gray-400" />
+  if (prev === 0 && curr === 0) return <Minus className="h-3.5 w-3.5 text-muted-foreground" />
   const better = lowerIsBetter ? curr < prev : curr > prev
   const worse  = lowerIsBetter ? curr > prev : curr < prev
   if (better) return <TrendingDown className="h-3.5 w-3.5 text-green-600" />
   if (worse)  return <TrendingUp className="h-3.5 w-3.5 text-red-500" />
-  return <Minus className="h-3.5 w-3.5 text-gray-400" />
+  return <Minus className="h-3.5 w-3.5 text-muted-foreground" />
 }
 
 // ── Mini sparkline ────────────────────────────────────────────────────────────
@@ -120,9 +120,9 @@ export function PatientTimeline({ analyses, patientId }: Props) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <Clock className="h-8 w-8 text-gray-300 mb-3" />
-        <p className="text-sm text-gray-500">Nenhuma análise registrada ainda.</p>
+        <p className="text-sm text-muted-foreground">Nenhuma análise registrada ainda.</p>
         <Link href={`/analysis/new?patientId=${patientId}`}
-          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a]">
+          className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900">
           Realizar primeira análise
         </Link>
       </div>
@@ -157,7 +157,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
     <div className="space-y-5">
       {/* Controles */}
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-gray-700">
+        <h3 className="text-sm font-semibold text-foreground">
           {analyses.length} análise{analyses.length > 1 ? 's' : ''} registrada{analyses.length > 1 ? 's' : ''}
         </h3>
         {analyses.length >= 2 && (
@@ -168,8 +168,8 @@ export function PatientTimeline({ analyses, patientId }: Props) {
             }}
             className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium border transition-colors ${
               compareMode
-                ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                ? 'bg-brand-800 text-white border-brand-800'
+                : 'bg-card text-muted-foreground border-border hover:bg-muted'
             }`}
           >
             <ShieldAlert className="h-3.5 w-3.5" />
@@ -196,8 +196,8 @@ export function PatientTimeline({ analyses, patientId }: Props) {
           </div>
           <div className="grid grid-cols-3 gap-3 text-center text-xs">
             <div />
-            <div className="font-semibold text-gray-600">{formatDate(compareA.createdAt)}</div>
-            <div className="font-semibold text-gray-600">{formatDate(compareB.createdAt)}</div>
+            <div className="font-semibold text-muted-foreground">{formatDate(compareA.createdAt)}</div>
+            <div className="font-semibold text-muted-foreground">{formatDate(compareB.createdAt)}</div>
 
             {[
               { label: 'Total de PRMs', a: compareA.totalPRMs, b: compareB.totalPRMs },
@@ -207,12 +207,12 @@ export function PatientTimeline({ analyses, patientId }: Props) {
               { label: 'Resolvidos',    a: compareA.resolvedPRMs, b: compareB.resolvedPRMs, higherIsBetter: true },
             ].map(row => (
               <>
-                <div key={`l-${row.label}`} className="text-left text-gray-600 font-medium py-1">{row.label}</div>
-                <div key={`a-${row.label}`} className="py-1 font-bold text-gray-900">{row.a}</div>
+                <div key={`l-${row.label}`} className="text-left text-muted-foreground font-medium py-1">{row.label}</div>
+                <div key={`a-${row.label}`} className="py-1 font-bold text-foreground">{row.a}</div>
                 <div key={`b-${row.label}`} className={`py-1 font-bold flex items-center justify-center gap-1 ${
                   row.higherIsBetter
-                    ? (row.b > row.a ? 'text-green-700' : row.b < row.a ? 'text-red-700' : 'text-gray-700')
-                    : (row.b < row.a ? 'text-green-700' : row.b > row.a ? 'text-red-700' : 'text-gray-700')
+                    ? (row.b > row.a ? 'text-green-700' : row.b < row.a ? 'text-red-700' : 'text-foreground')
+                    : (row.b < row.a ? 'text-green-700' : row.b > row.a ? 'text-red-700' : 'text-foreground')
                 }`}>
                   {row.b}
                   {row.b !== row.a && (
@@ -238,18 +238,18 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                 <div>
                   <p className="text-xs font-semibold text-green-700 mb-1">✅ PRMs resolvidos entre análises ({resolvedPRMs.length})</p>
                   {resolvedPRMs.length === 0
-                    ? <p className="text-xs text-gray-400">Nenhum</p>
+                    ? <p className="text-xs text-muted-foreground">Nenhum</p>
                     : resolvedPRMs.slice(0, 3).map(f => (
-                        <p key={f.id} className="text-xs text-gray-600 truncate">· {f.title}</p>
+                        <p key={f.id} className="text-xs text-muted-foreground truncate">· {f.title}</p>
                       ))
                   }
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-red-700 mb-1">🆕 Novos PRMs ({newPRMs.length})</p>
                   {newPRMs.length === 0
-                    ? <p className="text-xs text-gray-400">Nenhum</p>
+                    ? <p className="text-xs text-muted-foreground">Nenhum</p>
                     : newPRMs.slice(0, 3).map(f => (
-                        <p key={f.id} className="text-xs text-gray-600 truncate">· {f.title}</p>
+                        <p key={f.id} className="text-xs text-muted-foreground truncate">· {f.title}</p>
                       ))
                   }
                 </div>
@@ -267,10 +267,10 @@ export function PatientTimeline({ analyses, patientId }: Props) {
             { label: 'Urgentes',      data: urgentData, color: '#dc2626' },
             { label: 'Resolvidos',    data: resolvedData, color: '#16a34a' },
           ].map(s => (
-            <div key={s.label} className="rounded-lg border bg-white p-3 flex flex-col gap-2">
-              <p className="text-xs text-gray-500">{s.label}</p>
+            <div key={s.label} className="rounded-lg border bg-card p-3 flex flex-col gap-2">
+              <p className="text-xs text-muted-foreground">{s.label}</p>
               <Sparkline data={s.data} color={s.color} />
-              <p className="text-[10px] text-gray-400">últimas {s.data.length} análises</p>
+              <p className="text-[10px] text-muted-foreground">últimas {s.data.length} análises</p>
             </div>
           ))}
         </div>
@@ -300,27 +300,27 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                   isSelected
                     ? 'border-blue-500 bg-blue-500 text-white'
                     : idx === 0
-                      ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white'
-                      : 'border-gray-300 bg-white text-gray-500'
+                      ? 'border-brand-800 bg-brand-800 text-white'
+                      : 'border-border bg-card text-muted-foreground'
                 }`}>
                   {analyses.length - idx}
                 </div>
 
                 {/* Card */}
-                <div className={`rounded-xl border bg-white shadow-sm transition-all ${
-                  isSelected ? 'border-blue-400 ring-2 ring-blue-200' : 'border-gray-200'
+                <div className={`rounded-xl border bg-card shadow-sm transition-all ${
+                  isSelected ? 'border-blue-400 ring-2 ring-blue-200' : 'border-border'
                 }`}>
                   {/* Cabeçalho do card */}
                   <div className="flex items-center justify-between px-5 py-3.5">
                     <div className="flex items-center gap-3 min-w-0">
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-semibold text-gray-900">{formatDate(analysis.createdAt)}</p>
+                          <p className="text-sm font-semibold text-foreground">{formatDate(analysis.createdAt)}</p>
                           {idx === 0 && (
-                            <span className="rounded-full bg-[#1e3a5f] px-2 py-0.5 text-[10px] font-medium text-white">Mais recente</span>
+                            <span className="rounded-full bg-brand-800 px-2 py-0.5 text-[10px] font-medium text-white">Mais recente</span>
                           )}
                         </div>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {analysis.totalPRMs} PRM{analysis.totalPRMs !== 1 ? 's' : ''} identificado{analysis.totalPRMs !== 1 ? 's' : ''}
                           {analysis.resolvedPRMs > 0 && ` · ${analysis.resolvedPRMs} resolvido${analysis.resolvedPRMs !== 1 ? 's' : ''}`}
                         </p>
@@ -341,7 +341,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
 
                       {/* Tendência vs análise anterior */}
                       {prev && (
-                        <div className="flex items-center gap-0.5 text-xs text-gray-400">
+                        <div className="flex items-center gap-0.5 text-xs text-muted-foreground">
                           <Trend curr={analysis.totalPRMs} prev={prev.totalPRMs} />
                         </div>
                       )}
@@ -350,7 +350,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                       {!compareMode && (
                         <button
                           onClick={e => { e.stopPropagation(); setExpandedId(isExpanded ? null : analysis.id) }}
-                          className="ml-1 rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-colors"
+                          className="ml-1 rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-gray-700 transition-colors"
                         >
                           {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </button>
@@ -361,7 +361,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                         <Link
                           href={`/analysis/${analysis.id}`}
                           onClick={e => e.stopPropagation()}
-                          className="rounded-lg border border-gray-200 p-1.5 text-gray-400 hover:bg-gray-50 hover:text-[#1e3a5f] transition-colors"
+                          className="rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-brand-800 transition-colors"
                           title="Ver análise completa"
                         >
                           <ArrowRight className="h-3.5 w-3.5" />
@@ -374,7 +374,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                   {analysis.totalPRMs > 0 && (
                     <div className="px-5 pb-3">
                       <div className="flex items-center gap-2">
-                        <div className="flex-1 h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                           <div
                             className="h-full rounded-full transition-all duration-500"
                             style={{
@@ -383,14 +383,14 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                             }}
                           />
                         </div>
-                        <span className="text-[10px] text-gray-400 w-8 text-right">{resolutionRate}%</span>
+                        <span className="text-[10px] text-muted-foreground w-8 text-right">{resolutionRate}%</span>
                       </div>
                     </div>
                   )}
 
                   {/* Conteúdo expandido */}
                   {isExpanded && !compareMode && (
-                    <div className="border-t border-gray-100 px-5 py-4 space-y-3">
+                    <div className="border-t border-border px-5 py-4 space-y-3">
                       {/* Achados agrupados por risco */}
                       {(['URGENT', 'HIGH', 'MODERATE', 'LOW'] as const).map(level => {
                         const group = analysis.findings.filter(f => f.riskLevel === level)
@@ -406,10 +406,10 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                                   className={`flex items-start gap-2 rounded-lg border px-3 py-2 text-xs ${RISK_BG[f.riskLevel]}`}>
                                   <div className={`mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full ${RISK_COLORS[f.riskLevel]}`} />
                                   <div className="min-w-0">
-                                    <p className={`font-medium truncate ${f.isResolved ? 'line-through text-gray-400' : RISK_TEXT[f.riskLevel]}`}>
+                                    <p className={`font-medium truncate ${f.isResolved ? 'line-through text-muted-foreground' : RISK_TEXT[f.riskLevel]}`}>
                                       {f.title}
                                     </p>
-                                    <p className="text-gray-500 mt-0.5">{CATEGORY_LABELS[f.category] || f.category}</p>
+                                    <p className="text-muted-foreground mt-0.5">{CATEGORY_LABELS[f.category] || f.category}</p>
                                   </div>
                                   {f.isResolved && (
                                     <CheckCircle2 className="h-3.5 w-3.5 text-green-500 flex-shrink-0 mt-0.5" />
@@ -429,18 +429,18 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                         const goneKeys = prev.findings.filter(f => !titlesNow.has(f.title))
                         if (newPRMs.length === 0 && goneKeys.length === 0) return null
                         return (
-                          <div className="border-t border-dashed border-gray-200 pt-3 space-y-2">
-                            <p className="text-xs font-semibold text-gray-500">Variação vs análise anterior ({formatDateShort(prev.createdAt)})</p>
+                          <div className="border-t border-dashed border-border pt-3 space-y-2">
+                            <p className="text-xs font-semibold text-muted-foreground">Variação vs análise anterior ({formatDateShort(prev.createdAt)})</p>
                             {newPRMs.length > 0 && (
                               <div>
                                 <p className="text-[10px] font-medium text-red-600 mb-1">🆕 Novos PRMs detectados</p>
-                                {newPRMs.map(f => <p key={f.id} className="text-[10px] text-gray-600 truncate pl-2">· {f.title}</p>)}
+                                {newPRMs.map(f => <p key={f.id} className="text-[10px] text-muted-foreground truncate pl-2">· {f.title}</p>)}
                               </div>
                             )}
                             {goneKeys.length > 0 && (
                               <div>
                                 <p className="text-[10px] font-medium text-green-600 mb-1">✅ PRMs não recorrentes</p>
-                                {goneKeys.map(f => <p key={f.id} className="text-[10px] text-gray-600 truncate pl-2">· {f.title}</p>)}
+                                {goneKeys.map(f => <p key={f.id} className="text-[10px] text-muted-foreground truncate pl-2">· {f.title}</p>)}
                               </div>
                             )}
                           </div>

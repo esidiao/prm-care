@@ -98,7 +98,7 @@ export function OnboardingChecklist({ hasPatient, hasAnalysis, hasReport, hasPro
     <div className="rounded-xl border border-blue-200 bg-white shadow-sm overflow-hidden">
       {/* Header */}
       <div
-        className="flex items-center gap-3 px-5 py-4 cursor-pointer select-none bg-gradient-to-r from-[#0f2744] to-[#1e3a5f] text-white"
+        className="flex items-center gap-3 px-5 py-4 cursor-pointer select-none bg-gradient-to-r from-brand-900 to-brand-800 text-white"
         onClick={() => setCollapsed(c => !c)}
       >
         <Sparkles className="h-4 w-4 text-blue-300 flex-shrink-0" />
@@ -159,7 +159,7 @@ export function OnboardingChecklist({ hasPatient, hasAnalysis, hasReport, hasPro
                 {!step.done && (
                   <Link
                     href={step.href}
-                    className="flex-shrink-0 flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#162d4a] transition-colors"
+                    className="flex-shrink-0 flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-900 transition-colors"
                   >
                     <Icon className="h-3 w-3" />
                     {step.cta}

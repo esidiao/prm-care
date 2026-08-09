@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -29,15 +29,18 @@ export async function GET() {
     },
   })
 
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+  if (!user) return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
   return NextResponse.json(user)
 }
 
 export async function PATCH(req: Request) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { name, institution, crfNumber, specialization, image } = body as {
     name?: string
     institution?: string

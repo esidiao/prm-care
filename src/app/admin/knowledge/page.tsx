@@ -39,7 +39,7 @@ export default async function KnowledgePage() {
           <p className="text-gray-500">{entries.length} entrada(s) · {pendingCount} pendente(s) de validação</p>
         </div>
         <Link href="/admin/knowledge/new"
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
           <Plus className="h-4 w-4" /> Nova entrada
         </Link>
       </div>
@@ -82,14 +82,14 @@ export default async function KnowledgePage() {
                   )}
                 </td>
                 <td className="px-5 py-3">
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-[#1e3a5f]">
+                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-brand-800">
                     {TYPE_LABELS[entry.type] || entry.type}
                   </span>
                 </td>
                 <td className="px-5 py-3 text-gray-500 max-w-xs truncate">
                   {entry.sourceUrl ? (
                     <a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer"
-                      className="hover:underline text-[#1e3a5f]">{entry.source}</a>
+                      className="hover:underline text-brand-800">{entry.source}</a>
                   ) : entry.source}
                 </td>
                 <td className="px-5 py-3">
@@ -106,7 +106,7 @@ export default async function KnowledgePage() {
                 <td className="px-5 py-3">
                   <Link
                     href={`/admin/knowledge/${entry.id}`}
-                    className="text-xs text-[#1e3a5f] hover:underline font-medium"
+                    className="text-xs text-brand-800 hover:underline font-medium"
                   >
                     Editar
                   </Link>
@@ -120,7 +120,7 @@ export default async function KnowledgePage() {
           <div className="py-16 text-center">
             <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
             <p className="text-gray-500">Base de conhecimento vazia</p>
-            <Link href="/admin/knowledge/new" className="mt-2 inline-block text-sm text-[#1e3a5f] hover:underline">
+            <Link href="/admin/knowledge/new" className="mt-2 inline-block text-sm text-brand-800 hover:underline">
               Adicionar primeira entrada
             </Link>
           </div>
@@ -129,7 +129,7 @@ export default async function KnowledgePage() {
 
       {/* Sources guidance */}
       <div className="rounded-xl border border-blue-100 bg-[#eff6ff] p-5">
-        <h3 className="font-semibold text-[#1e3a5f] mb-3">Fontes recomendadas para atualização</h3>
+        <h3 className="font-semibold text-brand-800 mb-3">Fontes recomendadas para atualização</h3>
         <ul className="space-y-1.5 text-sm text-blue-700">
           {[
             'Bulário Eletrônico da Anvisa — bulario.anvisa.gov.br',

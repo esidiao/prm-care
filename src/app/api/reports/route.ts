@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { consumeTokens, hasEnoughTokens } from '@/lib/token-service'
 import { generateReportPDF } from '@/lib/pdf-generator'
+import { reportLimiter } from '@/lib/rate-limit'
 import { ReportType } from '@prisma/client'
 
 const REPORT_COSTS: Record<ReportType, number> = {
@@ -15,6 +16,15 @@ const REPORT_COSTS: Record<ReportType, number> = {
 export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  // Geração de PDF é intensiva — limita abuso por usuário
+  const rl = await reportLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas gerações de relatório em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
+  }
 
   try {
     const { analysisId, type = 'COMPLETE', isAnonymized = false } = await req.json()
@@ -54,8 +64,10 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Verificar relatório já existente
-    const existingReport = await prisma.report.findUnique({ where: { analysisId } })
+    const reportType = type as ReportType
+
+    // Verificar relatório já existente (filtra por type para evitar retornar relatório do tipo errado)
+    const existingReport = await prisma.report.findFirst({ where: { analysisId, type: reportType } })
     if (existingReport) {
       return NextResponse.json({
         success: true,
@@ -64,7 +76,6 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    const reportType = type as ReportType
     const cost = REPORT_COSTS[reportType] ?? 2
 
     const sufficient = await hasEnoughTokens(session.user.id, cost)
@@ -96,8 +107,8 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Gerar PDF em background (não bloqueia resposta)
-    generatePDFInBackground(report.id, analysis, user, isAnonymized, reportType)
+    // Gerar PDF em background (intencional — não bloqueia resposta; status PENDING até fileUrl ser preenchido)
+    void generatePDFInBackground(report.id, analysis, user, isAnonymized, reportType)
 
     await prisma.auditLog.create({
       data: {

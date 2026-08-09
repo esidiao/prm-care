@@ -15,7 +15,10 @@ export async function PATCH(
   })
   if (!note) return NextResponse.json({ error: 'Nota não encontrada' }, { status: 404 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const updated = await prisma.clinicalNote.update({
     where: { id: params.noteId },
     data: {

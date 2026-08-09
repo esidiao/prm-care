@@ -24,20 +24,24 @@ export async function POST(req: Request) {
     patientId = p.id
   }
 
-  const query = await prisma.ddiQuery.create({
-    data: {
-      userId: session.user.id,
-      patientId,
-      inputDrugs: drugs,
-      globalRisk: body?.globalRisk ?? null,
-      count: interactions.length,
-    },
-  })
-  if (interactions.length > 0) {
-    await prisma.ddiResult.createMany({
-      data: interactions.map((it) => ({ queryId: query.id, severity: it.severity ?? 'minor', payload: it as object })),
+  // Atomicidade: a consulta e seus resultados são gravados juntos ou não são gravados
+  const query = await prisma.$transaction(async (tx) => {
+    const q = await tx.ddiQuery.create({
+      data: {
+        userId: session.user.id,
+        patientId,
+        inputDrugs: drugs,
+        globalRisk: body?.globalRisk ?? null,
+        count: interactions.length,
+      },
     })
-  }
+    if (interactions.length > 0) {
+      await tx.ddiResult.createMany({
+        data: interactions.map((it) => ({ queryId: q.id, severity: it.severity ?? 'minor', payload: it as object })),
+      })
+    }
+    return q
+  })
   // Trilha de auditoria (sem PII de paciente)
   await prisma.auditLog.create({
     data: { userId: session.user.id, action: 'DDI_CHECK_SAVED', resource: 'interactions', details: { queryId: query.id, count: interactions.length, globalRisk: body?.globalRisk ?? null } },

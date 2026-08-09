@@ -87,16 +87,16 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl bg-card shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center justify-between border-b px-6 py-4">
           <div className="flex items-center gap-2">
-            <Shield className="h-5 w-5 text-[#1e3a5f]" />
-            <h2 className="font-bold text-gray-900">Confirmar compra</h2>
+            <Shield className="h-5 w-5 text-brand-800" />
+            <h2 className="font-bold text-foreground">Confirmar compra</h2>
           </div>
-          <button onClick={onCancel} className="rounded-full p-1.5 hover:bg-gray-100 transition-colors">
-            <X className="h-4 w-4 text-gray-500" />
+          <button onClick={onCancel} className="rounded-full p-1.5 hover:bg-muted transition-colors">
+            <X className="h-4 w-4 text-muted-foreground" />
           </button>
         </div>
 
@@ -104,20 +104,20 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
         <div className="px-6 py-5 space-y-4">
 
           {/* Resumo do pacote */}
-          <div className="rounded-xl bg-[#eff6ff] border border-[#1e3a5f]/15 p-4">
-            <p className="text-xs text-gray-500 mb-1">Você está comprando</p>
+          <div className="rounded-xl bg-[#eff6ff] border border-brand-800/15 p-4">
+            <p className="text-xs text-muted-foreground mb-1">Você está comprando</p>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-bold text-gray-900">{pkg.name}</p>
-                <p className="text-sm text-gray-600">{pkg.tokens} tokens para análises farmacoterapêuticas</p>
+                <p className="font-bold text-foreground">{pkg.name}</p>
+                <p className="text-sm text-muted-foreground">{pkg.tokens} tokens para análises farmacoterapêuticas</p>
               </div>
-              <p className="text-xl font-bold text-[#1e3a5f]">{formatCurrency(pkg.priceInCents)}</p>
+              <p className="text-xl font-bold text-brand-800">{formatCurrency(pkg.priceInCents)}</p>
             </div>
           </div>
 
           {/* Termos resumidos */}
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-xs text-gray-600 space-y-2 max-h-40 overflow-y-auto">
-            <p className="font-semibold text-gray-800 flex items-center gap-1.5">
+          <div className="rounded-xl border border-border bg-muted p-4 text-xs text-muted-foreground space-y-2 max-h-40 overflow-y-auto">
+            <p className="font-semibold text-foreground flex items-center gap-1.5">
               <FileText className="h-3.5 w-3.5" /> Termos de uso — Tokens PRM Care (v1.0)
             </p>
             <p>
@@ -135,7 +135,7 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
             <p>
               5. Em caso de dúvidas ou problemas com o pagamento, entre em contato pelo e-mail suporte@prmcare.com.br.
             </p>
-            <p className="text-gray-400">
+            <p className="text-muted-foreground">
               Versão 1.0 — {now.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })}
             </p>
           </div>
@@ -146,15 +146,15 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
               type="checkbox"
               checked={accepted}
               onChange={e => setAccepted(e.target.checked)}
-              className="mt-0.5 h-4 w-4 rounded border-gray-300 accent-[#1e3a5f]"
+              className="mt-0.5 h-4 w-4 rounded border-border accent-brand-800"
             />
-            <span className="text-sm text-gray-700">
+            <span className="text-sm text-foreground">
               Li e aceito os{' '}
-              <Link href="/terms" target="_blank" className="text-[#1e3a5f] underline underline-offset-2">
+              <Link href="/terms" target="_blank" className="text-brand-800 underline underline-offset-2">
                 Termos de Uso
               </Link>{' '}
               e a{' '}
-              <Link href="/privacy" target="_blank" className="text-[#1e3a5f] underline underline-offset-2">
+              <Link href="/privacy" target="_blank" className="text-brand-800 underline underline-offset-2">
                 Política de Privacidade
               </Link>{' '}
               da plataforma PRM Care. Compreendo que os tokens adquiridos não são reembolsáveis.
@@ -162,7 +162,7 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
           </label>
 
           {/* Data/hora do aceite */}
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Aceite registrado com data/hora e IP para fins de comprovação. {now.toLocaleString('pt-BR')}
           </p>
         </div>
@@ -171,14 +171,14 @@ function ConsentModal({ pkg, onConfirm, onCancel, loading }: ConsentModalProps) 
         <div className="border-t px-6 py-4 flex gap-3">
           <button
             onClick={onCancel}
-            className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex-1 rounded-xl border border-border py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
             disabled={!accepted || loading}
-            className="flex-1 rounded-xl bg-[#1e3a5f] py-2.5 text-sm font-semibold text-white hover:bg-[#162d4a] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="flex-1 rounded-xl bg-brand-800 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             {loading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -266,14 +266,14 @@ export default function TokensPage() {
 
       <div className="space-y-6">
         <div className="page-header">
-          <h1 className="text-2xl font-bold text-gray-900">Tokens e créditos</h1>
-          <p className="text-gray-500">Gerencie seu saldo e histórico de uso</p>
+          <h1 className="text-2xl font-bold text-foreground">Tokens e créditos</h1>
+          <p className="text-muted-foreground">Gerencie seu saldo e histórico de uso</p>
         </div>
 
         <StatusBanner status={status} />
 
         {/* Balance */}
-        <div className="rounded-xl border bg-[#1e3a5f] p-6 text-white shadow-sm">
+        <div className="rounded-xl border bg-brand-800 p-6 text-white shadow-sm">
           <p className="text-blue-200 text-sm mb-1">Saldo atual</p>
           <div className="flex items-end gap-3">
             <span className="text-5xl font-bold tabular-nums">{balance}</span>
@@ -288,8 +288,8 @@ export default function TokensPage() {
         </div>
 
         {/* Token cost reference */}
-        <div className="rounded-xl border bg-white p-5 shadow-sm">
-          <h2 className="font-semibold text-gray-900 mb-4">Custo por operação</h2>
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="font-semibold text-foreground mb-4">Custo por operação</h2>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
             {[
               { label: 'Análise básica (≤ 3 medicamentos)', cost: 1 },
@@ -299,9 +299,9 @@ export default function TokensPage() {
               { label: 'Reanálise', cost: 1 },
               { label: 'Relatório institucional', cost: 5 },
             ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-4 py-2.5">
-                <span className="text-sm text-gray-600">{item.label}</span>
-                <div className="flex items-center gap-1 font-semibold text-[#1e3a5f]">
+              <div key={i} className="flex items-center justify-between rounded-lg border border-border bg-muted px-4 py-2.5">
+                <span className="text-sm text-muted-foreground">{item.label}</span>
+                <div className="flex items-center gap-1 font-semibold text-brand-800">
                   <Coins className="h-3.5 w-3.5" /> {item.cost}
                 </div>
               </div>
@@ -311,14 +311,14 @@ export default function TokensPage() {
 
         {/* Packages */}
         <div>
-          <h2 className="mb-4 text-lg font-bold text-gray-900">Comprar tokens</h2>
+          <h2 className="mb-4 text-lg font-bold text-foreground">Comprar tokens</h2>
           {loadingPackages ? (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="rounded-xl border-2 border-gray-100 bg-white p-5 animate-pulse">
-                  <div className="h-8 w-16 bg-gray-100 rounded mb-2" />
-                  <div className="h-4 w-24 bg-gray-100 rounded mb-4" />
-                  <div className="h-6 w-20 bg-gray-100 rounded" />
+                <div key={i} className="rounded-xl border-2 border-border bg-card p-5 animate-pulse">
+                  <div className="h-8 w-16 bg-muted rounded mb-2" />
+                  <div className="h-4 w-24 bg-muted rounded mb-4" />
+                  <div className="h-6 w-20 bg-muted rounded" />
                 </div>
               ))}
             </div>
@@ -329,26 +329,26 @@ export default function TokensPage() {
                   key={pkg.id}
                   className={`rounded-xl border-2 p-5 shadow-sm transition-all ${
                     pkg.isFeatured
-                      ? 'border-[#1e3a5f] bg-[#eff6ff]'
-                      : 'border-gray-200 bg-white hover:border-[#1e3a5f]'
+                      ? 'border-brand-800 bg-[#eff6ff]'
+                      : 'border-border bg-card hover:border-brand-800'
                   }`}
                 >
                   {pkg.isFeatured && (
-                    <span className="mb-2 inline-block rounded-full bg-[#1e3a5f] px-2.5 py-0.5 text-xs font-bold text-white">
+                    <span className="mb-2 inline-block rounded-full bg-brand-800 px-2.5 py-0.5 text-xs font-bold text-white">
                       Recomendado
                     </span>
                   )}
                   <div className="flex items-end gap-1 mb-1">
-                    <span className="text-3xl font-bold text-[#1e3a5f]">{pkg.tokens}</span>
-                    <span className="text-gray-500 mb-0.5">tokens</span>
+                    <span className="text-3xl font-bold text-brand-800">{pkg.tokens}</span>
+                    <span className="text-muted-foreground mb-0.5">tokens</span>
                   </div>
-                  <p className="font-semibold text-gray-900">{pkg.name}</p>
+                  <p className="font-semibold text-foreground">{pkg.name}</p>
                   {pkg.description && (
-                    <p className="text-xs text-gray-500 mt-1">{pkg.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{pkg.description}</p>
                   )}
-                  <div className="mt-4 pt-3 border-t border-gray-200">
-                    <p className="text-lg font-bold text-gray-900">{formatCurrency(pkg.priceInCents)}</p>
-                    <p className="text-xs text-gray-400">
+                  <div className="mt-4 pt-3 border-t border-border">
+                    <p className="text-lg font-bold text-foreground">{formatCurrency(pkg.priceInCents)}</p>
+                    <p className="text-xs text-muted-foreground">
                       {formatCurrency(Math.round(pkg.priceInCents / pkg.tokens))} por token
                     </p>
                   </div>
@@ -357,8 +357,8 @@ export default function TokensPage() {
                     disabled={selectedPkg !== null}
                     className={`mt-3 w-full rounded-lg py-2.5 text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
                       pkg.isFeatured
-                        ? 'bg-[#1e3a5f] text-white hover:bg-[#162d4a]'
-                        : 'bg-gray-100 text-gray-900 hover:bg-[#1e3a5f] hover:text-white'
+                        ? 'bg-brand-800 text-white hover:bg-brand-900'
+                        : 'bg-muted text-foreground hover:bg-brand-800 hover:text-white'
                     } disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
                     <ShoppingCart className="h-4 w-4" />
@@ -381,12 +381,12 @@ export default function TokensPage() {
         </div>
 
         {/* History */}
-        <div className="rounded-xl border bg-white shadow-sm">
+        <div className="rounded-xl border bg-card shadow-sm">
           <div className="border-b px-5 py-4">
-            <h2 className="font-semibold text-gray-900">Histórico de transações</h2>
+            <h2 className="font-semibold text-foreground">Histórico de transações</h2>
           </div>
           {history.length === 0 ? (
-            <div className="py-8 text-center text-sm text-gray-400">Nenhuma transação encontrada</div>
+            <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma transação encontrada</div>
           ) : (
             <div className="divide-y">
               {history.slice(0, 10).map((tx) => (
@@ -398,15 +398,15 @@ export default function TokensPage() {
                         : <TrendingDown className="h-4 w-4 text-red-600" />}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{tx.description ?? tx.type}</p>
-                      <p className="text-xs text-gray-400">{formatDateTime(tx.createdAt)}</p>
+                      <p className="text-sm font-medium text-foreground">{tx.description ?? tx.type}</p>
+                      <p className="text-xs text-muted-foreground">{formatDateTime(tx.createdAt)}</p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className={`font-semibold ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {tx.amount > 0 ? '+' : ''}{tx.amount} tokens
                     </p>
-                    <p className="text-xs text-gray-400">Saldo: {tx.balanceAfter}</p>
+                    <p className="text-xs text-muted-foreground">Saldo: {tx.balanceAfter}</p>
                   </div>
                 </div>
               ))}

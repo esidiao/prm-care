@@ -6,6 +6,7 @@ import {
   Italic, List, Minus,
 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { escapeHtml } from '@/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -26,7 +27,10 @@ interface Props {
 // ── Markdown renderer (lightweight, no dependency) ────────────────────────────
 
 function renderMarkdown(text: string): string {
-  return text
+  // SEGURANÇA: escapar ANTES de aplicar a sintaxe Markdown. O resultado vai para
+  // dangerouslySetInnerHTML, então qualquer HTML vindo da nota clínica (ex.:
+  // <img src=x onerror=...>) executaria no navegador de quem abrir o paciente.
+  return escapeHtml(text)
     // Headers
     .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 mt-3 mb-1">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-gray-900 dark:text-gray-100 mt-3 mb-1">$1</h2>')
@@ -275,7 +279,7 @@ function NoteEditor({
 
       <div className="flex items-center gap-2">
         <button onClick={onSave} disabled={!value.trim() || loading}
-          className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#162d4a] disabled:opacity-50 transition-colors dark:bg-blue-600 dark:hover:bg-blue-500">
+          className="flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-900 disabled:opacity-50 transition-colors dark:bg-blue-600 dark:hover:bg-blue-500">
           {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
           Salvar
         </button>

@@ -23,7 +23,7 @@ interface TourStep {
 const steps: TourStep[] = [
   {
     icon: Sparkles,
-    color: 'from-[#0f2744] to-[#1e3a5f]',
+    color: 'from-brand-900 to-brand-800',
     title: 'Bem-vindo ao PRM Care',
     description: 'Sua plataforma de farmácia clínica baseada no Método Dáder.',
     detail: 'O PRM Care automatiza a identificação de Problemas Relacionados a Medicamentos (PRMs), combinando regras clínicas locais com análise por Inteligência Artificial.',
@@ -301,7 +301,7 @@ export function GuidedTour({ trigger }: GuidedTourProps) {
                   ) : (
                     <button
                       onClick={() => setStep(s => s + 1)}
-                      className="flex items-center gap-1 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#162d4a] transition-colors"
+                      className="flex items-center gap-1 rounded-lg bg-brand-800 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-900 transition-colors"
                     >
                       Próximo <ChevronRight className="h-4 w-4" />
                     </button>

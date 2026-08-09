@@ -85,7 +85,7 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
           </Link>
           {!analysis.report ? (
             <Link href={`/reports/new?analysisId=${analysis.id}`}
-              className="flex items-center gap-2 rounded-lg border border-[#1e3a5f] px-4 py-2 text-sm font-medium text-[#1e3a5f] hover:bg-[#eff6ff] transition-colors">
+              className="flex items-center gap-2 rounded-lg border border-brand-800 px-4 py-2 text-sm font-medium text-brand-800 hover:bg-[#eff6ff] transition-colors">
               <FileText className="h-4 w-4" /> Gerar Relatório
             </Link>
           ) : (
@@ -131,14 +131,14 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
       {/* Summary */}
       <div className="rounded-xl border bg-white p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <Activity className="h-4 w-4 text-[#1e3a5f]" />
+          <Activity className="h-4 w-4 text-brand-800" />
           <h2 className="font-semibold text-gray-900">Resumo clínico</h2>
         </div>
         {/* Split summary into sentences for readability */}
         <div className="space-y-1.5">
           {(analysis.summary ?? '').split(/(?<=[.!?])\s+/).filter(Boolean).map((sentence, i) => (
             <p key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#1e3a5f]/30 flex-shrink-0" />
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-800/30 flex-shrink-0" />
               {sentence}
             </p>
           ))}
@@ -197,7 +197,7 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
       {analysis.soapRecord && (
         <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
           <div className="flex items-center gap-2 border-b bg-gray-50 px-5 py-3.5">
-            <BookOpen className="h-4 w-4 text-[#1e3a5f]" />
+            <BookOpen className="h-4 w-4 text-brand-800" />
             <h2 className="font-semibold text-gray-800 text-sm">Registro SOAP</h2>
             <span className="ml-auto text-[10px] text-gray-400 uppercase tracking-wide">Documentação clínica</span>
           </div>

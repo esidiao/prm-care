@@ -163,7 +163,7 @@ export function ReconciliationReportPanel(p: Props) {
     <div className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 print:hidden">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold text-gray-900"><FileText className="h-5 w-5 text-[#2c7a7b]" /> Relatório de conciliação</h2>
-        <button onClick={() => setOpen(!open)} className="rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-sm font-medium text-white">{open ? 'Fechar' : 'Gerar relatório'}</button>
+        <button onClick={() => setOpen(!open)} className="rounded-lg bg-brand-800 px-3 py-1.5 text-sm font-medium text-white">{open ? 'Fechar' : 'Gerar relatório'}</button>
       </div>
 
       {open && (

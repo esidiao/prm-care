@@ -45,7 +45,7 @@ export default async function SettingsPage() {
       {/* ── Dados da conta (read-only) ── */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <h2 className="mb-3 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Dados da conta
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Dados da conta
         </h2>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           {[
@@ -66,7 +66,7 @@ export default async function SettingsPage() {
       {/* ── Foto de perfil ── */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Foto de perfil
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Foto de perfil
         </h2>
         <AvatarUpload currentImage={user.image} userName={user.name} />
       </div>
@@ -74,7 +74,7 @@ export default async function SettingsPage() {
       {/* ── Editar perfil ── */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Editar perfil
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Editar perfil
         </h2>
         <ProfileForm
           profile={{
@@ -91,11 +91,11 @@ export default async function SettingsPage() {
       {/* ── Plano e tokens ── */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <Coins className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Plano e tokens
+          <Coins className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Plano e tokens
         </h2>
-        <div className="flex items-center justify-between rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f]/20 p-4">
+        <div className="flex items-center justify-between rounded-xl bg-[#eff6ff] dark:bg-brand-800/20 p-4">
           <div>
-            <p className="font-semibold text-[#1e3a5f] dark:text-blue-300">Plano {PLAN_LABELS[user.plan]}</p>
+            <p className="font-semibold text-brand-800 dark:text-blue-300">Plano {PLAN_LABELS[user.plan]}</p>
             <p className="text-sm text-blue-700 dark:text-blue-400">
               {user.plan === 'INSTITUTIONAL' ? 'Acesso ilimitado' : `Saldo: ${user.tokenBalance} tokens`}
             </p>
@@ -103,7 +103,7 @@ export default async function SettingsPage() {
           {user.plan !== 'INSTITUTIONAL' && (
             <a
               href="/tokens"
-              className="rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors"
+              className="rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors"
             >
               Comprar tokens
             </a>
@@ -114,7 +114,7 @@ export default async function SettingsPage() {
       {/* ── Segurança / Senha ── */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
         <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <Key className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Alterar senha
+          <Key className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Alterar senha
         </h2>
         {!user.password ? (
           <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-4 text-sm">
@@ -144,7 +144,7 @@ export default async function SettingsPage() {
       {user.consents.length > 0 && (
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
           <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-            <Shield className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Consentimentos LGPD
+            <Shield className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Consentimentos LGPD
           </h2>
           <div className="space-y-2">
             {user.consents.map((consent) => (
@@ -169,10 +169,10 @@ export default async function SettingsPage() {
           </div>
           <div className="mt-4 flex items-center gap-3">
             <Link href="/settings/my-data"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-xs font-semibold text-white hover:bg-[#162d4a] transition-colors">
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-900 transition-colors">
               <Download className="h-3.5 w-3.5" /> Exportar / Meus Dados
             </Link>
-            <a href="mailto:privacidade@prmcare.com.br" className="text-xs text-[#1e3a5f] dark:text-blue-400 underline">
+            <a href="mailto:privacidade@prmcare.com.br" className="text-xs text-brand-800 dark:text-blue-400 underline">
               Falar com o DPO
             </a>
           </div>

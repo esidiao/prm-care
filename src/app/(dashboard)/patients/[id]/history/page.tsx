@@ -71,8 +71,8 @@ export default async function PatientHistoryPage({ params }: { params: { id: str
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e3a5f]/10">
-            <History className="h-5 w-5 text-[#1e3a5f]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-800/10">
+            <History className="h-5 w-5 text-brand-800" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-gray-900">Histórico de análises</h1>
@@ -85,7 +85,7 @@ export default async function PatientHistoryPage({ params }: { params: { id: str
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Link>
           <Link href={`/analysis/new?patientId=${patient.id}`}
-            className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+            className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             <FlaskConical className="h-4 w-4" /> Nova análise
           </Link>
         </div>

@@ -129,7 +129,7 @@ export default function NewMedicationPage() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="card-padded space-y-5">
           <div className="flex items-center gap-2 border-b border-gray-100 pb-4">
-            <Pill className="h-5 w-5 text-[#1e3a5f]" />
+            <Pill className="h-5 w-5 text-brand-800" />
             <h2 className="font-semibold text-gray-900">Identificação do medicamento</h2>
           </div>
 
@@ -252,7 +252,7 @@ export default function NewMedicationPage() {
               <input
                 type="checkbox"
                 {...register('isSelfMedication')}
-                className="h-4 w-4 rounded border-gray-300 text-[#1e3a5f]"
+                className="h-4 w-4 rounded border-gray-300 text-brand-800"
               />
               Automedicação
             </label>
@@ -260,7 +260,7 @@ export default function NewMedicationPage() {
               <input
                 type="checkbox"
                 {...register('isActive')}
-                className="h-4 w-4 rounded border-gray-300 text-[#1e3a5f]"
+                className="h-4 w-4 rounded border-gray-300 text-brand-800"
               />
               Em uso ativo
             </label>

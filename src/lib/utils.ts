@@ -144,6 +144,20 @@ export const ROUTE_LABELS: Record<string, string> = {
   OTHER: 'Outra',
 }
 
+/**
+ * Escapa os cinco caracteres com significado sintático em HTML.
+ * Obrigatório antes de interpolar conteúdo de usuário em qualquer string
+ * que vá para dangerouslySetInnerHTML ou template HTML.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength - 3) + '...'

@@ -45,7 +45,7 @@ export function UpcomingReviews() {
     <div className="card">
       <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
         <div className="flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+          <Calendar className="h-4 w-4 text-brand-800 dark:text-blue-400" />
           <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Próximas revisões</h2>
           {reviews.some((r) => {
             const diff = Math.ceil((new Date(r.scheduledDate).getTime() - Date.now()) / 86400000)
@@ -56,7 +56,7 @@ export function UpcomingReviews() {
             </span>
           )}
         </div>
-        <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] dark:text-blue-400 hover:underline">
+        <Link href="/patients" className="text-xs font-medium text-brand-800 dark:text-blue-400 hover:underline">
           Ver pacientes
         </Link>
       </div>
@@ -90,7 +90,7 @@ export function UpcomingReviews() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-[#1e3a5f] dark:group-hover:text-blue-400 transition-colors">
+                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-800 dark:group-hover:text-blue-400 transition-colors">
                     {r.patient.name || r.patient.code}
                   </p>
                   <p className="truncate text-xs text-gray-500 dark:text-gray-400">{r.title}</p>

@@ -126,7 +126,7 @@ export default async function ReconciliationPage({ params }: { params: { id: str
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between print:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e3a5f]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-800">
             <Pill className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -159,7 +159,7 @@ export default async function ReconciliationPage({ params }: { params: { id: str
           </p>
           <Link
             href={`/patients/${params.id}/edit`}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a]"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900"
           >
             Editar paciente
           </Link>

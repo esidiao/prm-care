@@ -53,15 +53,15 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Brand palette via CSS vars
+        // Brand palette via CSS vars — inclui <alpha-value> para suportar modificadores de opacidade (ex.: brand-800/20)
         brand: {
-          50:  'hsl(var(--brand-50))',
-          400: 'hsl(var(--brand-400))',
-          500: 'hsl(var(--brand-500))',
-          600: 'hsl(var(--brand-600))',
-          700: 'hsl(var(--brand-700))',
-          800: 'hsl(var(--brand-800))',
-          900: 'hsl(var(--brand-900))',
+          50:  'hsl(var(--brand-50) / <alpha-value>)',
+          400: 'hsl(var(--brand-400) / <alpha-value>)',
+          500: 'hsl(var(--brand-500) / <alpha-value>)',
+          600: 'hsl(var(--brand-600) / <alpha-value>)',
+          700: 'hsl(var(--brand-700) / <alpha-value>)',
+          800: 'hsl(var(--brand-800) / <alpha-value>)',
+          900: 'hsl(var(--brand-900) / <alpha-value>)',
         },
         // PRM Care semantic aliases (legacy support)
         prm: {

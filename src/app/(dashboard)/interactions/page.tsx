@@ -182,7 +182,7 @@ export default function InteractionsPage() {
       <p className="mt-1 text-sm text-slate-500">Cruze dois ou mais medicamentos e veja as interações da base clínica do PRM Care.</p>
 
       {/* entrada de medicamentos */}
-      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex gap-2">
           <input
             value={input} onChange={e => setInput(e.target.value)}
@@ -230,7 +230,7 @@ export default function InteractionsPage() {
             </div>
           )}
           {resp.interactions.length > 0 && (
-            <div className={`flex items-center justify-between rounded-xl border bg-white px-4 py-3 ${resp.globalRisk ? SEV[resp.globalRisk].ring : ''}`}>
+            <div className={`flex items-center justify-between rounded-xl border bg-white px-4 py-3 dark:border-gray-700 dark:bg-gray-800 ${resp.globalRisk ? SEV[resp.globalRisk].ring : ''}`}>
               <div className="flex items-center gap-3">
                 <AlertTriangle className={`h-5 w-5 ${resp.globalRisk === 'contraindicated' || resp.globalRisk === 'major' ? 'text-red-600' : 'text-amber-500'}`} />
                 <div>
@@ -261,7 +261,7 @@ export default function InteractionsPage() {
               const s = SEV[it.severity]
               const e = expl[`${it.drugs[0]} + ${it.drugs[1]}`.toLowerCase()]
               return (
-                <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 ${s.ring}`}>
+                <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 dark:border-gray-700 dark:bg-gray-800 ${s.ring}`}>
                   <div className={`absolute left-0 top-0 h-full w-1.5 ${s.bar}`} />
                   <div className="flex items-center gap-2">
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${s.chip}`}>{it.severityLabel}</span>
@@ -302,7 +302,7 @@ export default function InteractionsPage() {
                   const c = SEV[f.severity]
                   const typeChip = f.type === 'suplemento' ? 'bg-emerald-100 text-emerald-800' : f.type === 'álcool' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'
                   return (
-                    <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 ${c.ring}`}>
+                    <div key={i} className={`relative overflow-hidden rounded-xl border bg-white p-4 dark:border-gray-700 dark:bg-gray-800 ${c.ring}`}>
                       <div className={`absolute left-0 top-0 h-full w-1.5 ${c.bar}`} />
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-lg">{f.emoji}</span>
@@ -343,7 +343,7 @@ export default function InteractionsPage() {
 
           {/* Decisão clínica — disponível após salvar a consulta */}
           {savedId && (
-            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4">
+            <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
               <h3 className="text-sm font-semibold text-slate-800">Decisão clínica do farmacêutico</h3>
               <textarea
                 value={dec.note} onChange={e => setDec({ ...dec, note: e.target.value })}

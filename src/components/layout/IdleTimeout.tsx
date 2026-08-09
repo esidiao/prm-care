@@ -80,7 +80,7 @@ export function IdleTimeout() {
           </button>
           <button
             onClick={stayActive}
-            className="flex-1 rounded-xl bg-[#1e3a5f] py-2.5 text-sm font-semibold text-white hover:bg-[#162d4a] transition-colors"
+            className="flex-1 rounded-xl bg-brand-800 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 transition-colors"
           >
             Continuar
           </button>

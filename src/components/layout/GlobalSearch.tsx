@@ -148,7 +148,7 @@ function SearchDropdown({
                       onClick={() => onNavigate(`/patients/${p.id}`)}
                       className="flex w-full items-center gap-3 rounded-lg px-2 py-2.5 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
                     >
-                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10 text-xs font-bold text-[#1e3a5f]">
+                      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10 text-xs font-bold text-brand-800">
                         {(p.name || p.code).slice(0, 2).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -345,7 +345,7 @@ export function GlobalSearch({ mobileIconOnly = false }: { mobileIconOnly?: bool
                       {results.patients.map((p) => (
                         <button key={p.id} onClick={() => navigate(`/patients/${p.id}`)}
                           className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
-                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10 text-xs font-bold text-[#1e3a5f]">
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10 text-xs font-bold text-brand-800">
                             {(p.name || p.code).slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0 flex-1">
@@ -424,7 +424,7 @@ export function GlobalSearch({ mobileIconOnly = false }: { mobileIconOnly?: bool
               {results.patients.map((p) => (
                 <button key={p.id} onClick={() => navigate(`/patients/${p.id}`)}
                   className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors">
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10 text-xs font-bold text-[#1e3a5f]">
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10 text-xs font-bold text-brand-800">
                     {(p.name || p.code).slice(0, 2).toUpperCase()}
                   </div>
                   <div className="min-w-0 flex-1">

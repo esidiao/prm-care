@@ -34,7 +34,7 @@ export function BottomNav() {
                 active
                   ? highlight
                     ? 'text-white'
-                    : 'text-[#1e3a5f] dark:text-blue-400'
+                    : 'text-brand-800 dark:text-blue-400'
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300',
               )}
             >
@@ -42,14 +42,14 @@ export function BottomNav() {
               {highlight ? (
                 <div className={cn(
                   'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
-                  active ? 'bg-[#1e3a5f]' : 'bg-[#1e3a5f]/10',
+                  active ? 'bg-brand-800' : 'bg-brand-800/10',
                 )}>
-                  <Icon className={cn('h-5 w-5', active ? 'text-white' : 'text-[#1e3a5f] dark:text-blue-400')} />
+                  <Icon className={cn('h-5 w-5', active ? 'text-white' : 'text-brand-800 dark:text-blue-400')} />
                 </div>
               ) : (
                 <div className={cn(
                   'flex h-8 w-8 items-center justify-center rounded-lg transition-colors',
-                  active ? 'bg-[#1e3a5f]/10 dark:bg-blue-500/20' : '',
+                  active ? 'bg-brand-800/10 dark:bg-blue-500/20' : '',
                 )}>
                   <Icon className="h-5 w-5" />
                 </div>

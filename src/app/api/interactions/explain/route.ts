@@ -5,6 +5,7 @@ import { KnowledgeStatus } from '@prisma/client'
 import { explainInteractions, type DdiInputInteraction } from '@/lib/ai-ddi'
 import { enrichWithFDA } from '@/lib/drug-lookup-service'
 import { rerank } from '@/lib/embeddings'
+import { explainLimiter } from '@/lib/rate-limit'
 
 const norm = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
 
@@ -48,6 +49,14 @@ export async function POST(req: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
   if (!process.env.GROQ_API_KEY) return NextResponse.json({ error: 'IA não configurada.' }, { status: 503 })
+
+  const rl = await explainLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas explicações por IA em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
+  }
 
   const b = await req.json().catch(() => ({}))
   const interactions: DdiInputInteraction[] = Array.isArray(b?.interactions) ? b.interactions : []

@@ -147,7 +147,7 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
         {/* Weekly growth area chart */}
         <div className="card p-5 lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+            <TrendingUp className="h-4 w-4 text-brand-800 dark:text-blue-400" />
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
               Crescimento semanal (últimas 12 semanas)
             </h3>
@@ -186,7 +186,7 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
         {/* Users by plan pie */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Users className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+            <Users className="h-4 w-4 text-brand-800 dark:text-blue-400" />
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Usuários por plano</h3>
           </div>
           {planData.length === 0 ? (

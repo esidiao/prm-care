@@ -81,7 +81,7 @@ export function ExportWithWarning({ href, label = 'Exportar CSV', filename, clas
                 </button>
                 <button
                   onClick={proceed}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] py-2.5 text-sm font-semibold text-white hover:bg-[#162d4a] transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-brand-800 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 transition-colors"
                 >
                   <Download className="h-4 w-4" /> Entendido — Exportar
                 </button>

@@ -207,7 +207,7 @@ export default async function AdminPage() {
           <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
             <h2 className="font-semibold text-gray-900 dark:text-gray-100">Usuários recentes</h2>
             <Link href="/admin/users"
-              className="flex items-center gap-1 text-sm text-[#1e3a5f] dark:text-blue-400 hover:underline">
+              className="flex items-center gap-1 text-sm text-brand-800 dark:text-blue-400 hover:underline">
               Ver todos <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -219,7 +219,7 @@ export default async function AdminPage() {
                 <div key={user.id}
                   className={`flex items-center justify-between px-5 py-3 ${!user.isActive ? 'opacity-50' : ''}`}>
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-[#1e3a5f] dark:bg-blue-700 text-xs font-bold text-white">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-brand-800 dark:bg-blue-700 text-xs font-bold text-white">
                       {(user.name || user.email)[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
@@ -289,8 +289,8 @@ export default async function AdminPage() {
           ].map((a, i) => (
             <Link key={i} href={a.href}
               className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-md transition-all group dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] group-hover:bg-[#1e3a5f] transition-colors dark:bg-[#1e3a5f]/30">
-                <a.icon className="h-5 w-5 text-[#1e3a5f] group-hover:text-white transition-colors dark:text-blue-400" />
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] group-hover:bg-brand-800 transition-colors dark:bg-brand-800/30">
+                <a.icon className="h-5 w-5 text-brand-800 group-hover:text-white transition-colors dark:text-blue-400" />
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{a.label}</p>

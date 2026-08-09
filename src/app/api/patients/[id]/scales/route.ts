@@ -55,7 +55,10 @@ export async function POST(
   })
   if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { scaleType, answers, totalScore, severity, notes, appliedAt } = body
 
   if (!scaleType) return NextResponse.json({ error: 'Tipo de escala não informado' }, { status: 400 })

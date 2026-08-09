@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { hashPassword } from '@/lib/auth'
 import { addTokens } from '@/lib/token-service'
+import { registerLimiter } from '@/lib/rate-limit'
 import { z } from 'zod'
 import { TransactionType, ConsentType, UserRole } from '@prisma/client'
 
@@ -20,6 +21,12 @@ const schema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const rl = await registerLimiter(ip)
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Muitas tentativas. Aguarde alguns minutos.' }, { status: 429 })
+  }
+
   try {
     const body = await req.json()
     const data = schema.parse(body)

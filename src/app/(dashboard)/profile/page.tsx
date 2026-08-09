@@ -160,7 +160,7 @@ export default function ProfilePage() {
       {/* Main form card */}
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
         {/* Avatar section */}
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a5298] px-6 py-8 flex items-center gap-6">
+        <div className="bg-gradient-to-r from-brand-800 to-[#2a5298] px-6 py-8 flex items-center gap-6">
           <div className="relative flex-shrink-0">
             <div className="h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white/20 bg-white/10 flex items-center justify-center">
               {avatarSrc ? (
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Dr. João Silva"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function ProfilePage() {
                 value={crfNumber}
                 onChange={e => setCrfNumber(e.target.value)}
                 placeholder="Ex: CRF-SP 12345"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
             <p className="text-[10px] text-gray-400 mt-1">Aparece nos relatórios e cartas de encaminhamento</p>
@@ -260,7 +260,7 @@ export default function ProfilePage() {
               <select
                 value={specialization}
                 onChange={e => setSpecialization(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full appearance-none rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               >
                 <option value="">Selecione…</option>
                 {SPECIALIZATIONS.map(s => (
@@ -282,7 +282,7 @@ export default function ProfilePage() {
                 value={institution}
                 onChange={e => setInstitution(e.target.value)}
                 placeholder="Ex: Hospital das Clínicas - USP"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           </div>
@@ -298,7 +298,7 @@ export default function ProfilePage() {
                 value={image}
                 onChange={e => setImage(e.target.value)}
                 placeholder="https://…"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           )}
@@ -322,7 +322,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#16304f] disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-brand-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 disabled:opacity-60 transition-colors"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Salvando…' : 'Salvar alterações'}

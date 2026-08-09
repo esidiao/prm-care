@@ -49,7 +49,7 @@ const STATUS_COLOR: Record<string, string> = {
   completed: 'bg-green-100 text-green-700',
   pending: 'bg-amber-100 text-amber-700',
   failed: 'bg-red-100 text-red-700',
-  refunded: 'bg-gray-100 text-gray-600',
+  refunded: 'bg-muted text-muted-foreground',
 }
 
 const METHOD_LABEL: Record<string, string> = {
@@ -76,15 +76,15 @@ function StatCard({
     purple: 'bg-purple-50 text-purple-600',
   }
   return (
-    <div className="rounded-xl border bg-white p-5 shadow-sm">
+    <div className="rounded-xl border bg-card p-5 shadow-sm">
       <div className="flex items-center justify-between mb-3">
-        <p className="text-sm text-gray-500">{label}</p>
+        <p className="text-sm text-muted-foreground">{label}</p>
         <div className={`rounded-lg p-2 ${colors[color]}`}>
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
+      <p className="text-2xl font-bold text-foreground">{value}</p>
+      {sub && <p className="text-xs text-muted-foreground mt-1">{sub}</p>}
     </div>
   )
 }
@@ -100,7 +100,7 @@ function Sparkline({ data }: { data: Record<string, number> }) {
       {days.map((day, i) => (
         <div
           key={day}
-          className="flex-1 bg-[#1e3a5f]/70 rounded-sm min-w-0 transition-all hover:bg-[#1e3a5f]"
+          className="flex-1 bg-brand-800/70 rounded-sm min-w-0 transition-all hover:bg-brand-800"
           style={{ height: `${Math.max(4, (values[i] / max) * 100)}%` }}
           title={`${day}: ${formatCurrency(values[i])}`}
         />
@@ -140,13 +140,13 @@ export default function FinanceiroDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard Financeiro</h1>
-          <p className="text-gray-500 text-sm">Receitas, tokens e pagamentos</p>
+          <h1 className="text-2xl font-bold text-foreground">Dashboard Financeiro</h1>
+          <p className="text-muted-foreground text-sm">Receitas, tokens e pagamentos</p>
         </div>
         <button
           onClick={() => load(page)}
           disabled={loading}
-          className="flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 rounded-xl border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted disabled:opacity-50 transition-colors"
         >
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
           Atualizar
@@ -188,7 +188,7 @@ export default function FinanceiroDashboard() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[1, 2, 3, 4].map(i => (
-            <div key={i} className="h-28 rounded-xl border bg-white animate-pulse" />
+            <div key={i} className="h-28 rounded-xl border bg-card animate-pulse" />
           ))}
         </div>
       )}
@@ -196,47 +196,47 @@ export default function FinanceiroDashboard() {
       <div className="grid gap-6 lg:grid-cols-3">
 
         {/* Receita diária — sparkline */}
-        <div className="lg:col-span-2 rounded-xl border bg-white p-5 shadow-sm">
+        <div className="lg:col-span-2 rounded-xl border bg-card p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="font-semibold text-gray-900">Receita diária (últimos 30 dias)</h2>
-              <p className="text-xs text-gray-400">Passe o mouse sobre as barras para ver o valor</p>
+              <h2 className="font-semibold text-foreground">Receita diária (últimos 30 dias)</h2>
+              <p className="text-xs text-muted-foreground">Passe o mouse sobre as barras para ver o valor</p>
             </div>
             <BarChart2 className="h-5 w-5 text-gray-300" />
           </div>
           {Object.keys(dailyRevenue).length > 0 ? (
             <Sparkline data={dailyRevenue} />
           ) : (
-            <div className="h-16 flex items-center justify-center text-sm text-gray-400">
+            <div className="h-16 flex items-center justify-center text-sm text-muted-foreground">
               Sem dados de receita no período
             </div>
           )}
         </div>
 
         {/* Top pacotes */}
-        <div className="rounded-xl border bg-white p-5 shadow-sm">
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <Package className="h-4 w-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900">Pacotes mais vendidos</h2>
+            <Package className="h-4 w-4 text-muted-foreground" />
+            <h2 className="font-semibold text-foreground">Pacotes mais vendidos</h2>
           </div>
           {topPackages.length === 0 ? (
-            <p className="text-sm text-gray-400 text-center py-4">Sem vendas ainda</p>
+            <p className="text-sm text-muted-foreground text-center py-4">Sem vendas ainda</p>
           ) : (
             <div className="space-y-3">
               {topPackages.map((tp, i) => (
                 <div key={tp.packageId ?? i} className="flex items-center justify-between">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-xs font-bold text-gray-400 w-4">{i + 1}</span>
+                    <span className="text-xs font-bold text-muted-foreground w-4">{i + 1}</span>
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
+                      <p className="text-sm font-medium text-foreground truncate">
                         {tp.package?.name ?? 'Pacote removido'}
                       </p>
-                      <p className="text-xs text-gray-400">{tp.package?.tokens ?? '?'} tokens</p>
+                      <p className="text-xs text-muted-foreground">{tp.package?.tokens ?? '?'} tokens</p>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <p className="text-sm font-bold text-[#1e3a5f]">{tp._count.id}x</p>
-                    <p className="text-xs text-gray-400">{(tp._sum.amount ?? 0).toLocaleString('pt-BR')} tkn</p>
+                    <p className="text-sm font-bold text-brand-800">{tp._count.id}x</p>
+                    <p className="text-xs text-muted-foreground">{(tp._sum.amount ?? 0).toLocaleString('pt-BR')} tkn</p>
                   </div>
                 </div>
               ))}
@@ -246,22 +246,22 @@ export default function FinanceiroDashboard() {
       </div>
 
       {/* Tabela de pagamentos */}
-      <div className="rounded-xl border bg-white shadow-sm">
+      <div className="rounded-xl border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b px-5 py-4">
-          <h2 className="font-semibold text-gray-900">Histórico de pagamentos</h2>
-          <span className="text-xs text-gray-400">Página {page} de {totalPages}</span>
+          <h2 className="font-semibold text-foreground">Histórico de pagamentos</h2>
+          <span className="text-xs text-muted-foreground">Página {page} de {totalPages}</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b bg-gray-50">
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Data</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Usuário</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Valor</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Forma</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">ID externo</th>
+              <tr className="border-b bg-muted">
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Data</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Usuário</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Valor</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Forma</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-left font-medium text-muted-foreground">ID externo</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -270,41 +270,41 @@ export default function FinanceiroDashboard() {
                   <tr key={i}>
                     {[1, 2, 3, 4, 5, 6].map(j => (
                       <td key={j} className="px-4 py-3">
-                        <div className="h-4 bg-gray-100 rounded animate-pulse w-24" />
+                        <div className="h-4 bg-muted rounded animate-pulse w-24" />
                       </td>
                     ))}
                   </tr>
                 ))
               ) : payments.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-400">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     Nenhum pagamento encontrado
                   </td>
                 </tr>
               ) : (
                 payments.map(p => (
-                  <tr key={p.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
+                  <tr key={p.id} className="hover:bg-muted transition-colors">
+                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
                       {formatDateTime(p.paidAt ?? p.createdAt)}
                     </td>
                     <td className="px-4 py-3">
                       {p.user ? (
                         <div>
-                          <p className="font-medium text-gray-900">{p.user.name ?? '—'}</p>
-                          <p className="text-xs text-gray-400">{p.user.email}</p>
+                          <p className="font-medium text-foreground">{p.user.name ?? '—'}</p>
+                          <p className="text-xs text-muted-foreground">{p.user.email}</p>
                         </div>
                       ) : (
-                        <span className="text-gray-400">—</span>
+                        <span className="text-muted-foreground">—</span>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">
+                    <td className="px-4 py-3 font-semibold text-foreground whitespace-nowrap">
                       {formatCurrency(p.amountInCents)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-muted-foreground">
                       {p.method ? (METHOD_LABEL[p.method] ?? p.method) : '—'}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLOR[p.status] ?? 'bg-gray-100 text-gray-600'}`}>
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_COLOR[p.status] ?? 'bg-muted text-muted-foreground'}`}>
                         {p.status === 'completed' && <CheckCircle2 className="h-3 w-3" />}
                         {p.status === 'pending' && <Clock className="h-3 w-3" />}
                         {p.status === 'failed' && <AlertTriangle className="h-3 w-3" />}
@@ -313,7 +313,7 @@ export default function FinanceiroDashboard() {
                     </td>
                     <td className="px-4 py-3">
                       {p.externalId ? (
-                        <span className="font-mono text-xs text-gray-400 truncate max-w-[120px] block" title={p.externalId}>
+                        <span className="font-mono text-xs text-muted-foreground truncate max-w-[120px] block" title={p.externalId}>
                           {p.externalId}
                         </span>
                       ) : '—'}
@@ -331,15 +331,15 @@ export default function FinanceiroDashboard() {
             <button
               onClick={() => load(page - 1)}
               disabled={page <= 1 || loading}
-              className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" /> Anterior
             </button>
-            <span className="text-xs text-gray-400">{page} / {totalPages}</span>
+            <span className="text-xs text-muted-foreground">{page} / {totalPages}</span>
             <button
               onClick={() => load(page + 1)}
               disabled={page >= totalPages || loading}
-              className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Próxima <ArrowUpRight className="h-4 w-4" />
             </button>

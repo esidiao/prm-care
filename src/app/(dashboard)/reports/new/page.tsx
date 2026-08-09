@@ -132,12 +132,12 @@ export default function NewReportPage() {
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/reports" className="text-gray-500 hover:text-gray-700 transition-colors">
+        <Link href="/reports" className="text-muted-foreground hover:text-gray-700 transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gerar Relatório PDF</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Selecione a análise e o tipo de relatório</p>
+          <h1 className="text-2xl font-bold text-foreground">Gerar Relatório PDF</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Selecione a análise e o tipo de relatório</p>
         </div>
       </div>
 
@@ -150,8 +150,8 @@ export default function NewReportPage() {
 
       <div className="space-y-6">
         {/* Step 1: Select Analysis */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">1</span>
             Selecionar análise
           </h2>
@@ -161,7 +161,7 @@ export default function NewReportPage() {
               <Loader2 className="w-6 h-6 text-blue-600 animate-spin" />
             </div>
           ) : analyses.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
+            <div className="text-center py-8 text-muted-foreground">
               <FileText className="w-10 h-10 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Nenhuma análise disponível.</p>
               <Link href="/analysis/new" className="text-sm text-blue-600 hover:underline mt-1 inline-block">
@@ -185,23 +185,23 @@ export default function NewReportPage() {
                     className={`w-full flex items-center gap-4 p-3 rounded-lg border text-left transition-all ${
                       isSelected
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                        : 'border-border hover:border-gray-300 hover:bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
-                      isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
+                      isSelected ? 'border-blue-600 bg-blue-600' : 'border-border'
                     }`}>
-                      {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                      {isSelected && <div className="w-2 h-2 rounded-full bg-card" />}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{analysis.patient.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-medium text-foreground truncate">{analysis.patient.name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {analysis.patient.code} · {new Date(analysis.createdAt).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
                       {Object.entries(counts).map(([level, count]) => (
-                        <span key={level} className={`px-1.5 py-0.5 rounded text-xs font-medium ${riskColors[level] || 'bg-gray-100 text-gray-600'}`}>
+                        <span key={level} className={`px-1.5 py-0.5 rounded text-xs font-medium ${riskColors[level] || 'bg-muted text-muted-foreground'}`}>
                           {count}
                         </span>
                       ))}
@@ -214,8 +214,8 @@ export default function NewReportPage() {
         </div>
 
         {/* Step 2: Report Type */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">2</span>
             Tipo de relatório
           </h2>
@@ -231,7 +231,7 @@ export default function NewReportPage() {
                   className={`relative flex flex-col gap-1 p-4 rounded-lg border text-left transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                      : 'border-border hover:border-gray-300 hover:bg-muted'
                   }`}
                 >
                   {type.recommended && (
@@ -241,13 +241,13 @@ export default function NewReportPage() {
                   )}
                   <div className="flex items-start gap-2">
                     <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      isSelected ? 'border-blue-600 bg-blue-600' : 'border-gray-300'
+                      isSelected ? 'border-blue-600 bg-blue-600' : 'border-border'
                     }`}>
-                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-card" />}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">{type.label}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">{type.description}</p>
+                      <p className="text-sm font-semibold text-foreground">{type.label}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{type.description}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-2 pl-6">
@@ -261,8 +261,8 @@ export default function NewReportPage() {
         </div>
 
         {/* Step 3: Options */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">3</span>
             Opções
           </h2>
@@ -272,14 +272,14 @@ export default function NewReportPage() {
               type="checkbox"
               checked={isAnonymized}
               onChange={e => setIsAnonymized(e.target.checked)}
-              className="mt-0.5 rounded border-gray-300 text-blue-600"
+              className="mt-0.5 rounded border-border text-blue-600"
             />
             <div>
               <div className="flex items-center gap-2">
-                <EyeOff className="w-4 h-4 text-gray-500" />
-                <p className="text-sm font-medium text-gray-900">Anonimizar dados do paciente</p>
+                <EyeOff className="w-4 h-4 text-muted-foreground" />
+                <p className="text-sm font-medium text-foreground">Anonimizar dados do paciente</p>
               </div>
-              <p className="text-xs text-gray-500 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Nome e CPF serão substituídos pelo código do paciente. Recomendado para fins acadêmicos ou apresentações.
               </p>
             </div>
@@ -287,42 +287,42 @@ export default function NewReportPage() {
         </div>
 
         {/* Summary & Confirm */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <h2 className="font-semibold text-foreground mb-4 flex items-center gap-2">
             <span className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-xs font-bold">4</span>
             Confirmar geração
           </h2>
 
           <div className="space-y-3">
             {/* Analysis preview */}
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-500">Análise selecionada</span>
+            <div className="flex items-center justify-between py-2 border-b border-border">
+              <span className="text-sm text-muted-foreground">Análise selecionada</span>
               {selectedAnalysis ? (
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-foreground">
                   {selectedAnalysis.patient.name} ({selectedAnalysis.patient.code})
                 </span>
               ) : (
-                <span className="text-sm text-gray-400 italic">Nenhuma selecionada</span>
+                <span className="text-sm text-muted-foreground italic">Nenhuma selecionada</span>
               )}
             </div>
 
             {/* Type */}
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-500">Tipo de relatório</span>
-              <span className="text-sm font-medium text-gray-900">{selectedReportType.label}</span>
+            <div className="flex items-center justify-between py-2 border-b border-border">
+              <span className="text-sm text-muted-foreground">Tipo de relatório</span>
+              <span className="text-sm font-medium text-foreground">{selectedReportType.label}</span>
             </div>
 
             {/* Anonymized */}
-            <div className="flex items-center justify-between py-2 border-b border-gray-100">
-              <span className="text-sm text-gray-500">Anonimizado</span>
-              <span className={`text-sm font-medium ${isAnonymized ? 'text-blue-600' : 'text-gray-500'}`}>
+            <div className="flex items-center justify-between py-2 border-b border-border">
+              <span className="text-sm text-muted-foreground">Anonimizado</span>
+              <span className={`text-sm font-medium ${isAnonymized ? 'text-blue-600' : 'text-muted-foreground'}`}>
                 {isAnonymized ? 'Sim' : 'Não'}
               </span>
             </div>
 
             {/* Cost */}
             <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-gray-500">Custo em tokens</span>
+              <span className="text-sm text-muted-foreground">Custo em tokens</span>
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   <Coins className="w-4 h-4 text-amber-500" />
@@ -353,7 +353,7 @@ export default function NewReportPage() {
           <div className="flex items-center justify-between mt-5">
             <Link
               href="/reports"
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors"
             >
               Cancelar
             </Link>

@@ -7,10 +7,10 @@ export default function NotFound() {
       <div className="text-center max-w-md w-full">
         {/* Logo */}
         <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e3a5f]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-800">
             <Pill className="h-5 w-5 text-white" />
           </div>
-          <span className="text-xl font-bold text-[#1e3a5f]">PRM Care</span>
+          <span className="text-xl font-bold text-brand-800">PRM Care</span>
         </div>
 
         {/* 404 */}
@@ -26,7 +26,7 @@ export default function NotFound() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/dashboard"
-            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-[#1e3a5f] text-white text-sm font-medium rounded-lg hover:bg-[#162d4a] transition-colors"
+            className="flex items-center justify-center gap-2 px-5 py-2.5 bg-brand-800 text-white text-sm font-medium rounded-lg hover:bg-brand-900 transition-colors"
           >
             <Home className="w-4 h-4" />
             Ir para o painel
@@ -44,11 +44,11 @@ export default function NotFound() {
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-400 mb-3">Links úteis</p>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Link href="/patients" className="text-[#1e3a5f] hover:underline">Pacientes</Link>
-            <Link href="/analysis/new" className="text-[#1e3a5f] hover:underline">Nova análise</Link>
-            <Link href="/reports" className="text-[#1e3a5f] hover:underline">Relatórios</Link>
-            <Link href="/tokens" className="text-[#1e3a5f] hover:underline">Tokens</Link>
-            <Link href="/settings" className="text-[#1e3a5f] hover:underline">Configurações</Link>
+            <Link href="/patients" className="text-brand-800 hover:underline">Pacientes</Link>
+            <Link href="/analysis/new" className="text-brand-800 hover:underline">Nova análise</Link>
+            <Link href="/reports" className="text-brand-800 hover:underline">Relatórios</Link>
+            <Link href="/tokens" className="text-brand-800 hover:underline">Tokens</Link>
+            <Link href="/settings" className="text-brand-800 hover:underline">Configurações</Link>
           </div>
         </div>
       </div>

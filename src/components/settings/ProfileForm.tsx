@@ -69,7 +69,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.name}
             onChange={set('name')}
             placeholder="Seu nome"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div>
@@ -93,7 +93,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.crfNumber}
             onChange={set('crfNumber')}
             placeholder="Ex: SP-123456"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div>
@@ -105,7 +105,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.specialization}
             onChange={set('specialization')}
             placeholder="Ex: Farmácia Clínica, Oncologia…"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div className="sm:col-span-2">
@@ -117,7 +117,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.institution}
             onChange={set('institution')}
             placeholder="Ex: Hospital das Clínicas de SP"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
       </div>
@@ -126,7 +126,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
         <button
           type="submit"
           disabled={saving}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 disabled:opacity-50 transition-colors"
         >
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -223,7 +223,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               onChange={set('currentPassword')}
               placeholder="••••••••"
               required
-              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, current: !s.current }))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -246,7 +246,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               placeholder="Mínimo 8 caracteres"
               required
               minLength={8}
-              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, new: !s.new }))}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -280,7 +280,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               className={`h-10 w-full rounded-lg border bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
                 form.confirmPassword && form.confirmPassword !== form.newPassword
                   ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-                  : 'border-gray-300 dark:border-gray-600 focus:border-[#1e3a5f] focus:ring-[#1e3a5f]'
+                  : 'border-gray-300 dark:border-gray-600 focus:border-brand-800 focus:ring-brand-800'
               }`}
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, confirm: !s.confirm }))}
@@ -298,7 +298,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
         <button
           type="submit"
           disabled={saving || (!!form.confirmPassword && form.confirmPassword !== form.newPassword)}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 disabled:opacity-50 transition-colors"
         >
           {saving && <Loader2 className="h-4 w-4 animate-spin" />}
           {saving ? 'Salvando…' : 'Alterar senha'}

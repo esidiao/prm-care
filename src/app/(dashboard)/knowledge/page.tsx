@@ -103,7 +103,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
     <div>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#16304f] transition-colors shadow-sm"
+        className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 transition-colors shadow-sm"
       >
         <Plus className="h-4 w-4" />
         Nova entrada
@@ -114,7 +114,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
           <div className="w-full max-w-2xl rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
+                <BookOpen className="h-4 w-4 text-brand-800 dark:text-blue-400" />
                 <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Nova entrada na base de conhecimento</h2>
               </div>
               <button onClick={() => { setOpen(false); reset() }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
@@ -129,14 +129,14 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   <input
                     value={title} onChange={e => setTitle(e.target.value)}
                     placeholder="Ex: Interação Warfarina + AAS"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Tipo *</label>
                   <select
                     value={type} onChange={e => setType(e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   >
                     {Object.entries(TYPE_CONFIG).map(([k, v]) => (
                       <option key={k} value={k}>{v.label}</option>
@@ -150,7 +150,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                 <input
                   value={summary} onChange={e => setSummary(e.target.value)}
                   placeholder="Uma linha descrevendo o conteúdo…"
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                 />
               </div>
 
@@ -160,7 +160,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   value={content} onChange={e => setContent(e.target.value)}
                   placeholder="Descreva a interação, contraindicação, protocolo ou alerta com detalhes clínicos relevantes…"
                   rows={5}
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
                 />
               </div>
 
@@ -170,7 +170,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   <input
                     value={source} onChange={e => setSource(e.target.value)}
                     placeholder="Ex: Micromedex, UpToDate, ANVISA"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
                 <div>
@@ -178,7 +178,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   <input
                     value={sourceUrl} onChange={e => setSourceUrl(e.target.value)}
                     placeholder="https://…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
               </div>
@@ -189,7 +189,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   <input
                     value={drugNamesRaw} onChange={e => setDrugNamesRaw(e.target.value)}
                     placeholder="Warfarina, AAS, Metformina…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                   <p className="text-[10px] text-gray-400 mt-1">Separados por vírgula</p>
                 </div>
@@ -198,7 +198,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   <input
                     value={tagsRaw} onChange={e => setTagsRaw(e.target.value)}
                     placeholder="anticoagulante, idoso, renal…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                   <p className="text-[10px] text-gray-400 mt-1">Separadas por vírgula</p>
                 </div>
@@ -210,7 +210,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
                   value={observations} onChange={e => setObservations(e.target.value)}
                   placeholder="Notas clínicas, contexto de uso, população-alvo…"
                   rows={2}
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
                 />
               </div>
 
@@ -228,7 +228,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
               <button
                 onClick={handleSubmit as never}
                 disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1e3a5f] rounded-lg hover:bg-[#16304f] disabled:opacity-60 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-brand-800 rounded-lg hover:bg-brand-900 disabled:opacity-60 transition-colors"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 {saving ? 'Salvando…' : 'Salvar entrada'}
@@ -337,7 +337,7 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
                   href={entry.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-0.5 text-xs text-[#1e3a5f] dark:text-blue-400 hover:underline"
+                  className="flex items-center gap-0.5 text-xs text-brand-800 dark:text-blue-400 hover:underline"
                 >
                   Acessar <ExternalLink className="h-3 w-3" />
                 </a>
@@ -456,7 +456,7 @@ export default function KnowledgePage() {
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Buscar por título, conteúdo ou medicamento…"
-            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
           {q && (
             <button onClick={() => setQ('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
@@ -468,7 +468,7 @@ export default function KnowledgePage() {
         <select
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todos os tipos</option>
           {Object.entries(TYPE_CONFIG).map(([k, v]) => (
@@ -479,7 +479,7 @@ export default function KnowledgePage() {
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todos os status</option>
           {Object.entries(STATUS_CONFIG).map(([k, v]) => (
@@ -497,7 +497,7 @@ export default function KnowledgePage() {
           {filterType || filterStatus || debouncedQ ? (
             <button
               onClick={() => { setQ(''); setFilterType(''); setFilterStatus('VALIDATED') }}
-              className="text-xs text-[#1e3a5f] dark:text-blue-400 hover:underline"
+              className="text-xs text-brand-800 dark:text-blue-400 hover:underline"
             >
               Limpar filtros
             </button>
