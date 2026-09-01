@@ -202,7 +202,7 @@ export default function FinanceiroDashboard() {
               <h2 className="font-semibold text-foreground">Receita diária (últimos 30 dias)</h2>
               <p className="text-xs text-muted-foreground">Passe o mouse sobre as barras para ver o valor</p>
             </div>
-            <BarChart2 className="h-5 w-5 text-gray-300" />
+            <BarChart2 className="h-5 w-5 text-gray-300 dark:text-gray-600" />
           </div>
           {Object.keys(dailyRevenue).length > 0 ? (
             <Sparkline data={dailyRevenue} />
@@ -331,7 +331,7 @@ export default function FinanceiroDashboard() {
             <button
               onClick={() => load(page - 1)}
               disabled={page <= 1 || loading}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="h-4 w-4" /> Anterior
             </button>
@@ -339,7 +339,7 @@ export default function FinanceiroDashboard() {
             <button
               onClick={() => load(page + 1)}
               disabled={page >= totalPages || loading}
-              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Próxima <ArrowUpRight className="h-4 w-4" />
             </button>

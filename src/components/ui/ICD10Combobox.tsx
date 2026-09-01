@@ -97,30 +97,30 @@ export function ICD10Combobox({
           autoComplete="off"
           placeholder={namePlaceholder}
           className={`w-full pl-3 pr-8 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-            nameError ? 'border-red-400 bg-red-50 dark:border-red-500 dark:bg-red-950' : 'border-gray-300 bg-white dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100'
+            nameError ? 'border-red-400 bg-red-50 dark:border-red-500 dark:bg-red-950' : 'border-border bg-card dark:text-gray-100'
           }`}
         />
-        <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-300 pointer-events-none" />
+        <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-300 dark:text-gray-600 pointer-events-none" />
 
         {/* Dropdown */}
         {aberto && sugestoes.length > 0 && (
-          <div className="absolute z-[100] top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto dark:border-gray-600 dark:bg-gray-800">
+          <div className="absolute z-[100] top-full left-0 right-0 mt-1 bg-card border border-border rounded-xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto">
             {sugestoes.map((e, i) => (
               <button
                 key={e.code}
                 type="button"
                 onMouseDown={ev => { ev.preventDefault(); selecionar(e) }}
                 onMouseEnter={() => setIdx(i)}
-                className={`w-full text-left px-3 py-2.5 flex items-start gap-3 border-b border-gray-50 last:border-0 transition-colors ${
-                  i === idx ? 'bg-blue-50' : 'hover:bg-gray-50'
+                className={`w-full text-left px-3 py-2.5 flex items-start gap-3 border-b border-gray-50 dark:border-gray-800 last:border-0 transition-colors ${
+                  i === idx ? 'bg-blue-50' : 'hover:bg-muted'
                 }`}
               >
                 <span className="shrink-0 font-mono text-[11px] font-bold text-blue-600 bg-blue-50 border border-blue-100 rounded px-1.5 py-0.5 mt-0.5">
                   {e.code}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm text-gray-800 leading-snug">{e.description}</p>
-                  {e.category && <p className="text-[11px] text-gray-400 mt-0.5">{e.category}</p>}
+                  <p className="text-sm text-foreground leading-snug">{e.description}</p>
+                  {e.category && <p className="text-[11px] text-muted-foreground mt-0.5">{e.category}</p>}
                 </div>
               </button>
             ))}
@@ -136,11 +136,11 @@ export function ICD10Combobox({
           onChange={e => onCodeChange(e.target.value.toUpperCase())}
           placeholder="CID-10"
           maxLength={8}
-          className="w-full pl-3 pr-7 py-2 border border-gray-300 bg-white rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100"
+          className="w-full pl-3 pr-7 py-2 border border-border bg-card rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-100"
         />
         {codeValue && (
           <button type="button" onClick={() => onCodeChange('')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-500">
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-300 dark:text-gray-600 hover:text-muted-foreground">
             <X className="h-3 w-3" />
           </button>
         )}

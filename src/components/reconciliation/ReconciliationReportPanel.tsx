@@ -2,6 +2,15 @@
 import { useState, useRef } from 'react'
 import { toPng } from 'html-to-image'
 import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2, Image as ImageIcon, AlertTriangle, Search } from 'lucide-react'
+import { escapeHtml } from '@/lib/utils'
+
+/**
+ * Escapa qualquer valor antes de interpolá-lo no HTML do relatório impresso.
+ * A janela de impressão é aberta com window.open('', '_blank') e portanto herda
+ * a origem da aplicação — conteúdo não escapado ali executa com a sessão do
+ * usuário. Notas clínicas, nome do paciente e medicamentos são texto livre.
+ */
+const esc = (v: unknown): string => (v == null ? '' : escapeHtml(String(v)))
 
 type Med = { name: string; dosage: string | null; frequency: string | null; isSelfMedication?: boolean; adherence?: string | null }
 type Props = {
@@ -100,28 +109,29 @@ export function ReconciliationReportPanel(p: Props) {
 
   const reportHtml = (v: 'TECNICA' | 'SIMPLIFICADA', anonymize = false) => {
     const tech = v === 'TECNICA'
-    const medRows = p.meds.map(m => `<li>${m.name}${m.dosage ? ' — ' + m.dosage : ''}${m.frequency ? ' · ' + m.frequency : ''}${m.isSelfMedication ? ' <i>(automedicação)</i>' : ''}</li>`).join('')
-    const block = (t: string, c: string) => c ? `<h3>${t}</h3><p>${c.replace(/\n/g, '<br>')}</p>` : ''
+    const medRows = p.meds.map(m => `<li>${esc(m.name)}${m.dosage ? ' — ' + esc(m.dosage) : ''}${m.frequency ? ' · ' + esc(m.frequency) : ''}${m.isSelfMedication ? ' <i>(automedicação)</i>' : ''}</li>`).join('')
+    // Escapa ANTES de converter quebras de linha, senão o <br> gerado seria escapado
+    const block = (t: string, c: string) => c ? `<h3>${esc(t)}</h3><p>${esc(c).replace(/\n/g, '<br>')}</p>` : ''
     return `<!doctype html><meta charset="utf-8"><title>Conciliação — PRM Care</title>
     <body style="font-family:Segoe UI,Arial;max-width:760px;margin:24px auto;color:#1a202c;line-height:1.5">
       <div style="border-bottom:3px solid #1e3a5f;padding-bottom:8px;margin-bottom:14px">
         <h2 style="color:#1e3a5f;margin:0">PRM Care — Relatório de Conciliação Medicamentosa</h2>
         <div style="color:#475569;font-size:13px">${tech ? 'Versão técnica' : 'Versão para o paciente'} · Método Dáder</div>
       </div>
-      <p><b>Paciente:</b> ${displayName(anonymize)}${p.patientAge != null ? ` · ${p.patientAge} anos` : ''}<br>
-         <b>Data:</b> ${today} &nbsp; <b>Farmacêutico(a):</b> ${p.pharmacist}</p>
+      <p><b>Paciente:</b> ${esc(displayName(anonymize))}${p.patientAge != null ? ` · ${esc(p.patientAge)} anos` : ''}<br>
+         <b>Data:</b> ${esc(today)} &nbsp; <b>Farmacêutico(a):</b> ${esc(p.pharmacist)}</p>
       <h3>Medicamentos em uso</h3><ul>${medRows || '<li>—</li>'}</ul>
-      ${p.allergies.length ? `<h3>Alergias</h3><p>${p.allergies.join(', ')}</p>` : ''}
+      ${p.allergies.length ? `<h3>Alergias</h3><p>${p.allergies.map(esc).join(', ')}</p>` : ''}
       ${tech && detected.length ? `<h3>Interações detectadas automaticamente</h3><ul>${detected.map(i =>
-        `<li><b style="color:${SEV_COLOR[i.severity] || '#475569'}">[${i.severityLabel}]</b> ${i.drugs[0]} + ${i.drugs[1]} — ${i.clinicalEffect}. <i>Conduta:</i> ${i.management}${i.monitoring ? ` <i>Monitorar:</i> ${i.monitoring}` : ''}${i.references && i.references.length ? ` <i>Fonte:</i> ${i.references.join(', ')}` : ''}</li>`).join('')}</ul>` : ''}
+        `<li><b style="color:${SEV_COLOR[i.severity] || '#475569'}">[${esc(i.severityLabel)}]</b> ${esc(i.drugs[0])} + ${esc(i.drugs[1])} — ${esc(i.clinicalEffect)}. <i>Conduta:</i> ${esc(i.management)}${i.monitoring ? ` <i>Monitorar:</i> ${esc(i.monitoring)}` : ''}${i.references && i.references.length ? ` <i>Fonte:</i> ${i.references.map(esc).join(', ')}` : ''}</li>`).join('')}</ul>` : ''}
       ${tech && detFood.length ? `<h3>Alimentos/álcool/suplementos</h3><ul>${detFood.map(f =>
-        `<li><b>[${f.severityLabel}]</b> ${f.agent} × ${f.drugs.join(', ')} — ${f.clinicalEffect}. <i>Conduta:</i> ${f.management}</li>`).join('')}</ul>` : ''}
+        `<li><b>[${esc(f.severityLabel)}]</b> ${esc(f.agent)} × ${f.drugs.map(esc).join(', ')} — ${esc(f.clinicalEffect)}. <i>Conduta:</i> ${esc(f.management)}</li>`).join('')}</ul>` : ''}
       ${block('Riscos identificados', notes.riscos)}
       ${block('Intervenções farmacêuticas', notes.intervencoes)}
       ${block('Orientações ao paciente', notes.orientacoes)}
       ${tech ? block('Recomendações ao prescritor', notes.recomendacoes) : ''}
       ${block('Plano de acompanhamento', notes.plano)}
-      <p style="margin-top:24px">_______________________________________<br><b>${p.pharmacist}</b> — Farmacêutico(a) responsável (CRF)</p>
+      <p style="margin-top:24px">_______________________________________<br><b>${esc(p.pharmacist)}</b> — Farmacêutico(a) responsável (CRF)</p>
       <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:14px">${DISCLAIMER}</p>
     </body>`
   }

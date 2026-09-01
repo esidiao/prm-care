@@ -114,7 +114,7 @@ export default function NewKnowledgePage() {
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-gray-700 transition-colors">
+        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
@@ -144,10 +144,10 @@ export default function NewKnowledgePage() {
           </h2>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="title">
               Título <span className="text-red-500">*</span>
             </label>
-            <input
+            <input id="title"
               {...register('title')}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ex: Interação entre Varfarina e AINEs"
@@ -157,10 +157,10 @@ export default function NewKnowledgePage() {
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="type">
                 Tipo <span className="text-red-500">*</span>
               </label>
-              <select
+              <select id="type"
                 {...register('type')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
@@ -171,8 +171,8 @@ export default function NewKnowledgePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Status inicial</label>
-              <select
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="status">Status inicial</label>
+              <select id="status"
                 {...register('status')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
@@ -184,11 +184,11 @@ export default function NewKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="summary">
               Resumo
               <span className="ml-1 text-xs text-muted-foreground">(exibido na listagem)</span>
             </label>
-            <input
+            <input id="summary"
               {...register('summary')}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Breve descrição do conteúdo..."
@@ -196,10 +196,10 @@ export default function NewKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="content">
               Conteúdo completo <span className="text-red-500">*</span>
             </label>
-            <textarea
+            <textarea id="content"
               {...register('content')}
               rows={8}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none font-mono"
@@ -215,10 +215,10 @@ export default function NewKnowledgePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="source">
                 Fonte <span className="text-red-500">*</span>
               </label>
-              <input
+              <input id="source"
                 {...register('source')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: ANVISA, CFF, Ministério da Saúde"
@@ -227,8 +227,8 @@ export default function NewKnowledgePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">URL da fonte</label>
-              <input
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="sourceUrl">URL da fonte</label>
+              <input id="sourceUrl"
                 type="url"
                 {...register('sourceUrl')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -238,8 +238,8 @@ export default function NewKnowledgePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Data de publicação</label>
-              <input
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="publishedAt">Data de publicação</label>
+              <input id="publishedAt"
                 type="date"
                 {...register('publishedAt')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -247,11 +247,11 @@ export default function NewKnowledgePage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="expiresAt">
                 Data de expiração
                 <span className="ml-1 text-xs text-muted-foreground">(quando revisar)</span>
               </label>
-              <input
+              <input id="expiresAt"
                 type="date"
                 {...register('expiresAt')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -363,7 +363,7 @@ export default function NewKnowledgePage() {
                     <Tag className="w-3 h-3" />
                     {t}
                     <button type="button" onClick={() => removeItem('tags', i)}>
-                      <X className="w-3 h-3 hover:text-gray-900" />
+                      <X className="w-3 h-3 hover:text-foreground" />
                     </button>
                   </span>
                 ))}
@@ -373,8 +373,8 @@ export default function NewKnowledgePage() {
 
           {/* Observations */}
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Observações internas</label>
-            <textarea
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="observations">Observações internas</label>
+            <textarea id="observations"
               {...register('observations')}
               rows={2}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"

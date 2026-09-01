@@ -43,10 +43,10 @@ export function UpcomingReviews() {
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-brand-800 dark:text-blue-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Próximas revisões</h2>
+          <h2 className="text-sm font-semibold text-foreground">Próximas revisões</h2>
           {reviews.some((r) => {
             const diff = Math.ceil((new Date(r.scheduledDate).getTime() - Date.now()) / 86400000)
             return diff <= 0
@@ -70,11 +70,11 @@ export function UpcomingReviews() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100 dark:bg-green-900 mb-3">
             <CheckCircle2 className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Nenhuma revisão nos próximos 30 dias</p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Agende revisões nos perfis dos pacientes</p>
+          <p className="text-sm font-medium text-muted-foreground">Nenhuma revisão nos próximos 30 dias</p>
+          <p className="text-xs text-muted-foreground mt-1">Agende revisões nos perfis dos pacientes</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
+        <div className="divide-y divide-border/50">
           {reviews.map((r) => {
             const { label, urgent } = dayLabel(r.scheduledDate)
             return (
@@ -90,10 +90,10 @@ export function UpcomingReviews() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-brand-800 dark:group-hover:text-blue-400 transition-colors">
+                  <p className="truncate text-sm font-semibold text-foreground group-hover:text-brand-800 dark:group-hover:text-blue-400 transition-colors">
                     {r.patient.name || r.patient.code}
                   </p>
-                  <p className="truncate text-xs text-gray-500 dark:text-gray-400">{r.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">{r.title}</p>
                 </div>
 
                 <div className="flex flex-col items-end gap-1 shrink-0">
@@ -105,7 +105,7 @@ export function UpcomingReviews() {
                     {urgent && <AlertCircle className="h-2.5 w-2.5 inline mr-0.5" />}
                     {label}
                   </span>
-                  <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600 group-hover:text-gray-500 transition-colors" />
+                  <ArrowRight className="h-3 w-3 text-gray-300 dark:text-gray-600 group-hover:text-muted-foreground transition-colors" />
                 </div>
               </Link>
             )

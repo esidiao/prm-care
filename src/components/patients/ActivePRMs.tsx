@@ -164,7 +164,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                 className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border transition-all ${
                   filterRisk.includes(r)
                     ? `${cfg.badge} border-current`
-                    : 'bg-card border-border text-muted-foreground hover:border-gray-300'
+                    : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                 }`}
               >
                 <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
@@ -193,7 +193,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
             </button>
           ))}
           <button onClick={() => { setFilterRisk([]); setFilterCat([]) }}
-            className="ml-auto text-muted-foreground hover:text-gray-600">Limpar</button>
+            className="ml-auto text-muted-foreground hover:text-foreground">Limpar</button>
         </div>
       )}
 
@@ -206,7 +206,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
           return (
             <button key={key} onClick={() => toggleFilter(filterCat, setFilterCat, key)}
               className={`flex-shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium border transition-all ${
-                active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-gray-300'
+                active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
               }`}>
               {label} ({count})
             </button>
@@ -223,7 +223,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
       )}
 
       {/* Findings list */}
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-border">
         {filtered.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Nenhum PRM corresponde aos filtros.</p>
         ) : filtered.map(finding => {
@@ -248,7 +248,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                   >
                     {loading
                       ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-                      : <Circle className="h-5 w-5 text-gray-300 hover:text-green-400" />
+                      : <Circle className="h-5 w-5 text-gray-300 dark:text-gray-600 hover:text-green-400" />
                     }
                   </button>
 

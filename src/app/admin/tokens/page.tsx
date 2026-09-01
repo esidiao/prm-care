@@ -139,11 +139,11 @@ export default function AdminTokensPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
             <Coins className="w-6 h-6 text-amber-500" />
             Pacotes de Tokens
           </h1>
-          <p className="text-sm text-gray-500 mt-0.5">Gerencie os pacotes de créditos disponíveis para compra</p>
+          <p className="text-sm text-muted-foreground mt-0.5">Gerencie os pacotes de créditos disponíveis para compra</p>
         </div>
         <button
           onClick={openCreate}
@@ -175,8 +175,8 @@ export default function AdminTokensPage() {
           {packages.map(pkg => (
             <div
               key={pkg.id}
-              className={`bg-white rounded-xl border shadow-sm overflow-hidden transition-all ${
-                pkg.isFeatured ? 'border-amber-400 ring-1 ring-amber-300' : 'border-gray-200'
+              className={`bg-card rounded-xl border shadow-sm overflow-hidden transition-all ${
+                pkg.isFeatured ? 'border-amber-400 ring-1 ring-amber-300' : 'border-border'
               } ${!pkg.isActive ? 'opacity-60' : ''}`}
             >
               {pkg.isFeatured && (
@@ -188,8 +188,8 @@ export default function AdminTokensPage() {
               <div className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-semibold text-gray-900">{pkg.name}</h3>
-                    {pkg.description && <p className="text-xs text-gray-500 mt-0.5">{pkg.description}</p>}
+                    <h3 className="font-semibold text-foreground">{pkg.name}</h3>
+                    {pkg.description && <p className="text-xs text-muted-foreground mt-0.5">{pkg.description}</p>}
                   </div>
                   <span className={`px-2 py-0.5 rounded-full text-xs font-medium flex-shrink-0 ${
                     pkg.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
@@ -201,19 +201,19 @@ export default function AdminTokensPage() {
                 <div className="mt-4 space-y-2">
                   <div className="flex items-center gap-2">
                     <Coins className="w-4 h-4 text-amber-500" />
-                    <span className="text-2xl font-bold text-gray-900">{pkg.tokens.toLocaleString()}</span>
-                    <span className="text-gray-500 text-sm">tokens</span>
+                    <span className="text-2xl font-bold text-foreground">{pkg.tokens.toLocaleString()}</span>
+                    <span className="text-muted-foreground text-sm">tokens</span>
                   </div>
 
                   <div className="text-2xl font-bold text-blue-600">
                     {formatPrice(pkg.priceInCents, pkg.currency)}
-                    <span className="text-sm font-normal text-gray-400 ml-1">
+                    <span className="text-sm font-normal text-muted-foreground ml-1">
                       = R$ {pricePerToken(pkg)}/token
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 mt-3 pt-3 border-t border-gray-100 text-xs text-gray-400">
+                <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border text-xs text-muted-foreground">
                   <span className="flex items-center gap-1">
                     <Hash className="w-3 h-3" />
                     Ordem: {pkg.sortOrder}
@@ -227,7 +227,7 @@ export default function AdminTokensPage() {
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => openEdit(pkg)}
-                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                     Editar
@@ -247,7 +247,7 @@ export default function AdminTokensPage() {
 
           {/* Empty state */}
           {packages.length === 0 && (
-            <div className="col-span-3 text-center py-16 text-gray-400">
+            <div className="col-span-3 text-center py-16 text-muted-foreground">
               <Coins className="w-12 h-12 mx-auto mb-2 opacity-30" />
               <p className="text-sm">Nenhum pacote cadastrado.</p>
             </div>
@@ -258,14 +258,14 @@ export default function AdminTokensPage() {
       {/* Create/Edit Modal */}
       {showForm && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-5 border-b border-gray-200">
-              <h3 className="font-semibold text-gray-900">
+          <div className="bg-card rounded-xl shadow-xl w-full max-w-md">
+            <div className="flex items-center justify-between p-5 border-b border-border">
+              <h3 className="font-semibold text-foreground">
                 {editingId ? 'Editar pacote' : 'Novo pacote de tokens'}
               </h3>
               <button
                 onClick={() => setShowForm(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100"
+                className="p-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -273,56 +273,56 @@ export default function AdminTokensPage() {
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-name">
                   Nome <span className="text-red-500">*</span>
                 </label>
-                <input
+                <input id="form-name"
                   value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   placeholder="Ex: Pacote Básico"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-                <input
+                <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-description">Descrição</label>
+                <input id="form-description"
                   value={form.description}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   placeholder="Descrição opcional"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-tokens">
                     Tokens <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="form-tokens"
                     type="number"
                     min="1"
                     value={form.tokens}
                     onChange={e => setForm(f => ({ ...f, tokens: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Ex: 50"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-priceincents">
                     Preço (centavos) <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <input id="form-priceincents"
                     type="number"
                     min="1"
                     value={form.priceInCents}
                     onChange={e => setForm(f => ({ ...f, priceInCents: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                     placeholder="Ex: 4990 = R$ 49,90"
                   />
                   {form.priceInCents && (
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       = {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(form.priceInCents) / 100)}
                     </p>
                   )}
@@ -331,11 +331,11 @@ export default function AdminTokensPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Moeda</label>
-                  <select
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-currency">Moeda</label>
+                  <select id="form-currency"
                     value={form.currency}
                     onChange={e => setForm(f => ({ ...f, currency: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="BRL">BRL (R$)</option>
                     <option value="USD">USD ($)</option>
@@ -343,33 +343,33 @@ export default function AdminTokensPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ordem</label>
-                  <input
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="form-sortorder">Ordem</label>
+                  <input id="form-sortorder"
                     type="number"
                     min="0"
                     value={form.sortOrder}
                     onChange={e => setForm(f => ({ ...f, sortOrder: Number(e.target.value) }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               </div>
 
               <div className="flex gap-6">
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.isActive}
                     onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
-                    className="rounded border-gray-300 text-blue-600"
+                    className="rounded border-border text-blue-600"
                   />
                   Ativo
                 </label>
-                <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.isFeatured}
                     onChange={e => setForm(f => ({ ...f, isFeatured: e.target.checked }))}
-                    className="rounded border-gray-300 text-amber-500"
+                    className="rounded border-border text-amber-500"
                   />
                   <Star className="w-3.5 h-3.5 text-amber-500" />
                   Destaque
@@ -377,10 +377,10 @@ export default function AdminTokensPage() {
               </div>
             </div>
 
-            <div className="flex gap-3 p-5 border-t border-gray-200">
+            <div className="flex gap-3 p-5 border-t border-border">
               <button
                 onClick={() => setShowForm(false)}
-                className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               >
                 Cancelar
               </button>

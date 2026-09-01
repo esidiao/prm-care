@@ -82,8 +82,8 @@ export default async function ReportsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Relatórios</h1>
-          <p className="mt-0.5 text-sm text-gray-500 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-foreground">Relatórios</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
             Relatórios PDF gerados pelo seguimento farmacoterapêutico
           </p>
         </div>

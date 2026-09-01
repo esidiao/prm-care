@@ -118,7 +118,7 @@ export default async function ReconciliationPage({ params }: { params: { id: str
       {/* Nav */}
       <Link
         href={`/patients/${params.id}`}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" /> Voltar ao paciente
       </Link>
@@ -130,8 +130,8 @@ export default async function ReconciliationPage({ params }: { params: { id: str
             <Pill className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Conciliação Farmacêutica</h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">Conciliação Farmacêutica</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
               {patient.name || patient.code}
               {age !== null && age !== undefined && ` · ${age} anos`}
               {patient.medications.length > 0 && ` · ${patient.medications.length} medicamento${patient.medications.length !== 1 ? 's' : ''}`}
@@ -143,18 +143,18 @@ export default async function ReconciliationPage({ params }: { params: { id: str
 
       {/* Print-only header */}
       <div className="hidden print:block mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Conciliação Farmacêutica</h1>
-        <p className="text-gray-600 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Conciliação Farmacêutica</h1>
+        <p className="text-muted-foreground mt-1">
           Paciente: {patient.name || patient.code}
           {age !== null && age !== undefined && ` · ${age} anos`}
         </p>
       </div>
 
       {patient.medications.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
-          <Pill className="h-10 w-10 text-gray-300 mx-auto mb-3" />
-          <p className="font-semibold text-gray-500">Nenhum medicamento ativo cadastrado</p>
-          <p className="text-sm text-gray-400 mt-1">
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+          <Pill className="h-10 w-10 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+          <p className="font-semibold text-muted-foreground">Nenhum medicamento ativo cadastrado</p>
+          <p className="text-sm text-muted-foreground mt-1">
             Cadastre os medicamentos na aba de edição do paciente para gerar a conciliação.
           </p>
           <Link

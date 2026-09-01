@@ -243,7 +243,7 @@ export function MobileNav({ user }: SidebarProps) {
       {/* Hamburger button (only on mobile) */}
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted"
         aria-label="Menu"
       >
         <Menu className="h-4 w-4" />

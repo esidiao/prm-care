@@ -73,16 +73,16 @@ export default function ChangePasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-start justify-center pt-16 px-4">
+    <div className="min-h-screen bg-muted flex items-start justify-center pt-16 px-4">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <Link href="/settings" className="text-gray-500 hover:text-gray-700 transition-colors">
+          <Link href="/settings" className="text-muted-foreground hover:text-foreground transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Alterar senha</h1>
-            <p className="text-sm text-gray-500">Mantenha sua conta segura com uma senha forte</p>
+            <h1 className="text-xl font-bold text-foreground">Alterar senha</h1>
+            <p className="text-sm text-muted-foreground">Mantenha sua conta segura com uma senha forte</p>
           </div>
         </div>
 
@@ -105,31 +105,31 @@ export default function ChangePasswordPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center gap-2 pb-4 mb-5 border-b border-gray-100">
+        <div className="bg-card rounded-xl shadow-sm border border-border p-6">
+          <div className="flex items-center gap-2 pb-4 mb-5 border-b border-border">
             <ShieldCheck className="w-5 h-5 text-blue-600" />
-            <h2 className="font-semibold text-gray-900">Segurança da conta</h2>
+            <h2 className="font-semibold text-foreground">Segurança da conta</h2>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Current password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Senha atual <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type={showCurrent ? 'text' : 'password'}
                   {...register('currentPassword')}
-                  className="w-full pl-9 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-9 pr-10 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Sua senha atual"
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowCurrent(s => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -139,26 +139,26 @@ export default function ChangePasswordPage() {
               )}
             </div>
 
-            <hr className="border-gray-100" />
+            <hr className="border-border" />
 
             {/* New password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Nova senha <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type={showNew ? 'text' : 'password'}
                   {...register('newPassword')}
-                  className="w-full pl-9 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-9 pr-10 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Mínimo 8 caracteres"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowNew(s => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -172,12 +172,12 @@ export default function ChangePasswordPage() {
                       <div
                         key={i}
                         className={`h-1.5 flex-1 rounded-full transition-colors ${
-                          i <= strength ? strengthColor : 'bg-gray-200'
+                          i <= strength ? strengthColor : 'bg-muted'
                         }`}
                       />
                     ))}
                   </div>
-                  <p className="text-xs text-gray-500">Força: <span className="font-medium">{strengthLabel}</span></p>
+                  <p className="text-xs text-muted-foreground">Força: <span className="font-medium">{strengthLabel}</span></p>
                 </div>
               )}
 
@@ -191,8 +191,8 @@ export default function ChangePasswordPage() {
                   { ok: /[A-Z]/.test(newPassword), text: 'Uma letra maiúscula' },
                   { ok: /[0-9]/.test(newPassword), text: 'Um número' },
                 ].map(({ ok, text }) => (
-                  <li key={text} className={`flex items-center gap-1.5 text-xs ${ok ? 'text-green-600' : 'text-gray-400'}`}>
-                    <CheckCircle className={`w-3 h-3 ${ok ? 'text-green-500' : 'text-gray-300'}`} />
+                  <li key={text} className={`flex items-center gap-1.5 text-xs ${ok ? 'text-green-600' : 'text-muted-foreground'}`}>
+                    <CheckCircle className={`w-3 h-3 ${ok ? 'text-green-500' : 'text-gray-300 dark:text-gray-600'}`} />
                     {text}
                   </li>
                 ))}
@@ -201,22 +201,22 @@ export default function ChangePasswordPage() {
 
             {/* Confirm password */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Confirmar nova senha <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type={showConfirm ? 'text' : 'password'}
                   {...register('confirmPassword')}
-                  className="w-full pl-9 pr-10 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-9 pr-10 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Repita a nova senha"
                   autoComplete="new-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirm(s => !s)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
                   {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -229,7 +229,7 @@ export default function ChangePasswordPage() {
             <div className="flex gap-3 pt-2">
               <Link
                 href="/settings"
-                className="flex-1 text-center px-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 text-center px-4 py-2.5 text-sm font-medium text-foreground border border-border rounded-lg hover:bg-muted transition-colors"
               >
                 Cancelar
               </Link>
@@ -250,7 +250,7 @@ export default function ChangePasswordPage() {
           </form>
         </div>
 
-        <p className="mt-4 text-center text-xs text-gray-400">
+        <p className="mt-4 text-center text-xs text-muted-foreground">
           Após alterar a senha, você continuará logado nesta sessão.
         </p>
       </div>

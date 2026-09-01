@@ -29,7 +29,7 @@ export function ExportWithWarning({ href, label = 'Exportar CSV', filename, clas
     <>
       <button
         onClick={() => setOpen(true)}
-        className={className ?? 'flex items-center gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors'}
+        className={className ?? 'flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors'}
       >
         <Download className="h-4 w-4" />
         {label}
@@ -37,21 +37,21 @@ export function ExportWithWarning({ href, label = 'Exportar CSV', filename, clas
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden">
+          <div className="w-full max-w-md rounded-2xl bg-card shadow-2xl overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between bg-amber-50 border-b border-amber-200 px-5 py-4">
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-amber-600" />
                 <h3 className="font-semibold text-amber-900">Aviso — Dados Sensíveis</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             {/* Body */}
             <div className="px-5 py-5 space-y-4">
-              <p className="text-sm text-gray-700 leading-relaxed">
+              <p className="text-sm text-foreground leading-relaxed">
                 O arquivo que será gerado contém <strong>dados pessoais e de saúde de pacientes</strong>,
                 classificados como dados sensíveis pela LGPD (Art. 11).
               </p>
@@ -68,14 +68,14 @@ export function ExportWithWarning({ href, label = 'Exportar CSV', filename, clas
                 </ul>
               </div>
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Esta exportação é registrada com data, hora e usuário nos logs do sistema (LGPD Art. 37).
               </p>
 
               <div className="flex gap-3 pt-1">
                 <button
                   onClick={() => setOpen(false)}
-                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
                 >
                   Cancelar
                 </button>

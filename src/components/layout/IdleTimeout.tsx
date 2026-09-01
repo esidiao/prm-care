@@ -60,13 +60,13 @@ export function IdleTimeout() {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white shadow-2xl p-6 text-center space-y-4">
+      <div className="w-full max-w-sm rounded-2xl bg-card shadow-2xl p-6 text-center space-y-4">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100">
           <Clock className="h-7 w-7 text-amber-600" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-gray-900">Sessão inativa</h3>
-          <p className="text-sm text-gray-500 mt-1">
+          <h3 className="text-lg font-bold text-foreground">Sessão inativa</h3>
+          <p className="text-sm text-muted-foreground mt-1">
             Por segurança, você será desconectado em
           </p>
           <p className="text-4xl font-bold text-amber-600 mt-2 tabular-nums">{countdown}s</p>
@@ -74,7 +74,7 @@ export function IdleTimeout() {
         <div className="flex gap-3">
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted transition-colors"
           >
             <LogOut className="h-4 w-4" /> Sair agora
           </button>
@@ -85,7 +85,7 @@ export function IdleTimeout() {
             Continuar
           </button>
         </div>
-        <p className="text-[10px] text-gray-400">
+        <p className="text-[10px] text-muted-foreground">
           Proteção de dados clínicos sensíveis (LGPD)
         </p>
       </div>

@@ -148,14 +148,14 @@ export default async function AdminPage() {
     { label: 'Análises realizadas', value: totalAnalyses, icon: FlaskConical, color: 'text-green-600 bg-green-50 dark:bg-green-900/20', sub: `Média ${avgPRMsPerAnalysis.toFixed(1)} PRMs` },
     { label: 'Relatórios gerados', value: totalReports, icon: FileText, color: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20', sub: 'Total histórico' },
     { label: 'Receita estimada', value: formatCurrency(payments._sum.amountInCents ?? 0), icon: TrendingUp, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20', sub: 'Simulada' },
-    { label: 'Base pendente', value: pendingKnowledge, icon: BookOpen, color: pendingKnowledge > 0 ? 'text-orange-600 bg-orange-50 dark:bg-orange-900/20' : 'text-gray-600 bg-gray-50 dark:bg-gray-700', sub: 'Validação necessária' },
+    { label: 'Base pendente', value: pendingKnowledge, icon: BookOpen, color: pendingKnowledge > 0 ? 'text-orange-600 bg-orange-50 dark:bg-orange-900/20' : 'text-muted-foreground bg-muted', sub: 'Validação necessária' },
   ]
 
   return (
     <div className="space-y-6">
       <div className="page-header">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Painel Administrativo</h1>
-        <p className="text-gray-500 dark:text-gray-400">Métricas e gestão da plataforma PRM Care</p>
+        <h1 className="text-2xl font-bold text-foreground">Painel Administrativo</h1>
+        <p className="text-muted-foreground">Métricas e gestão da plataforma PRM Care</p>
       </div>
 
       {/* Stats grid */}
@@ -164,9 +164,9 @@ export default async function AdminPage() {
           <div key={i} className="stat-card">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{s.label}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{s.value}</p>
-                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{s.sub}</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{s.label}</p>
+                <p className="mt-2 text-3xl font-bold text-foreground tabular-nums">{s.value}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{s.sub}</p>
               </div>
               <div className={`rounded-xl p-2.5 ${s.color}`}>
                 <s.icon className="h-5 w-5" />
@@ -204,14 +204,14 @@ export default async function AdminPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Recent users */}
         <div className="card">
-          <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100">Usuários recentes</h2>
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
+            <h2 className="font-semibold text-foreground">Usuários recentes</h2>
             <Link href="/admin/users"
               className="flex items-center gap-1 text-sm text-brand-800 dark:text-blue-400 hover:underline">
               Ver todos <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
-          <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
+          <div className="divide-y divide-border/50">
             {recentUsers.map(user => {
               const role = ROLE_LABELS[user.role]
               const RoleIcon = role?.icon ?? UserCheck
@@ -223,8 +223,8 @@ export default async function AdminPage() {
                       {(user.name || user.email)[0].toUpperCase()}
                     </div>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{user.name || '—'}</p>
-                      <p className="truncate text-xs text-gray-400 dark:text-gray-500">{user.email}</p>
+                      <p className="truncate text-sm font-medium text-foreground">{user.name || '—'}</p>
+                      <p className="truncate text-xs text-muted-foreground">{user.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
@@ -234,7 +234,7 @@ export default async function AdminPage() {
                         {role.label}
                       </span>
                     )}
-                    <span className="rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs text-gray-600 dark:text-gray-300">
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
                       {PLAN_LABELS[user.plan] ?? user.plan}
                     </span>
                     <div className="flex items-center gap-0.5 text-xs text-yellow-600 dark:text-yellow-400">
@@ -249,24 +249,24 @@ export default async function AdminPage() {
 
         {/* Top PRM findings */}
         <div className="card">
-          <div className="border-b border-gray-100 dark:border-gray-700 px-5 py-4">
-            <h2 className="font-semibold text-gray-900 dark:text-gray-100">PRMs mais frequentes (plataforma)</h2>
+          <div className="border-b border-border px-5 py-4">
+            <h2 className="font-semibold text-foreground">PRMs mais frequentes (plataforma)</h2>
           </div>
-          <div className="divide-y divide-gray-50 dark:divide-gray-700/50">
+          <div className="divide-y divide-border/50">
             {topFindings.map((f, i) => (
               <div key={i} className="flex items-center justify-between px-5 py-3">
                 <div className="flex items-center gap-3 min-w-0">
                   <span className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                     i === 0 ? 'bg-amber-100 text-amber-700' :
-                    i === 1 ? 'bg-gray-200 text-gray-600' :
+                    i === 1 ? 'bg-muted text-muted-foreground' :
                     i === 2 ? 'bg-orange-100 text-orange-700' :
-                    'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                    'bg-muted text-muted-foreground'
                   }`}>
                     {i + 1}
                   </span>
-                  <p className="truncate text-sm text-gray-700 dark:text-gray-300 max-w-xs">{f.title}</p>
+                  <p className="truncate text-sm text-foreground max-w-xs">{f.title}</p>
                 </div>
-                <span className="flex-shrink-0 text-sm font-semibold text-gray-900 dark:text-gray-100 ml-2">
+                <span className="flex-shrink-0 text-sm font-semibold text-foreground ml-2">
                   {f._count.id}×
                 </span>
               </div>
@@ -277,7 +277,7 @@ export default async function AdminPage() {
 
       {/* Quick actions */}
       <div>
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Ações rápidas
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -288,13 +288,13 @@ export default async function AdminPage() {
             { label: 'Logs de auditoria', href: '/admin/logs', icon: Activity, sub: 'Atividades do sistema' },
           ].map((a, i) => (
             <Link key={i} href={a.href}
-              className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 hover:shadow-md transition-all group dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+              className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:shadow-md transition-all group dark:hover:bg-gray-700">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-[#eff6ff] group-hover:bg-brand-800 transition-colors dark:bg-brand-800/30">
                 <a.icon className="h-5 w-5 text-brand-800 group-hover:text-white transition-colors dark:text-blue-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{a.label}</p>
-                <p className="text-xs text-gray-400 dark:text-gray-500">{a.sub}</p>
+                <p className="text-sm font-medium text-foreground">{a.label}</p>
+                <p className="text-xs text-muted-foreground">{a.sub}</p>
               </div>
             </Link>
           ))}

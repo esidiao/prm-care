@@ -61,31 +61,31 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground" htmlFor="form-name">
             Nome completo
           </label>
-          <input
+          <input id="form-name"
             type="text"
             value={form.name}
             onChange={set('name')}
             placeholder="Seu nome"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground" htmlFor="profile-email">
             E-mail
           </label>
-          <input
+          <input id="profile-email"
             type="email"
             value={profile.email}
             disabled
-            className="h-10 w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 text-sm text-gray-500 cursor-not-allowed"
+            className="h-10 w-full rounded-lg border border-border bg-muted px-3 text-sm text-muted-foreground cursor-not-allowed"
           />
-          <p className="mt-1 text-xs text-gray-400">O e-mail não pode ser alterado</p>
+          <p className="mt-1 text-xs text-muted-foreground">O e-mail não pode ser alterado</p>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             CRF (Conselho Regional de Farmácia)
           </label>
           <input
@@ -93,11 +93,11 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.crfNumber}
             onChange={set('crfNumber')}
             placeholder="Ex: SP-123456"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             Especialização
           </label>
           <input
@@ -105,11 +105,11 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.specialization}
             onChange={set('specialization')}
             placeholder="Ex: Farmácia Clínica, Oncologia…"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             Instituição / Local de trabalho
           </label>
           <input
@@ -117,7 +117,7 @@ export function ProfileForm({ profile }: { profile: ProfileData }) {
             value={form.institution}
             onChange={set('institution')}
             placeholder="Ex: Hospital das Clínicas de SP"
-            className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-10 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
       </div>
@@ -213,7 +213,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {hasPassword && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             Senha atual
           </label>
           <div className="relative">
@@ -223,10 +223,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               onChange={set('currentPassword')}
               placeholder="••••••••"
               required
-              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+              className="h-10 w-full rounded-lg border border-border bg-card px-3 pr-10 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, current: !s.current }))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               {show.current ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -235,7 +235,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             Nova senha
           </label>
           <div className="relative">
@@ -246,10 +246,10 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               placeholder="Mínimo 8 caracteres"
               required
               minLength={8}
-              className="h-10 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+              className="h-10 w-full rounded-lg border border-border bg-card px-3 pr-10 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, new: !s.new }))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               {show.new ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -257,7 +257,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
             <div className="mt-1.5 space-y-1">
               <div className="flex gap-1">
                 {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= strength ? strengthColor : 'bg-gray-200 dark:bg-gray-700'}`} />
+                  <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= strength ? strengthColor : 'bg-muted'}`} />
                 ))}
               </div>
               <p className={`text-xs ${['', 'text-red-500', 'text-amber-500', 'text-blue-500', 'text-emerald-500'][strength]}`}>
@@ -267,7 +267,7 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
           )}
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-gray-700 dark:text-gray-300">
+          <label className="mb-1.5 block text-xs font-medium text-foreground">
             Confirmar nova senha
           </label>
           <div className="relative">
@@ -277,14 +277,14 @@ export function PasswordForm({ hasPassword }: { hasPassword: boolean }) {
               onChange={set('confirmPassword')}
               placeholder="Repita a nova senha"
               required
-              className={`h-10 w-full rounded-lg border bg-white dark:bg-gray-800 px-3 pr-10 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
+              className={`h-10 w-full rounded-lg border bg-card px-3 pr-10 text-sm text-foreground placeholder-gray-400 focus:outline-none focus:ring-1 transition-colors ${
                 form.confirmPassword && form.confirmPassword !== form.newPassword
                   ? 'border-red-400 focus:border-red-400 focus:ring-red-400'
-                  : 'border-gray-300 dark:border-gray-600 focus:border-brand-800 focus:ring-brand-800'
+                  : 'border-border focus:border-brand-800 focus:ring-brand-800'
               }`}
             />
             <button type="button" onClick={() => setShow((s) => ({ ...s, confirm: !s.confirm }))}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               {show.confirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>

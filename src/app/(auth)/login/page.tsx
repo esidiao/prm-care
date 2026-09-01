@@ -96,7 +96,7 @@ function LoginForm() {
                 {...register('email')}
                 type="text"
                 autoComplete="username"
-                className={`w-full rounded-xl border px-4 py-3 text-sm bg-muted focus:bg-white transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
+                className={`w-full rounded-xl border px-4 py-3 text-sm bg-muted focus:bg-card transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
                   errors.email ? 'border-red-300 bg-red-50' : 'border-border'
                 }`}
                 placeholder="CPF (apenas números) ou e-mail"
@@ -117,13 +117,13 @@ function LoginForm() {
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className={`w-full rounded-xl border px-4 py-3 pr-11 text-sm bg-muted focus:bg-white transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
+                  className={`w-full rounded-xl border px-4 py-3 pr-11 text-sm bg-muted focus:bg-card transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
                     errors.password ? 'border-red-300 bg-red-50' : 'border-border'
                   }`}
                   placeholder="••••••••"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-gray-600 transition-colors">
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                 </button>
               </div>
@@ -143,9 +143,9 @@ function LoginForm() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Ao entrar, você concorda com nossos{' '}
-          <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 transition-colors">Termos de Uso</Link>
+          <Link href="/terms" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Termos de Uso</Link>
           {' '}e{' '}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 transition-colors">Política de Privacidade</Link>.
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Política de Privacidade</Link>.
         </p>
       </div>
     </div>

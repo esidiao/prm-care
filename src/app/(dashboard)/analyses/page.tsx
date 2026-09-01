@@ -75,8 +75,8 @@ export default async function AnalysesHistoryPage({
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Histórico de Análises PRM</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Histórico de Análises PRM</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             {total} análise{total !== 1 ? 's' : ''} realizadas no total
           </p>
         </div>
@@ -94,32 +94,32 @@ export default async function AnalysesHistoryPage({
             { label: 'PRMs identificados', value: stats._sum.totalPRMs ?? 0, icon: AlertTriangle, color: 'text-orange-600 bg-orange-50 dark:bg-orange-950' },
             { label: 'PRMs urgentes', value: stats._sum.urgentPRMs ?? 0, icon: AlertTriangle, color: 'text-red-600 bg-red-50 dark:bg-red-950' },
           ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm text-center">
+            <div key={label} className="rounded-xl border border-border bg-card p-4 shadow-sm text-center">
               <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${color}`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+              <p className="text-2xl font-bold text-foreground">{value}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+      <div className="flex flex-wrap gap-3 rounded-xl border border-border bg-card p-4">
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-gray-400" />
-          <span className="text-xs font-semibold text-gray-600 dark:text-gray-400">Filtros:</span>
+          <Filter className="h-4 w-4 text-muted-foreground" />
+          <span className="text-xs font-semibold text-muted-foreground">Filtros:</span>
         </div>
         <form className="flex flex-wrap gap-3 flex-1" method="GET" action="/analyses">
           <input
             name="patient"
             defaultValue={patientFilter}
             placeholder="Buscar paciente…"
-            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:border-brand-800 focus:outline-none flex-1 min-w-[160px]"
+            className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none flex-1 min-w-[160px]"
           />
           <select name="risk" defaultValue={riskFilter}
-            className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-1.5 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-800 focus:outline-none">
+            className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm text-foreground focus:border-brand-800 focus:outline-none">
             <option value="">Todos os riscos</option>
             <option value="urgent">Com PRMs urgentes</option>
             <option value="high">Com PRMs alto risco</option>
@@ -129,7 +129,7 @@ export default async function AnalysesHistoryPage({
             Filtrar
           </button>
           {(patientFilter || riskFilter) && (
-            <Link href="/analyses" className="rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-1.5 text-sm text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            <Link href="/analyses" className="rounded-lg border border-border px-4 py-1.5 text-sm text-muted-foreground hover:bg-muted transition-colors">
               Limpar
             </Link>
           )}
@@ -141,35 +141,35 @@ export default async function AnalysesHistoryPage({
         <ExportWithWarning
           href="/api/export/prms"
           label="Exportar PRMs (CSV)"
-          className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 px-4 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors"
         />
       </div>
 
       {/* Table */}
       {analyses.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:border-gray-700 py-16 text-center">
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
           <FlaskConical className="h-10 w-10 text-gray-200 dark:text-gray-700 mb-3" />
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Nenhuma análise encontrada</p>
+          <p className="text-sm font-medium text-muted-foreground">Nenhuma análise encontrada</p>
           <Link href="/analysis/new" className="mt-4 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             Iniciar primeira análise
           </Link>
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">Data</th>
-                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-gray-500 dark:text-gray-400">Paciente</th>
-                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">PRMs</th>
-                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">Urgentes</th>
-                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">Altos</th>
-                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-gray-500 dark:text-gray-400">Resolução</th>
-                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-gray-500 dark:text-gray-400"></th>
+                <tr className="border-b border-border bg-muted">
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-muted-foreground">Data</th>
+                  <th className="px-5 py-3.5 text-left text-xs font-semibold text-muted-foreground">Paciente</th>
+                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-muted-foreground">PRMs</th>
+                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-muted-foreground">Urgentes</th>
+                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-muted-foreground">Altos</th>
+                  <th className="px-5 py-3.5 text-center text-xs font-semibold text-muted-foreground">Resolução</th>
+                  <th className="px-5 py-3.5 text-right text-xs font-semibold text-muted-foreground"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+              <tbody className="divide-y divide-border/50">
                 {analyses.map((analysis) => {
                   const resolved = analysis.findings.filter(f => f.isResolved).length
                   const total = analysis.findings.length
@@ -180,19 +180,19 @@ export default async function AnalysesHistoryPage({
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2">
                           <Clock className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600 flex-shrink-0" />
-                          <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">
                             {formatDateTime(analysis.createdAt)}
                           </span>
                         </div>
                       </td>
                       <td className="px-5 py-3.5">
                         <Link href={`/patients/${analysis.patient.id}`}
-                          className="font-medium text-gray-900 dark:text-gray-100 hover:text-brand-800 dark:hover:text-blue-400 transition-colors">
+                          className="font-medium text-foreground hover:text-brand-800 dark:hover:text-blue-400 transition-colors">
                           {analysis.patient.name || analysis.patient.code}
                         </Link>
                       </td>
                       <td className="px-5 py-3.5 text-center">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-foreground">
                           {analysis.totalPRMs}
                         </span>
                       </td>
@@ -215,13 +215,13 @@ export default async function AnalysesHistoryPage({
                       <td className="px-5 py-3.5 text-center">
                         {pct !== null ? (
                           <div className="flex items-center justify-center gap-2">
-                            <div className="h-1.5 w-16 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                            <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden">
                               <div
                                 className={`h-full rounded-full ${pct === 100 ? 'bg-green-500' : pct >= 50 ? 'bg-yellow-400' : 'bg-red-400'}`}
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
-                            <span className="text-xs text-gray-500 dark:text-gray-400 w-8 text-right">{pct}%</span>
+                            <span className="text-xs text-muted-foreground w-8 text-right">{pct}%</span>
                           </div>
                         ) : <span className="text-gray-300 dark:text-gray-600">—</span>}
                       </td>
@@ -240,20 +240,20 @@ export default async function AnalysesHistoryPage({
 
           {/* Pagination */}
           {pages > 1 && (
-            <div className="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 px-5 py-3.5 bg-gray-50/50 dark:bg-gray-800/50">
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="flex items-center justify-between border-t border-border px-5 py-3.5 bg-gray-50/50 dark:bg-gray-800/50">
+              <p className="text-xs text-muted-foreground">
                 Página {page} de {pages} · {total} registros
               </p>
               <div className="flex gap-2">
                 {page > 1 && (
                   <Link href={buildUrl({ page: page - 1 })}
-                    className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors">
                     ← Anterior
                   </Link>
                 )}
                 {page < pages && (
                   <Link href={buildUrl({ page: page + 1 })}
-                    className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted transition-colors">
                     Próxima →
                   </Link>
                 )}

@@ -215,7 +215,7 @@ export default function NewAnalysisPage() {
               {i < stepIndex ? '✓' : i + 1}
             </div>
             <span className={`text-sm font-medium ${i === stepIndex ? 'text-brand-800' : 'text-muted-foreground'}`}>{s.label}</span>
-            {i < steps.length - 1 && <ChevronRight className="h-4 w-4 text-gray-300" />}
+            {i < steps.length - 1 && <ChevronRight className="h-4 w-4 text-gray-300 dark:text-gray-600" />}
           </div>
         ))}
       </div>
@@ -242,7 +242,7 @@ export default function NewAnalysisPage() {
               {patients.map((p: any) => (
                 <button key={p.id} onClick={() => selectPatient(p)}
                   className={`w-full flex items-center justify-between rounded-lg border p-4 text-left transition-all ${
-                    selectedPatient?.id === p.id ? 'border-brand-800 bg-[#eff6ff]' : 'hover:border-gray-300 hover:bg-muted'
+                    selectedPatient?.id === p.id ? 'border-brand-800 bg-[#eff6ff]' : 'hover:border-border hover:bg-muted'
                   }`}>
                   <div>
                     <p className="font-medium text-foreground">{p.name || p.code}</p>
@@ -299,7 +299,7 @@ export default function NewAnalysisPage() {
 
           {medications.length === 0 ? (
             <div className="rounded-lg border border-dashed py-10 text-center">
-              <Pill className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+              <Pill className="h-8 w-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
               <p className="text-muted-foreground">Nenhum medicamento cadastrado para este paciente.</p>
               <button onClick={addMedication} className="mt-2 text-sm text-brand-800 hover:underline">
                 + Adicionar medicamento
@@ -321,7 +321,7 @@ export default function NewAnalysisPage() {
           )}
 
           <div className="flex justify-between pt-2">
-            <button onClick={() => setStep('patient')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-700">
+            <button onClick={() => setStep('patient')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-4 w-4" /> Voltar
             </button>
             <button
@@ -344,8 +344,8 @@ export default function NewAnalysisPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Função renal</label>
-              <select
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="clinicaldata-renalfunction">Função renal</label>
+              <select id="clinicaldata-renalfunction"
                 value={clinicalData.renalFunction || ''}
                 onChange={e => setClinicalData((p: any) => ({ ...p, renalFunction: e.target.value }))}
                 className="w-full rounded-md border px-3 py-2 text-sm">
@@ -358,8 +358,8 @@ export default function NewAnalysisPage() {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">ClCr (mL/min)</label>
-              <input
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="clinicaldata-creatinineclearance">ClCr (mL/min)</label>
+              <input id="clinicaldata-creatinineclearance"
                 type="number"
                 value={clinicalData.creatinineClearance || ''}
                 onChange={e => setClinicalData((p: any) => ({ ...p, creatinineClearance: parseFloat(e.target.value) }))}
@@ -367,8 +367,8 @@ export default function NewAnalysisPage() {
                 placeholder="Ex: 45" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Função hepática</label>
-              <select
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="clinicaldata-hepaticfunction">Função hepática</label>
+              <select id="clinicaldata-hepaticfunction"
                 value={clinicalData.hepaticFunction || ''}
                 onChange={e => setClinicalData((p: any) => ({ ...p, hepaticFunction: e.target.value }))}
                 className="w-full rounded-md border px-3 py-2 text-sm">
@@ -422,7 +422,7 @@ export default function NewAnalysisPage() {
             ))}
           </div>
           <div className="flex justify-between pt-2">
-            <button onClick={() => setStep('medications')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-700">
+            <button onClick={() => setStep('medications')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-4 w-4" /> Voltar
             </button>
             <button onClick={() => setStep('confirm')}
@@ -513,7 +513,7 @@ export default function NewAnalysisPage() {
           </div>
 
           <div className="flex justify-between">
-            <button onClick={() => setStep('clinical')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-gray-700">
+            <button onClick={() => setStep('clinical')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
               <ChevronLeft className="h-4 w-4" /> Voltar
             </button>
             <button onClick={runAnalysis}
@@ -578,7 +578,7 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
           )}
           <button
             onClick={() => setExpanded(e => !e)}
-            className="text-xs text-muted-foreground hover:text-gray-600 px-2 py-1"
+            className="text-xs text-muted-foreground hover:text-foreground px-2 py-1"
           >
             {expanded ? 'Recolher' : 'Editar'}
           </button>
@@ -595,15 +595,15 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
         <div className="border-t px-4 py-4 space-y-3 bg-muted rounded-b-lg">
           <div className="grid gap-3 md:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Princípio ativo *</label>
-              <input value={med.activeIngredient}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="med-activeingredient">Princípio ativo *</label>
+              <input id="med-activeingredient" value={med.activeIngredient}
                 onChange={e => onUpdate('activeIngredient', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none bg-card"
                 placeholder="Ex: metformina" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Nome comercial</label>
-              <input value={med.tradeName}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="med-tradename">Nome comercial</label>
+              <input id="med-tradename" value={med.tradeName}
                 onChange={e => onUpdate('tradeName', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none bg-card"
                 placeholder="Ex: Glifage" />
@@ -623,8 +623,8 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
               </div>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Via de administração</label>
-              <select value={med.route}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="med-route">Via de administração</label>
+              <select id="med-route" value={med.route}
                 onChange={e => onUpdate('route', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm bg-card">
                 {[['ORAL', 'Oral'], ['SUBLINGUAL', 'Sublingual'], ['INHALED', 'Inalatória'],
@@ -634,8 +634,8 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Frequência</label>
-              <select value={med.frequency}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor={`med-${index}-frequency`}>Frequência</label>
+              <select id={`med-${index}-frequency`} value={med.frequency}
                 onChange={e => onUpdate('frequency', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm bg-card">
                 <option value="">Selecionar</option>
@@ -644,8 +644,8 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Adesão</label>
-              <select value={med.adherence}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor={`med-${index}-adherence`}>Adesão</label>
+              <select id={`med-${index}-adherence`} value={med.adherence}
                 onChange={e => onUpdate('adherence', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm bg-card">
                 {[['UNKNOWN', 'Não avaliada'], ['EXCELLENT', 'Excelente (>95%)'],
@@ -654,15 +654,15 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Indicação / motivo do uso</label>
-              <input value={med.indication}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor={`med-${index}-indication`}>Indicação / motivo do uso</label>
+              <input id={`med-${index}-indication`} value={med.indication}
                 onChange={e => onUpdate('indication', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none bg-card"
                 placeholder="Ex: diabetes tipo 2, hipertensão..." />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Efeitos adversos relatados</label>
-              <input value={med.adverseEffects}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor={`med-${index}-adverseEffects`}>Efeitos adversos relatados</label>
+              <input id={`med-${index}-adverseEffects`} value={med.adverseEffects}
                 onChange={e => onUpdate('adverseEffects', e.target.value)}
                 className="w-full rounded-md border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none bg-card"
                 placeholder="Ex: náusea, tontura..." />
@@ -684,7 +684,7 @@ function MedicationCard({ med, index, onUpdate, onRemove, onToggle }: {
           </div>
           <div className="flex justify-end">
             <button onClick={() => setExpanded(false)}
-              className="text-xs text-muted-foreground hover:text-gray-700 underline">
+              className="text-xs text-muted-foreground hover:text-foreground underline">
               Recolher
             </button>
           </div>

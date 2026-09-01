@@ -95,7 +95,7 @@ export function OnboardingChecklist({ hasPatient, hasAnalysis, hasReport, hasPro
   )
 
   return (
-    <div className="rounded-xl border border-blue-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-blue-200 bg-card shadow-sm overflow-hidden">
       {/* Header */}
       <div
         className="flex items-center gap-3 px-5 py-4 cursor-pointer select-none bg-gradient-to-r from-brand-900 to-brand-800 text-white"
@@ -127,7 +127,7 @@ export function OnboardingChecklist({ hasPatient, hasAnalysis, hasReport, hasPro
 
       {/* Steps */}
       {!collapsed && (
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-border">
           {steps.map((step, idx) => {
             const Icon = step.icon
             return (
@@ -141,18 +141,18 @@ export function OnboardingChecklist({ hasPatient, hasAnalysis, hasReport, hasPro
                 <div className="flex-shrink-0 mt-0.5">
                   {step.done
                     ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-                    : <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-gray-300 text-[10px] font-bold text-gray-400">
+                    : <div className="flex h-5 w-5 items-center justify-center rounded-full border-2 border-border text-[10px] font-bold text-muted-foreground">
                         {idx + 1}
                       </div>
                   }
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${step.done ? 'line-through text-gray-400' : 'text-gray-800'}`}>
+                  <p className={`text-sm font-medium ${step.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                     {step.label}
                   </p>
                   {!step.done && (
-                    <p className="text-xs text-gray-500 mt-0.5">{step.description}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{step.description}</p>
                   )}
                 </div>
 

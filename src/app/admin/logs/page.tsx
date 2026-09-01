@@ -207,7 +207,7 @@ export default function AdminLogsPage() {
                   <th className="text-left px-4 py-3 font-medium text-muted-foreground">IP</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {logs.map(log => {
                   const ResourceIcon = getResourceIcon(log.resource)
                   return (

@@ -27,18 +27,18 @@ export function Toaster() {
             {ICON[v]}
             <div className="flex-1 min-w-0">
               {title && (
-                <ToastTitle className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <ToastTitle className="text-sm font-semibold text-foreground">
                   {title}
                 </ToastTitle>
               )}
               {description && (
-                <ToastDescription className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <ToastDescription className="text-xs text-muted-foreground mt-0.5">
                   {description}
                 </ToastDescription>
               )}
             </div>
             {action}
-            <ToastClose className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+            <ToastClose className="text-muted-foreground hover:text-foreground" />
           </Toast>
         )
       })}

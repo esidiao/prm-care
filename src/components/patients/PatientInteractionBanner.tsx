@@ -26,22 +26,22 @@ export function PatientInteractionBanner({ result }: { result: DdiCheckResult })
           <AlertTriangle className="h-5 w-5" />
           Interações na lista atual: {result.globalLabel} · {result.interactions.length}
         </div>
-        <Link href="/interactions" className="flex items-center gap-1 text-sm text-gray-600 hover:underline shrink-0">Consulta completa <ChevronRight className="h-4 w-4" /></Link>
+        <Link href="/interactions" className="flex items-center gap-1 text-sm text-muted-foreground hover:underline shrink-0">Consulta completa <ChevronRight className="h-4 w-4" /></Link>
       </div>
       <ul className="mt-2 space-y-1.5">
         {result.interactions.slice(0, 4).map((it, i) => {
           const c = SEV[it.severity] ?? SEV.moderate
           return (
-            <li key={i} className="text-sm text-gray-700">
+            <li key={i} className="text-sm text-foreground">
               <span className={`mr-2 rounded-full px-2 py-0.5 text-[11px] font-bold ${c.chip}`}>{it.severityLabel}</span>
               <b>{it.drugs[0]} + {it.drugs[1]}</b> — {it.clinicalEffect}
               {it.contextFlags?.map((f, k) => <span key={k} className="mt-0.5 block pl-1 text-xs text-amber-800">⚠ {f}</span>)}
             </li>
           )
         })}
-        {result.interactions.length > 4 && <li className="text-xs text-gray-500">+ {result.interactions.length - 4} outra(s)…</li>}
+        {result.interactions.length > 4 && <li className="text-xs text-muted-foreground">+ {result.interactions.length - 4} outra(s)…</li>}
       </ul>
-      <p className="mt-2 text-xs text-gray-400">Apoio à decisão — não substitui a avaliação clínica. {hasContext && 'Itens com ⚠ têm risco amplificado pelo contexto do paciente.'}</p>
+      <p className="mt-2 text-xs text-muted-foreground">Apoio à decisão — não substitui a avaliação clínica. {hasContext && 'Itens com ⚠ têm risco amplificado pelo contexto do paciente.'}</p>
     </div>
   )
 }

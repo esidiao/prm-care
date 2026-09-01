@@ -141,7 +141,7 @@ export default function EditKnowledgePage() {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-gray-700 transition-colors">
+        <Link href="/admin/knowledge" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
@@ -163,8 +163,8 @@ export default function EditKnowledgePage() {
         {/* Conteúdo principal */}
         <div className="bg-card rounded-xl shadow-sm border border-border p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Título *</label>
-            <input
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="title">Título *</label>
+            <input id="title"
               {...register('title')}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
             />
@@ -173,22 +173,22 @@ export default function EditKnowledgePage() {
 
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Tipo *</label>
-              <select {...register('type')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="type">Tipo *</label>
+              <select id="type" {...register('type')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                 {TYPE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Status *</label>
-              <select {...register('status')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="status">Status *</label>
+              <select id="status" {...register('status')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                 {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Resumo</label>
-            <input
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="summary">Resumo</label>
+            <input id="summary"
               {...register('summary')}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
               placeholder="Exibido na listagem"
@@ -196,8 +196,8 @@ export default function EditKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Conteúdo completo *</label>
-            <textarea
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="content">Conteúdo completo *</label>
+            <textarea id="content"
               {...register('content')}
               rows={8}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none font-mono"
@@ -211,21 +211,21 @@ export default function EditKnowledgePage() {
           <h2 className="font-semibold text-foreground">Fonte e datas</h2>
           <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Fonte *</label>
-              <input {...register('source')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="source">Fonte *</label>
+              <input id="source" {...register('source')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
               {errors.source && <p className="mt-1 text-xs text-red-600">{errors.source.message}</p>}
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">URL da fonte</label>
-              <input type="url" {...register('sourceUrl')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="https://..." />
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="sourceUrl">URL da fonte</label>
+              <input id="sourceUrl" type="url" {...register('sourceUrl')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="https://..." />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Publicado em</label>
-              <input type="date" {...register('publishedAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="publishedAt">Publicado em</label>
+              <input id="publishedAt" type="date" {...register('publishedAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-foreground mb-1">Expira em</label>
-              <input type="date" {...register('expiresAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+              <label className="block text-sm font-medium text-foreground mb-1" htmlFor="expiresAt">Expira em</label>
+              <input id="expiresAt" type="date" {...register('expiresAt')} className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
             </div>
           </div>
         </div>
@@ -323,8 +323,8 @@ export default function EditKnowledgePage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1">Observações internas</label>
-            <textarea
+            <label className="block text-sm font-medium text-foreground mb-1" htmlFor="observations">Observações internas</label>
+            <textarea id="observations"
               {...register('observations')}
               rows={2}
               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 resize-none"

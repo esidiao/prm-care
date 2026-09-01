@@ -132,7 +132,7 @@ export default function NewReportPage() {
     <div className="max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/reports" className="text-muted-foreground hover:text-gray-700 transition-colors">
+        <Link href="/reports" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
@@ -185,7 +185,7 @@ export default function NewReportPage() {
                     className={`w-full flex items-center gap-4 p-3 rounded-lg border text-left transition-all ${
                       isSelected
                         ? 'border-blue-500 bg-blue-50'
-                        : 'border-border hover:border-gray-300 hover:bg-muted'
+                        : 'border-border hover:border-muted-foreground/40 hover:bg-muted'
                     }`}
                   >
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
@@ -231,7 +231,7 @@ export default function NewReportPage() {
                   className={`relative flex flex-col gap-1 p-4 rounded-lg border text-left transition-all ${
                     isSelected
                       ? 'border-blue-500 bg-blue-50'
-                      : 'border-border hover:border-gray-300 hover:bg-muted'
+                      : 'border-border hover:border-muted-foreground/40 hover:bg-muted'
                   }`}
                 >
                   {type.recommended && (

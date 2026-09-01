@@ -119,7 +119,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
   if (analyses.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <Clock className="h-8 w-8 text-gray-300 mb-3" />
+        <Clock className="h-8 w-8 text-gray-300 dark:text-gray-600 mb-3" />
         <p className="text-sm text-muted-foreground">Nenhuma análise registrada ainda.</p>
         <Link href={`/analysis/new?patientId=${patientId}`}
           className="mt-4 inline-flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900">
@@ -279,7 +279,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
       {/* Timeline vertical */}
       <div className="relative">
         {/* Linha vertical */}
-        <div className="absolute left-4 top-0 bottom-0 w-px bg-gray-200" />
+        <div className="absolute left-4 top-0 bottom-0 w-px bg-muted" />
 
         <div className="space-y-4">
           {analyses.map((analysis, idx) => {
@@ -350,7 +350,7 @@ export function PatientTimeline({ analyses, patientId }: Props) {
                       {!compareMode && (
                         <button
                           onClick={e => { e.stopPropagation(); setExpandedId(isExpanded ? null : analysis.id) }}
-                          className="ml-1 rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-gray-700 transition-colors"
+                          className="ml-1 rounded-lg border border-border p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                         >
                           {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                         </button>

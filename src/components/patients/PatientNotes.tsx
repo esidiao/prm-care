@@ -6,7 +6,7 @@ import {
   Italic, List, Minus,
 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
-import { escapeHtml } from '@/lib/utils'
+import { escapeHtml, apiErrorMessage } from '@/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -32,21 +32,21 @@ function renderMarkdown(text: string): string {
   // <img src=x onerror=...>) executaria no navegador de quem abrir o paciente.
   return escapeHtml(text)
     // Headers
-    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 mt-3 mb-1">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-gray-900 dark:text-gray-100 mt-3 mb-1">$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1 class="text-lg font-bold text-gray-900 dark:text-gray-100 mt-3 mb-1">$1</h1>')
+    .replace(/^### (.+)$/gm, '<h3 class="text-sm font-bold text-foreground mt-3 mb-1">$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2 class="text-base font-bold text-foreground mt-3 mb-1">$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1 class="text-lg font-bold text-foreground mt-3 mb-1">$1</h1>')
     // Bold / italic
-    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-gray-100">$1</strong>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-foreground">$1</strong>')
     .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>')
     .replace(/_(.+?)_/g, '<em class="italic">$1</em>')
     // Inline code
-    .replace(/`(.+?)`/g, '<code class="rounded bg-gray-100 dark:bg-gray-700 px-1 py-0.5 text-xs font-mono text-red-700 dark:text-red-400">$1</code>')
+    .replace(/`(.+?)`/g, '<code class="rounded bg-muted px-1 py-0.5 text-xs font-mono text-red-700 dark:text-red-400">$1</code>')
     // Horizontal rule
-    .replace(/^---$/gm, '<hr class="my-2 border-gray-200 dark:border-gray-700" />')
+    .replace(/^---$/gm, '<hr class="my-2 border-border" />')
     // Unordered list items
-    .replace(/^\s*[-*] (.+)$/gm, '<li class="ml-4 list-disc text-gray-700 dark:text-gray-300 text-sm">$1</li>')
+    .replace(/^\s*[-*] (.+)$/gm, '<li class="ml-4 list-disc text-foreground text-sm">$1</li>')
     // Ordered list items
-    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-gray-700 dark:text-gray-300 text-sm">$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-foreground text-sm">$1</li>')
     // Line breaks
     .replace(/\n/g, '<br />')
 }
@@ -54,7 +54,7 @@ function renderMarkdown(text: string): string {
 function MarkdownPreview({ content }: { content: string }) {
   return (
     <div
-      className="prose-sm text-sm text-gray-700 dark:text-gray-300 leading-relaxed"
+      className="prose-sm text-sm text-foreground leading-relaxed"
       dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }}
     />
   )
@@ -67,7 +67,7 @@ function ToolbarButton({
 }: { icon: React.ElementType; title: string; onClick: () => void }) {
   return (
     <button type="button" title={title} onClick={onClick}
-      className="flex h-6 w-6 items-center justify-center rounded text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-600 dark:hover:text-gray-200 transition-colors">
+      className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
       <Icon className="h-3.5 w-3.5" />
     </button>
   )
@@ -103,6 +103,7 @@ function NoteCard({
   const [loading, setLoading] = useState(false)
   const [expanded, setExpanded] = useState(note.isPinned)
   const [deleting, setDeleting] = useState(false)
+  const { toast } = useToast()
 
   const isLong = note.content.length > 300
 
@@ -119,8 +120,9 @@ function NoteCard({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: editContent }),
       })
-      const json = await res.json()
+      const json = await res.json().catch(() => null)
       if (res.ok) { onUpdate(json.note); setEditing(false) }
+      else toast({ title: apiErrorMessage(json, 'Erro ao salvar a edição'), variant: 'destructive' } as Parameters<typeof toast>[0])
     } finally { setLoading(false) }
   }
 
@@ -156,12 +158,12 @@ function NoteCard({
     <div className={`rounded-xl border transition-all ${
       note.isPinned
         ? 'border-amber-300 bg-amber-50/50 dark:border-amber-700 dark:bg-amber-950/20'
-        : 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800'
+        : 'border-border bg-card'
     }`}>
       {/* Header */}
-      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 dark:border-gray-700">
+      <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border">
         {note.isPinned && <Pin className="h-3 w-3 text-amber-500 flex-shrink-0" />}
-        <span className="flex-1 text-[11px] text-gray-400 dark:text-gray-500">
+        <span className="flex-1 text-[11px] text-muted-foreground">
           {formatDate(note.createdAt)}
           {note.updatedAt !== note.createdAt && ' (editado)'}
           {' · '}{note.user.name || note.user.email}
@@ -241,24 +243,24 @@ function NoteEditor({
   return (
     <div className="space-y-2">
       {/* Toolbar */}
-      <div className="flex items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 px-2 py-1">
+      <div className="flex items-center gap-1 rounded-lg border border-border bg-muted px-2 py-1">
         <ToolbarButton icon={Bold} title="Negrito (**texto**)" onClick={() => wrap('**', '**', 'negrito')} />
         <ToolbarButton icon={Italic} title="Itálico (*texto*)" onClick={() => wrap('*', '*', 'itálico')} />
         <ToolbarButton icon={List} title="Lista (- item)" onClick={() => wrap('- ', '', 'item')} />
         <ToolbarButton icon={Minus} title="Separador (---)" onClick={() => wrap('\n---\n')} />
-        <div className="mx-1 h-4 w-px bg-gray-200 dark:bg-gray-600" />
+        <div className="mx-1 h-4 w-px bg-muted" />
         <button type="button" onClick={() => setShowPreview(p => !p)}
           className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
             showPreview
               ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+              : 'text-muted-foreground hover:text-foreground'
           }`}>
           {showPreview ? 'Editar' : 'Pré-visualizar'}
         </button>
       </div>
 
       {showPreview ? (
-        <div className="min-h-[100px] rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 p-3">
+        <div className="min-h-[100px] rounded-lg border border-border bg-card p-3">
           <MarkdownPreview content={value || '*Nenhum conteúdo*'} />
         </div>
       ) : (
@@ -272,7 +274,7 @@ function NoteEditor({
             if (e.key === 'Escape') onCancel()
           }}
           placeholder="Escreva sua anotação clínica... (Markdown suportado)&#10;&#10;Dica: **negrito**, *itálico*, - lista, `código`&#10;Ctrl+Enter para salvar"
-          className="w-full min-h-[120px] resize-y rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 p-3 text-sm text-gray-800 dark:text-gray-200 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 font-mono"
+          className="w-full min-h-[120px] resize-y rounded-lg border border-border bg-card p-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-500/20 font-mono"
           rows={5}
         />
       )}
@@ -284,10 +286,10 @@ function NoteEditor({
           Salvar
         </button>
         <button onClick={onCancel}
-          className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">
           <X className="h-3.5 w-3.5" /> Cancelar
         </button>
-        <span className="ml-auto text-[10px] text-gray-400 dark:text-gray-500">Ctrl+Enter salva · Esc cancela</span>
+        <span className="ml-auto text-[10px] text-muted-foreground">Ctrl+Enter salva · Esc cancela</span>
       </div>
     </div>
   )
@@ -311,12 +313,16 @@ export function PatientNotes({ patientId, initialNotes }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: newContent }),
       })
-      const json = await res.json()
+      const json = await res.json().catch(() => null)
       if (res.ok) {
         setNotes(prev => [json.note, ...prev])
         setNewContent('')
         setAdding(false)
         toast({ title: 'Anotação salva', variant: 'success' } as Parameters<typeof toast>[0])
+      } else {
+        // Sem este ramo, uma resposta 400 (ex.: nota acima do limite) não
+        // produzia nenhum retorno visível — o usuário via o botão parar e nada mais.
+        toast({ title: apiErrorMessage(json, 'Erro ao salvar anotação'), variant: 'destructive' } as Parameters<typeof toast>[0])
       }
     } catch {
       toast({ title: 'Erro ao salvar anotação', variant: 'destructive' } as Parameters<typeof toast>[0])
@@ -338,14 +344,14 @@ export function PatientNotes({ patientId, initialNotes }: Props) {
   return (
     <div className="card overflow-visible">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
           <StickyNote className="h-4 w-4 text-amber-500" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-sm font-semibold text-foreground">
             Anotações clínicas
           </h2>
           {notes.length > 0 && (
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700 px-1.5 text-xs font-semibold text-gray-600 dark:text-gray-400">
+            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-muted px-1.5 text-xs font-semibold text-muted-foreground">
               {notes.length}
             </span>
           )}
@@ -353,7 +359,7 @@ export function PatientNotes({ patientId, initialNotes }: Props) {
         {!adding && (
           <button
             onClick={() => setAdding(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-blue-400 hover:text-blue-600 dark:hover:border-blue-500 dark:hover:text-blue-400 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" /> Nova anotação
           </button>
@@ -383,10 +389,10 @@ export function PatientNotes({ patientId, initialNotes }: Props) {
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-900/20 mb-3">
               <StickyNote className="h-6 w-6 text-amber-400" />
             </div>
-            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            <p className="text-sm font-medium text-muted-foreground">
               Nenhuma anotação ainda
             </p>
-            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Registre observações clínicas, alertas e acompanhamentos
             </p>
             <button

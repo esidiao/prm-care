@@ -5,6 +5,7 @@ import {
   ClipboardCheck, FlaskConical, TestTube2, Heart, StickyNote, X,
 } from 'lucide-react'
 import { useToast } from '@/components/ui/use-toast'
+import { apiErrorMessage } from '@/lib/utils'
 
 interface Review {
   id: string
@@ -22,7 +23,7 @@ const REVIEW_TYPES = [
   { value: 'FOLLOW_UP', label: 'Seguimento farmacoterapêutico', icon: Heart, color: 'text-emerald-600 bg-emerald-50' },
   { value: 'LAB_CHECK', label: 'Verificação de exames', icon: TestTube2, color: 'text-purple-600 bg-purple-50' },
   { value: 'ADHERENCE', label: 'Avaliação de adesão', icon: ClipboardCheck, color: 'text-amber-600 bg-amber-50' },
-  { value: 'CUSTOM', label: 'Outro', icon: StickyNote, color: 'text-gray-600 bg-gray-100' },
+  { value: 'CUSTOM', label: 'Outro', icon: StickyNote, color: 'text-muted-foreground bg-muted' },
 ]
 
 function typeInfo(type: string) {
@@ -32,14 +33,14 @@ function typeInfo(type: string) {
 function statusBadge(status: string, date: string) {
   const isPast = new Date(date) < new Date()
   if (status === 'COMPLETED') return { label: 'Concluída', cls: 'bg-emerald-100 text-emerald-700' }
-  if (status === 'CANCELLED') return { label: 'Cancelada', cls: 'bg-gray-100 text-gray-500' }
+  if (status === 'CANCELLED') return { label: 'Cancelada', cls: 'bg-muted text-muted-foreground' }
   if (status === 'OVERDUE' || (status === 'PENDING' && isPast))
     return { label: 'Atrasada', cls: 'bg-red-100 text-red-700 font-semibold' }
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / 86400000)
   if (days === 0) return { label: 'Hoje', cls: 'bg-orange-100 text-orange-700 font-semibold' }
   if (days === 1) return { label: 'Amanhã', cls: 'bg-amber-100 text-amber-700' }
   if (days <= 7) return { label: `Em ${days}d`, cls: 'bg-blue-100 text-blue-700' }
-  return { label: `Em ${days}d`, cls: 'bg-gray-100 text-gray-600' }
+  return { label: `Em ${days}d`, cls: 'bg-muted text-muted-foreground' }
 }
 
 function fmtDate(iso: string) {
@@ -78,12 +79,15 @@ function NewReviewForm({ patientId, onCreated, onCancel }: {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       })
-      if (!res.ok) throw new Error()
-      const created = await res.json()
-      onCreated(created)
+      const json = await res.json().catch(() => null)
+      // Propaga a mensagem do servidor (Zod devolve `details[].message`) em vez
+      // de descartar o corpo e mostrar sempre o mesmo texto genérico.
+      if (!res.ok) throw new Error(apiErrorMessage(json, 'Erro ao agendar revisão'))
+      onCreated(json)
       toast({ title: 'Revisão agendada', variant: 'success' } as Parameters<typeof toast>[0])
-    } catch {
-      toast({ title: 'Erro ao agendar revisão', variant: 'destructive' } as Parameters<typeof toast>[0])
+    } catch (err) {
+      const title = err instanceof Error && err.message ? err.message : 'Erro ao agendar revisão'
+      toast({ title, variant: 'destructive' } as Parameters<typeof toast>[0])
     } finally {
       setSaving(false)
     }
@@ -94,8 +98,8 @@ function NewReviewForm({ patientId, onCreated, onCancel }: {
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border-2 border-brand-800/20 bg-blue-50/40 dark:bg-blue-950/20 p-4 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">Nova revisão agendada</p>
-        <button type="button" onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+        <p className="text-sm font-semibold text-foreground">Nova revisão agendada</p>
+        <button type="button" onClick={onCancel} className="text-muted-foreground hover:text-foreground">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -110,7 +114,7 @@ function NewReviewForm({ patientId, onCreated, onCancel }: {
             className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors ${
               form.type === t.value
                 ? 'border-brand-800 bg-brand-800 text-white'
-                : 'border-gray-200 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:border-gray-300'
+                : 'border-border bg-card text-muted-foreground hover:border-muted-foreground/40'
             }`}
           >
             <t.icon className="h-3 w-3 flex-shrink-0" />
@@ -121,43 +125,43 @@ function NewReviewForm({ patientId, onCreated, onCancel }: {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Título</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="review-title">Título</label>
           <input
             type="text"
-            value={form.title}
+            id="review-title" value={form.title}
             onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
             required
             placeholder="Descrição da revisão"
-            className="h-9 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
         <div>
-          <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Data agendada</label>
+          <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="review-date">Data agendada</label>
           <input
             type="date"
-            value={form.scheduledDate}
+            id="review-date" value={form.scheduledDate}
             min={today}
             onChange={(e) => setForm((f) => ({ ...f, scheduledDate: e.target.value }))}
             required
-            className="h-9 w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+            className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
         </div>
       </div>
 
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">Observações (opcional)</label>
-        <textarea
+        <label className="mb-1 block text-xs font-medium text-muted-foreground" htmlFor="form-notes">Observações (opcional)</label>
+        <textarea id="form-notes"
           value={form.notes}
           onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
           rows={2}
           placeholder="Objetivos da revisão, exames a verificar…"
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm resize-none focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
+          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm resize-none focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
         />
       </div>
 
       <div className="flex justify-end gap-2">
         <button type="button" onClick={onCancel}
-          className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+          className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">
           Cancelar
         </button>
         <button type="submit" disabled={saving}
@@ -184,24 +188,24 @@ function ReviewCard({ review, onComplete, onDelete }: {
   const isDone = review.status === 'COMPLETED' || review.status === 'CANCELLED'
 
   return (
-    <div className={`rounded-xl border p-3.5 transition-opacity ${isDone ? 'opacity-60 border-gray-100 dark:border-gray-800' : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'}`}>
+    <div className={`rounded-xl border p-3.5 transition-opacity ${isDone ? 'opacity-60 border-border' : 'border-border bg-card'}`}>
       <div className="flex items-start gap-3">
         <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg ${info.color}`}>
           <info.icon className="h-4 w-4" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{review.title}</p>
+            <p className="text-sm font-semibold text-foreground">{review.title}</p>
             <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${badge.cls}`}>{badge.label}</span>
           </div>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="h-3 w-3" />
             {fmtDate(review.scheduledDate)}
-            <span className="text-gray-300">·</span>
+            <span className="text-gray-300 dark:text-gray-600">·</span>
             <span>{info.label}</span>
           </div>
           {review.notes && (
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{review.notes}</p>
+            <p className="mt-1 text-xs text-muted-foreground leading-relaxed">{review.notes}</p>
           )}
           {review.completedNote && (
             <p className="mt-1 rounded bg-emerald-50 dark:bg-emerald-950 px-2 py-1 text-xs text-emerald-700 dark:text-emerald-300">
@@ -223,7 +227,7 @@ function ReviewCard({ review, onComplete, onDelete }: {
             <button
               onClick={() => onDelete(review.id)}
               title="Excluir"
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 transition-colors"
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 transition-colors"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -233,17 +237,17 @@ function ReviewCard({ review, onComplete, onDelete }: {
 
       {/* Complete form */}
       {completeMode && (
-        <div className="mt-3 space-y-2 border-t border-gray-100 dark:border-gray-700 pt-3">
+        <div className="mt-3 space-y-2 border-t border-border pt-3">
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}
             placeholder="Observações da revisão realizada (opcional)…"
-            className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 px-3 py-2 text-xs resize-none focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-border bg-muted px-3 py-2 text-xs resize-none focus:border-emerald-500 focus:outline-none"
           />
           <div className="flex gap-2 justify-end">
             <button onClick={() => setCompleteMode(false)}
-              className="rounded-lg border border-gray-200 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">
+              className="rounded-lg border border-border px-3 py-1 text-xs text-muted-foreground hover:bg-muted">
               Cancelar
             </button>
             <button onClick={() => { onComplete(review.id, note); setCompleteMode(false) }}
@@ -303,12 +307,12 @@ export function PatientReviews({ patientId, initialReviews }: {
   })
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
           <Calendar className="h-4 w-4 text-brand-800 dark:text-blue-400" />
-          <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-sm font-semibold text-foreground">
             Revisões agendadas
           </h2>
           {overdue.length > 0 && (
@@ -344,8 +348,8 @@ export function PatientReviews({ patientId, initialReviews }: {
         {pending.length === 0 && !showForm && (
           <div className="py-6 text-center">
             <Clock className="h-8 w-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma revisão agendada</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Agende a próxima revisão farmacoterapêutica</p>
+            <p className="text-sm text-muted-foreground">Nenhuma revisão agendada</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Agende a próxima revisão farmacoterapêutica</p>
           </div>
         )}
         {pending.map((r) => (
@@ -357,7 +361,7 @@ export function PatientReviews({ patientId, initialReviews }: {
           <div>
             <button
               onClick={() => setShowCompleted((v) => !v)}
-              className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors py-1"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
               {showCompleted ? 'Ocultar' : 'Ver'} {done.length} revisão{done.length > 1 ? 'ões' : ''} concluída{done.length > 1 ? 's' : ''}

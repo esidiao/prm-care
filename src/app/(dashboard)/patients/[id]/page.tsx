@@ -94,7 +94,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Back link */}
-      <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-gray-700">
+      <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Pacientes
       </Link>
 
@@ -229,7 +229,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
               <ul className="space-y-2">
                 {patient.diagnoses.map((d) => (
                   <li key={d.id} className="flex items-start gap-2 text-sm">
-                    <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-brand-800' : 'bg-gray-300'}`} />
+                    <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-brand-800' : 'bg-muted'}`} />
                     <span>{d.name}{d.icd10Code ? ` (${d.icd10Code})` : ''}</span>
                   </li>
                 ))}

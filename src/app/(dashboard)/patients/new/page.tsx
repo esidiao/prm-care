@@ -235,10 +235,10 @@ export default function NewPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="name">
                       Nome completo <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="name"
                       {...register('name')}
                       className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Nome do paciente"
@@ -247,10 +247,10 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="birthDate">
                       Data de nascimento <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="birthDate"
                       type="date"
                       {...register('birthDate')}
                       className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
@@ -259,8 +259,8 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Sexo</label>
-                    <select
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="sex">Sexo</label>
+                    <select id="sex"
                       {...register('sex')}
                       className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                     >
@@ -271,8 +271,8 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Peso (kg)</label>
-                    <input
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="weight">Peso (kg)</label>
+                    <input id="weight"
                       type="number"
                       step="0.1"
                       {...register('weight')}
@@ -282,8 +282,8 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Altura (cm)</label>
-                    <input
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="height">Altura (cm)</label>
+                    <input id="height"
                       type="number"
                       step="0.1"
                       {...register('height')}
@@ -293,11 +293,11 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="creatinine">
                       Creatinina sérica (mg/dL)
                       <span className="ml-1 text-xs text-muted-foreground">(para cálculo de TFG)</span>
                     </label>
-                    <input
+                    <input id="creatinine"
                       type="number"
                       step="0.01"
                       {...register('creatinine')}
@@ -321,8 +321,8 @@ export default function NewPatientPage() {
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Observações clínicas</label>
-                  <textarea
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="observations">Observações clínicas</label>
+                  <textarea id="observations"
                     {...register('observations')}
                     rows={3}
                     className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
@@ -393,16 +393,16 @@ export default function NewPatientPage() {
                       <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Substância</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.substance`}>Substância</label>
+                            <input id={`allergies.${idx}.substance`}
                               {...register(`allergies.${idx}.substance`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Penicilina"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Gravidade</label>
-                            <select
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.severity`}>Gravidade</label>
+                            <select id={`allergies.${idx}.severity`}
                               {...register(`allergies.${idx}.severity`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
@@ -412,8 +412,8 @@ export default function NewPatientPage() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Reação</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.reaction`}>Reação</label>
+                            <input id={`allergies.${idx}.reaction`}
                               {...register(`allergies.${idx}.reaction`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Urticária"
@@ -496,40 +496,40 @@ export default function NewPatientPage() {
                       <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Exame</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.name`}>Exame</label>
+                            <input id={`labResults.${idx}.name`}
                               {...register(`labResults.${idx}.name`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Creatinina"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Resultado</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.value`}>Resultado</label>
+                            <input id={`labResults.${idx}.value`}
                               {...register(`labResults.${idx}.value`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: 1.2"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Unidade</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.unit`}>Unidade</label>
+                            <input id={`labResults.${idx}.unit`}
                               {...register(`labResults.${idx}.unit`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: mg/dL"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Data coleta</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.collectedAt`}>Data coleta</label>
+                            <input id={`labResults.${idx}.collectedAt`}
                               type="date"
                               {...register(`labResults.${idx}.collectedAt`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </div>
                           <div className="md:col-span-4">
-                            <label className="block text-xs text-muted-foreground mb-1">Valor de referência</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.referenceRange`}>Valor de referência</label>
+                            <input id={`labResults.${idx}.referenceRange`}
                               {...register(`labResults.${idx}.referenceRange`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: 0.7–1.3 mg/dL"
@@ -568,7 +568,7 @@ export default function NewPatientPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-2 h-2 rounded-full transition-colors ${activeTab === tab.id ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  className={`w-2 h-2 rounded-full transition-colors ${activeTab === tab.id ? 'bg-blue-600' : 'bg-muted'}`}
                   title={tab.label}
                 />
               ))}

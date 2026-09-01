@@ -63,12 +63,12 @@ export function AnalysisComparison({ currentAnalysisId, previousAnalysis, curren
   const worsened = delta > 0
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 px-5 py-4 bg-gradient-to-r from-brand-800/5 to-transparent">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4 bg-gradient-to-r from-brand-800/5 to-transparent">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-brand-800 dark:text-blue-400" />
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-sm font-semibold text-foreground">
             Comparação com análise anterior
           </h3>
         </div>
@@ -79,20 +79,20 @@ export function AnalysisComparison({ currentAnalysisId, previousAnalysis, curren
       </div>
 
       {/* Delta summary */}
-      <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
         <div className="px-4 py-3 text-center">
-          <p className={`text-xl font-bold ${improved ? 'text-emerald-600' : worsened ? 'text-red-600' : 'text-gray-600'}`}>
+          <p className={`text-xl font-bold ${improved ? 'text-emerald-600' : worsened ? 'text-red-600' : 'text-muted-foreground'}`}>
             {delta > 0 ? `+${delta}` : delta}
           </p>
-          <p className="text-[10px] text-gray-500 dark:text-gray-400">variação</p>
+          <p className="text-[10px] text-muted-foreground">variação</p>
         </div>
         <div className="px-4 py-3 text-center">
           <p className="text-xl font-bold text-emerald-600">{resolvedSince.length}</p>
-          <p className="text-[10px] text-gray-500 dark:text-gray-400">resolvidos</p>
+          <p className="text-[10px] text-muted-foreground">resolvidos</p>
         </div>
         <div className="px-4 py-3 text-center">
           <p className="text-xl font-bold text-red-600">{newPRMs.length}</p>
-          <p className="text-[10px] text-gray-500 dark:text-gray-400">novos PRMs</p>
+          <p className="text-[10px] text-muted-foreground">novos PRMs</p>
         </div>
       </div>
 
@@ -101,7 +101,7 @@ export function AnalysisComparison({ currentAnalysisId, previousAnalysis, curren
         <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium ${
           improved ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' :
           worsened ? 'bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300' :
-          'bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400'
+          'bg-muted text-muted-foreground'
         }`}>
           {improved ? <TrendingDown className="h-4 w-4" /> : worsened ? <TrendingUp className="h-4 w-4" /> : <Minus className="h-4 w-4" />}
           {improved
@@ -119,15 +119,15 @@ export function AnalysisComparison({ currentAnalysisId, previousAnalysis, curren
             </p>
             <div className="space-y-1">
               {newPRMs.slice(0, 4).map((f) => (
-                <div key={f.id} className="flex items-center gap-2 rounded-lg border border-gray-100 dark:border-gray-700 px-3 py-1.5 text-xs">
-                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${RISK_COLORS[f.riskLevel] ?? 'bg-gray-100 text-gray-600'}`}>
+                <div key={f.id} className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-xs">
+                  <span className={`rounded-full border px-1.5 py-0.5 text-[10px] font-semibold ${RISK_COLORS[f.riskLevel] ?? 'bg-muted text-muted-foreground'}`}>
                     {RISK_LABELS[f.riskLevel] ?? f.riskLevel}
                   </span>
-                  <span className="text-gray-700 dark:text-gray-300">{f.title}</span>
+                  <span className="text-foreground">{f.title}</span>
                 </div>
               ))}
               {newPRMs.length > 4 && (
-                <p className="text-[10px] text-gray-400 pl-2">+{newPRMs.length - 4} mais…</p>
+                <p className="text-[10px] text-muted-foreground pl-2">+{newPRMs.length - 4} mais…</p>
               )}
             </div>
           </div>

@@ -33,7 +33,7 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
 
   if (status === 'loading') {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
+      <div className="flex h-screen items-center justify-center bg-muted">
         <Loader2 className="h-8 w-8 animate-spin text-brand-800" />
       </div>
     )
@@ -46,7 +46,7 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
     <>
       {/* Blurred background */}
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-        <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden">
+        <div className="w-full max-w-lg rounded-2xl bg-card shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-brand-900 px-6 py-5 text-white">
             <div className="flex items-center gap-3">
@@ -62,13 +62,13 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
 
           {/* Body */}
           <div className="px-6 py-5 space-y-4">
-            <p className="text-sm text-gray-700 leading-relaxed">
+            <p className="text-sm text-foreground leading-relaxed">
               O <strong>PRM Care</strong> processa dados de saúde de pacientes, que são dados sensíveis nos termos da LGPD.
               Antes de continuar, você precisa confirmar que está ciente de como seus dados e os dados de seus pacientes são tratados.
             </p>
 
             {/* Itens de consentimento */}
-            <div className="space-y-2.5 rounded-xl bg-gray-50 p-4">
+            <div className="space-y-2.5 rounded-xl bg-muted p-4">
               {[
                 { icon: FileText, label: 'Termos de Uso', desc: 'Regras de utilização da plataforma' },
                 { icon: Lock, label: 'Política de Privacidade', desc: 'Como seus dados pessoais são coletados e tratados' },
@@ -80,15 +80,15 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
                     <Icon className="h-3.5 w-3.5 text-brand-800" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-gray-800">{label}</p>
-                    <p className="text-xs text-gray-500">{desc}</p>
+                    <p className="text-sm font-semibold text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Links para documentos */}
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground">
               Leia os documentos completos:{' '}
               <a href="/terms" target="_blank" className="text-brand-800 underline">Termos de Uso</a>
               {' · '}
@@ -120,7 +120,7 @@ export function ConsentGate({ children }: { children: React.ReactNode }) {
               }
             </button>
 
-            <p className="text-center text-[10px] text-gray-400">
+            <p className="text-center text-[10px] text-muted-foreground">
               Seu consentimento é registrado com data, hora e IP para fins de auditoria (LGPD Art. 7º).
             </p>
           </div>

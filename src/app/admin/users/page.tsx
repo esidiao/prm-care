@@ -30,7 +30,7 @@ const roleLabels: Record<string, { label: string; icon: React.ElementType; color
 }
 
 const planLabels: Record<string, { label: string; color: string }> = {
-  FREE: { label: 'Gratuito', color: 'text-gray-600 bg-gray-100' },
+  FREE: { label: 'Gratuito', color: 'text-muted-foreground bg-muted' },
   BASIC: { label: 'Básico', color: 'text-blue-600 bg-blue-100' },
   PROFESSIONAL: { label: 'Profissional', color: 'text-purple-600 bg-purple-100' },
   ENTERPRISE: { label: 'Enterprise', color: 'text-amber-600 bg-amber-100' },
@@ -202,7 +202,7 @@ export default function AdminUsersPage() {
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-border">
                 {users.map(user => {
                   const role = roleLabels[user.role] || roleLabels.PROFESSIONAL
                   const plan = planLabels[user.plan] || planLabels.FREE
@@ -259,7 +259,7 @@ export default function AdminUsersPage() {
                       <td className="px-4 py-3 relative">
                         <button
                           onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
-                          className="p-1 text-muted-foreground hover:text-gray-600 rounded-lg hover:bg-muted transition-colors"
+                          className="p-1 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>

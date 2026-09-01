@@ -139,8 +139,8 @@ export function AvatarUpload({ currentImage, userName }: Props) {
       {/* Info + actions */}
       <div className="flex flex-col gap-2 text-center sm:text-left">
         <div>
-          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Foto de perfil</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <p className="text-sm font-semibold text-foreground">Foto de perfil</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
             JPG, PNG ou WebP · Máx. 5 MB · Será recortada em círculo 256×256 px
           </p>
         </div>
@@ -150,7 +150,7 @@ export function AvatarUpload({ currentImage, userName }: Props) {
             type="button"
             onClick={() => !saving && inputRef.current?.click()}
             disabled={saving}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-50 transition-colors"
           >
             <Camera className="h-3.5 w-3.5" />
             {preview ? 'Alterar foto' : 'Adicionar foto'}

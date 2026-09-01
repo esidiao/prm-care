@@ -184,57 +184,57 @@ function MedEditRow({ med, onSave, onDelete }: {
         <form onSubmit={handleSubmit(onSubmit)} className="border-t border-border p-4 bg-muted space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Princípio ativo *</label>
-              <input {...register('activeIngredient')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="activeIngredient">Princípio ativo *</label>
+              <input id="activeIngredient" {...register('activeIngredient')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Atorvastatina" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Nome comercial</label>
-              <input {...register('tradeName')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="tradeName">Nome comercial</label>
+              <input id="tradeName" {...register('tradeName')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Lipitor" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Dose</label>
-              <input {...register('dose')} type="number" step="0.01"
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="dose">Dose</label>
+              <input id="dose" {...register('dose')} type="number" step="0.01"
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: 20" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Unidade da dose</label>
-              <input {...register('doseUnit')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="doseUnit">Unidade da dose</label>
+              <input id="doseUnit" {...register('doseUnit')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: mg, mcg, UI" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Forma farmacêutica</label>
-              <input {...register('pharmaceuticalForm')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="pharmaceuticalForm">Forma farmacêutica</label>
+              <input id="pharmaceuticalForm" {...register('pharmaceuticalForm')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Comprimido, Cápsula, Solução" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Via de administração</label>
-              <select {...register('route')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="route">Via de administração</label>
+              <select id="route" {...register('route')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 {ROUTE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Frequência / Posologia</label>
-              <input {...register('frequency')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="frequency">Frequência / Posologia</label>
+              <input id="frequency" {...register('frequency')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: 1x ao dia, 8/8h" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Indicação / Motivo do uso</label>
-              <input {...register('indication')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="indication">Indicação / Motivo do uso</label>
+              <input id="indication" {...register('indication')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: Hipertensão arterial" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Adesão ao tratamento</label>
-              <select {...register('adherence')}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="adherence">Adesão ao tratamento</label>
+              <select id="adherence" {...register('adherence')}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                 {ADHERENCE_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
@@ -245,8 +245,8 @@ function MedEditRow({ med, onSave, onDelete }: {
               <label htmlFor={`self-${med.id}`} className="text-sm text-muted-foreground">Automedicação</label>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-1">Efeitos adversos / Observações</label>
-              <textarea {...register('adverseEffects')} rows={2}
+              <label className="block text-xs font-medium text-muted-foreground mb-1" htmlFor="adverseEffects">Efeitos adversos / Observações</label>
+              <textarea id="adverseEffects" {...register('adverseEffects')} rows={2}
                 className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 placeholder="Ex: Relata mialgia leve, dificuldade de deglutição..." />
             </div>
@@ -453,26 +453,26 @@ export default function EditPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-1">Nome completo *</label>
-                    <input {...register('name')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="name">Nome completo *</label>
+                    <input id="name" {...register('name')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Nome do paciente" />
                     {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Data de nascimento</label>
-                    <input type="date" {...register('birthDate')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="birthDate">Data de nascimento</label>
+                    <input id="birthDate" type="date" {...register('birthDate')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Idade (se sem data de nascimento)</label>
-                    <input type="number" {...register('age')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="age">Idade (se sem data de nascimento)</label>
+                    <input id="age" type="number" {...register('age')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 65" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Sexo biológico</label>
-                    <select {...register('sex')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="sex">Sexo biológico</label>
+                    <select id="sex" {...register('sex')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       <option value="MALE">Masculino</option>
                       <option value="FEMALE">Feminino</option>
@@ -480,14 +480,14 @@ export default function EditPatientPage() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Peso (kg)</label>
-                    <input type="number" step="0.1" {...register('weight')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="weight">Peso (kg)</label>
+                    <input id="weight" type="number" step="0.1" {...register('weight')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 70.5" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Altura (cm)</label>
-                    <input type="number" step="0.1" {...register('height')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="height">Altura (cm)</label>
+                    <input id="height" type="number" step="0.1" {...register('height')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 168" />
                   </div>
@@ -505,8 +505,8 @@ export default function EditPatientPage() {
                       </div>
                       {watch('isPregnant') && (
                         <div>
-                          <label className="block text-sm font-medium text-foreground mb-1">Idade gestacional (semanas)</label>
-                          <input type="number" {...register('gestationalAge')}
+                          <label className="block text-sm font-medium text-foreground mb-1" htmlFor="gestationalAge">Idade gestacional (semanas)</label>
+                          <input id="gestationalAge" type="number" {...register('gestationalAge')}
                             className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             placeholder="Ex: 28" />
                         </div>
@@ -522,40 +522,40 @@ export default function EditPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Função renal</label>
-                    <select {...register('renalFunction')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="renalFunction">Função renal</label>
+                    <select id="renalFunction" {...register('renalFunction')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       {RENAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Clearance de creatinina (mL/min)</label>
-                    <input type="number" step="0.1" {...register('creatinineClearance')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="creatinineClearance">Clearance de creatinina (mL/min)</label>
+                    <input id="creatinineClearance" type="number" step="0.1" {...register('creatinineClearance')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: 55" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-1">Função hepática</label>
-                    <select {...register('hepaticFunction')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="hepaticFunction">Função hepática</label>
+                    <select id="hepaticFunction" {...register('hepaticFunction')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                       {HEPATIC_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                     </select>
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-1">Queixa principal</label>
-                    <input {...register('chiefComplaint')}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="chiefComplaint">Queixa principal</label>
+                    <input id="chiefComplaint" {...register('chiefComplaint')}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Ex: Dor torácica, falta de ar, tontura..." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-1">História clínica</label>
-                    <textarea {...register('clinicalHistory')} rows={3}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="clinicalHistory">História clínica</label>
+                    <textarea id="clinicalHistory" {...register('clinicalHistory')} rows={3}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                       placeholder="Resumo da história clínica relevante..." />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-foreground mb-1">Observações gerais</label>
-                    <textarea {...register('observations')} rows={2}
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="observations">Observações gerais</label>
+                    <textarea id="observations" {...register('observations')} rows={2}
                       className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                       placeholder="Informações adicionais relevantes..." />
                   </div>
@@ -624,14 +624,14 @@ export default function EditPatientPage() {
                       <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Substância</label>
-                            <input {...register(`allergies.${idx}.substance`)}
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.substance`}>Substância</label>
+                            <input id={`allergies.${idx}.substance`} {...register(`allergies.${idx}.substance`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Penicilina" />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Gravidade</label>
-                            <select {...register(`allergies.${idx}.severity`)}
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.severity`}>Gravidade</label>
+                            <select id={`allergies.${idx}.severity`} {...register(`allergies.${idx}.severity`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500">
                               <option value="MILD">Leve</option>
                               <option value="MODERATE">Moderada</option>
@@ -640,8 +640,8 @@ export default function EditPatientPage() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">Tipo de reação</label>
-                            <input {...register(`allergies.${idx}.reaction`)}
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.reaction`}>Tipo de reação</label>
+                            <input id={`allergies.${idx}.reaction`} {...register(`allergies.${idx}.reaction`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Urticária, Anafilaxia" />
                           </div>
@@ -678,14 +678,14 @@ export default function EditPatientPage() {
                       <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div className="col-span-2">
-                            <label className="block text-xs text-muted-foreground mb-1">Diagnóstico</label>
-                            <input {...register(`diagnoses.${idx}.name`)}
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`diagnoses.${idx}.name`}>Diagnóstico</label>
+                            <input id={`diagnoses.${idx}.name`} {...register(`diagnoses.${idx}.name`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: Insuficiência cardíaca congestiva" />
                           </div>
                           <div>
-                            <label className="block text-xs text-muted-foreground mb-1">CID-10</label>
-                            <input {...register(`diagnoses.${idx}.icd10Code`)}
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`diagnoses.${idx}.icd10Code`}>CID-10</label>
+                            <input id={`diagnoses.${idx}.icd10Code`} {...register(`diagnoses.${idx}.icd10Code`)}
                               className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
                               placeholder="Ex: I50" />
                           </div>

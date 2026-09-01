@@ -21,7 +21,7 @@ export function BottomNav() {
     href === '/dashboard' ? pathname === href : pathname.startsWith(href)
 
   return (
-    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900 safe-bottom">
+    <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card safe-bottom">
       <div className="flex h-16 items-stretch">
         {tabs.map(({ href, label, icon: Icon, highlight }) => {
           const active = isActive(href)
@@ -35,7 +35,7 @@ export function BottomNav() {
                   ? highlight
                     ? 'text-white'
                     : 'text-brand-800 dark:text-blue-400'
-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300',
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {/* Highlight button (Nova Análise) gets pill background */}

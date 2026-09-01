@@ -61,7 +61,7 @@ export default async function PatientsPage() {
             </p>
             <Link
               href="/patients/new"
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-brand-800 shadow-sm transition-colors hover:bg-brand-50"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-card px-5 py-2.5 text-sm font-bold text-brand-800 shadow-sm transition-colors hover:bg-brand-50"
             >
               <Plus className="h-4 w-4" /> Cadastrar primeiro paciente
             </Link>

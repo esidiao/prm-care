@@ -43,7 +43,7 @@ function TrendBadge({ analyses }: { analyses: AnalysisSummary[] }) {
     </span>
   )
   return (
-    <span className="flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 px-2.5 py-1 text-xs font-medium text-gray-600 dark:text-gray-400">
+    <span className="flex items-center gap-1 rounded-full bg-muted border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground">
       <Minus className="h-3.5 w-3.5" /> Sem variação
     </span>
   )
@@ -58,13 +58,13 @@ function CustomTooltip({ active, payload, label }: {
 }) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-xl text-xs">
-      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{label}</p>
+    <div className="rounded-xl border border-border bg-card p-3 shadow-xl text-xs">
+      <p className="font-semibold text-foreground mb-2">{label}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-1">
           <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ background: p.color }} />
-          <span className="text-gray-600 dark:text-gray-400">{p.name}:</span>
-          <span className="font-bold text-gray-900 dark:text-gray-100">{p.value}</span>
+          <span className="text-muted-foreground">{p.name}:</span>
+          <span className="font-bold text-foreground">{p.value}</span>
         </div>
       ))}
     </div>
@@ -97,10 +97,10 @@ export function PatientEvolution({ analyses }: Props) {
   const peakAnalysis = analyses.reduce((max, a) => a.totalPRMs > max.totalPRMs ? a : max, analyses[0])
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+    <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 dark:border-gray-700 px-5 py-4">
-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-5 py-4">
+        <h2 className="font-semibold text-foreground flex items-center gap-2 text-sm">
           <Activity className="h-4 w-4 text-brand-800 dark:text-blue-400" />
           Evolução clínica — {analyses.length} análises
         </h2>
@@ -110,15 +110,15 @@ export function PatientEvolution({ analyses }: Props) {
       </div>
 
       {/* Summary chips */}
-      <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-gray-700 border-b border-gray-100 dark:border-gray-700">
+      <div className="grid grid-cols-3 divide-x divide-border border-b border-border">
         {[
           { label: 'Média de PRMs', value: avgPRMs },
           { label: 'Pico máximo', value: peakAnalysis.totalPRMs },
           { label: 'Análises', value: analyses.length },
         ].map(({ label, value }) => (
           <div key={label} className="px-4 py-3 text-center">
-            <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{value}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">{label}</p>
+            <p className="text-lg font-bold text-foreground">{value}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
           </div>
         ))}
       </div>
