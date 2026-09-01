@@ -22,33 +22,33 @@ export default async function InteractionsDetailPage({ params }: { params: { id:
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <Link href="/interactions/history" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"><ArrowLeft className="h-4 w-4" /> Histórico</Link>
-      <h1 className="mt-2 text-2xl font-bold text-slate-800">Consulta de interações</h1>
-      <p className="mt-1 text-sm text-slate-500">{new Date(query.createdAt).toLocaleString('pt-BR')} · {drugs.join(' + ')}</p>
+      <Link href="/interactions/history" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4" /> Histórico</Link>
+      <h1 className="mt-2 text-2xl font-bold text-foreground">Consulta de interações</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{new Date(query.createdAt).toLocaleString('pt-BR')} · {drugs.join(' + ')}</p>
 
       <div className="mt-4 space-y-3">
         {results.map(r => {
           const p = (r.payload || {}) as { drugs?: string[]; severityLabel?: string; mechanism?: string; clinicalEffect?: string; management?: string }
           return (
-            <div key={r.id} className={`rounded-xl border bg-white p-4 ${COR[r.severity] || 'border-slate-200'}`}>
+            <div key={r.id} className={`rounded-xl border bg-card p-4 ${COR[r.severity] || 'border-border'}`}>
               <div className="flex items-center gap-2">
-                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${CHIP[r.severity] || 'bg-slate-100 text-slate-700'}`}>{p.severityLabel || r.severity}</span>
-                <span className="font-semibold text-slate-800">{(p.drugs || []).join(' + ')}</span>
+                <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${CHIP[r.severity] || 'bg-muted text-foreground'}`}>{p.severityLabel || r.severity}</span>
+                <span className="font-semibold text-foreground">{(p.drugs || []).join(' + ')}</span>
               </div>
-              {p.mechanism && <p className="mt-2 text-sm text-slate-700"><b>Mecanismo:</b> {p.mechanism}</p>}
-              {p.clinicalEffect && <p className="text-sm text-slate-700"><b>Efeito clínico:</b> {p.clinicalEffect}</p>}
-              {p.management && <p className="text-sm text-slate-700"><b>Conduta:</b> {p.management}</p>}
+              {p.mechanism && <p className="mt-2 text-sm text-foreground"><b>Mecanismo:</b> {p.mechanism}</p>}
+              {p.clinicalEffect && <p className="text-sm text-foreground"><b>Efeito clínico:</b> {p.clinicalEffect}</p>}
+              {p.management && <p className="text-sm text-foreground"><b>Conduta:</b> {p.management}</p>}
             </div>
           )
         })}
-        {results.length === 0 && <p className="text-sm text-slate-500">Sem interações registradas nesta consulta.</p>}
+        {results.length === 0 && <p className="text-sm text-muted-foreground">Sem interações registradas nesta consulta.</p>}
       </div>
 
       {decision && (
-        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
-          <h2 className="text-sm font-semibold text-slate-800">Decisão clínica registrada</h2>
-          {decision.note && <p className="mt-1 text-sm text-slate-700">{decision.note}</p>}
-          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-600">
+        <div className="mt-5 rounded-xl border border-border bg-muted p-4">
+          <h2 className="text-sm font-semibold text-foreground">Decisão clínica registrada</h2>
+          {decision.note && <p className="mt-1 text-sm text-foreground">{decision.note}</p>}
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
             {decision.intervened && <span className="inline-flex items-center gap-1"><Stethoscope className="h-3.5 w-3.5" /> Intervenção farmacêutica</span>}
             {decision.contactedMD && <span className="inline-flex items-center gap-1"><Phone className="h-3.5 w-3.5" /> Contato com prescritor</span>}
             {decision.outcome && <span>Desfecho: {decision.outcome}</span>}

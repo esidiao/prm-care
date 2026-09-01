@@ -124,4 +124,8 @@ export const purchaseLimiter = (id: string) => rateLimit(`purchase:${id}`, { lim
 // Explicação de interações via IA (Groq) — custo/latência por chamada, chaveado por usuário
 export const explainLimiter  = (id: string) => rateLimit(`explain:${id}`,  { limit: 15, windowSecs: 300 })
 // Sugestão de nota de resolução via IA (Groq) — chaveado por usuário
+// Escritas clínicas (paciente, medicamento, nota, revisão, escala, conciliação,
+// consulta de interação salva). Teto generoso — um farmacêutico em atendimento
+// não chega perto disso; serve para conter script/loop abusivo por conta.
+export const writeLimiter    = (id: string) => rateLimit(`write:${id}`,      { limit: 60, windowSecs: 60 })
 export const aiSuggestLimiter = (id: string) => rateLimit(`ai-suggest:${id}`, { limit: 20, windowSecs: 300 })

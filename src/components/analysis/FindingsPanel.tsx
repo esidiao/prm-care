@@ -216,10 +216,10 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
         <div className="flex items-center gap-2">
           {/* Expandir/Colapsar */}
-          <button onClick={expandAll} className="text-xs text-muted-foreground hover:text-gray-700 px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
+          <button onClick={expandAll} className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
             Expandir todos
           </button>
-          <button onClick={collapseAll} className="text-xs text-muted-foreground hover:text-gray-700 px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
+          <button onClick={collapseAll} className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
             Colapsar todos
           </button>
 
@@ -266,7 +266,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 return (
                   <button key={level} onClick={() => toggleFilter(filterRisk, setFilterRisk, level)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                      active ? `${cfg.badge} border-current` : 'bg-card border-border text-muted-foreground hover:border-gray-300'
+                      active ? `${cfg.badge} border-current` : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                     }`}>
                     {cfg.label}
                   </button>
@@ -284,7 +284,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 return (
                   <button key={key} onClick={() => toggleFilter(filterCat, setFilterCat, key)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                      active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-gray-300'
+                      active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                     }`}>
                     {label}
                   </button>
@@ -300,7 +300,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
               {([['all', 'Todos'], ['pending', 'Pendentes'], ['resolved', 'Resolvidos']] as const).map(([val, label]) => (
                 <button key={val} onClick={() => setFilterResolved(val)}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                    filterResolved === val ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-gray-300'
+                    filterResolved === val ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                   }`}>
                   {label}
                 </button>
@@ -322,7 +322,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
       {/* Sem resultados de filtro */}
       {filtered.length === 0 && (
         <div className="rounded-xl border bg-card p-8 text-center">
-          <Filter className="mx-auto h-8 w-8 text-gray-300 mb-2" />
+          <Filter className="mx-auto h-8 w-8 text-gray-300 dark:text-gray-600 mb-2" />
           <p className="text-sm text-muted-foreground">Nenhum PRM corresponde aos filtros selecionados.</p>
           <button onClick={() => { setFilterRisk([]); setFilterCat([]); setFilterResolved('all') }}
             className="mt-3 text-xs text-brand-800 hover:underline">
@@ -358,7 +358,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
                     : finding.isResolved
                       ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      : <Circle className="h-5 w-5 text-gray-300 hover:text-green-400" />
+                      : <Circle className="h-5 w-5 text-gray-300 dark:text-gray-600 hover:text-green-400" />
                   }
                 </button>
 
@@ -413,7 +413,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     <button
                       onClick={() => toggleNotes(finding.id)}
                       className={`rounded-lg p-1.5 border transition-colors text-xs ${
-                        noteOpen ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-border text-muted-foreground hover:bg-muted hover:text-gray-600'
+                        noteOpen ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                       title="Adicionar nota de resolução"
                     >
@@ -424,7 +424,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                   {/* Expandir/colapsar */}
                   <button
                     onClick={() => toggleExpand(finding.id)}
-                    className="rounded-lg p-1.5 border border-border text-muted-foreground hover:bg-muted hover:text-gray-600 transition-colors"
+                    className="rounded-lg p-1.5 border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     title={isOpen ? 'Colapsar' : 'Expandir detalhes'}
                   >
                     {isOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -460,7 +460,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleNotes(finding.id)}
-                        className="px-3 py-1 text-xs text-muted-foreground hover:text-gray-700 border border-border rounded-lg hover:bg-muted"
+                        className="px-3 py-1 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted"
                       >
                         Cancelar
                       </button>
@@ -480,7 +480,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
             {/* Detalhes expandidos */}
             {isOpen && (
-              <div className="border-t border-border bg-gray-50/50 px-5 py-4 space-y-3">
+              <div className="border-t border-border bg-muted/50 px-5 py-4 space-y-3">
                 {/* Descrição */}
                 <p className="text-sm text-muted-foreground leading-relaxed">{finding.description}</p>
 

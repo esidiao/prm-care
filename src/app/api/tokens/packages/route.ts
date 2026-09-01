@@ -15,7 +15,12 @@ const packageSchema = z.object({
   sortOrder: z.number().int().optional(),
 })
 
+// Duplica /api/payments/packages (mesma consulta + mesmo seed). Mantida por
+// compatibilidade; a consolidação das duas está no relatório da auditoria.
 export async function GET() {
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
   let packages = await prisma.tokenPackage.findMany({
     where: { isActive: true },
     orderBy: [{ isFeatured: 'desc' }, { sortOrder: 'asc' }],

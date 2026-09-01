@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { writeLimiter } from '@/lib/rate-limit'
 import prisma from '@/lib/prisma'
 
 /**
@@ -10,6 +11,14 @@ import prisma from '@/lib/prisma'
 export async function POST(req: Request) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  const rl = await writeLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas operações em pouco tempo. Aguarde alguns instantes.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } },
+    )
+  }
 
   const b = await req.json().catch(() => ({}))
   if (!b?.patientId) return NextResponse.json({ error: 'Paciente obrigatório.' }, { status: 400 })
