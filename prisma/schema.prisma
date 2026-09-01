@@ -155,6 +155,7 @@ model User {
   auditLogs         AuditLog[]
   knowledgeEntries  KnowledgeBase[]
   payments          Payment[]
+  soapAttestations  SOAPRecord[]       @relation("SoapAttestedBy")
 
   @@map("users")
 }
@@ -428,9 +429,17 @@ model SOAPRecord {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
+  // Atesto do farmacêutico — quem assumiu o registro como seu e quando.
+  // Nulo enquanto o texto for apenas a sugestão do motor de análise.
+  // Ver prisma/sql/soap_attestation.sql (aplicado em 31/08/2026).
+  attestedById String?
+  attestedAt   DateTime?
+
   analysis     PRMAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
   patient      Patient     @relation(fields: [patientId], references: [id])
+  attestedBy   User?       @relation("SoapAttestedBy", fields: [attestedById], references: [id], onDelete: SetNull)
 
+  @@index([attestedAt])
   @@map("soap_records")
 }
 
@@ -669,6 +678,7 @@ model PatientReview {
   patientId     String
   userId        String
   scheduledDate DateTime
+  // Valores restringidos no banco por CHECK constraint — ver prisma/sql/patient_reviews_constraints.sql
   type          String    // "MEDICATION_REVIEW" | "FOLLOW_UP" | "LAB_CHECK" | "ADHERENCE" | "CUSTOM"
   title         String
   notes         String?   @db.Text
