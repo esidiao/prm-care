@@ -110,7 +110,11 @@ export default withAuth(
           pathname === '/terms' ||
           pathname === '/privacy' ||
           pathname.startsWith('/api/auth') ||
-          pathname === '/api/payments/webhook'  // Webhook do MP não precisa de autenticação de usuário
+          pathname === '/api/payments/webhook' ||  // Webhook do MP se autentica por HMAC
+          // Cron da Vercel: não há sessão de usuário num disparo agendado. A rota
+          // NÃO é pública — ela exige `Authorization: Bearer $CRON_SECRET` no
+          // próprio handler e devolve 404 sem ele. Mesmo modelo do webhook acima.
+          pathname.startsWith('/api/cron/')
         ) return true
         return !!token
       },
