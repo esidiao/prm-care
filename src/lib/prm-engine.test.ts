@@ -522,6 +522,62 @@ describe('Interações classe×classe', () => {
   })
 })
 
+describe('Duplicidade terapêutica — calibração de fadiga de alerta', () => {
+  const dups = (meds: MedicationContext[]) =>
+    analyzePRM(ctx(meds)).findings.filter(f => /duplicidade terap/i.test(f.title))
+
+  // ── Regimes que são PRÁTICA CORRETA — alertar aqui é o defeito ────────────
+  it('dupla antiagregação pós-stent (AAS + clopidogrel) NÃO gera duplicidade', () => {
+    expect(dups([med('acido acetilsalicilico'), med('clopidogrel')])).toHaveLength(0)
+  })
+  it('opioide basal + resgate (morfina + codeína) NÃO gera duplicidade', () => {
+    expect(dups([med('morfina'), med('codeina')])).toHaveLength(0)
+  })
+  it('nitrato crônico + sublingual de resgate NÃO gera duplicidade', () => {
+    expect(dups([med('mononitrato de isossorbida'), med('nitroglicerina')])).toHaveLength(0)
+  })
+
+  // ── Um problema deve render UM achado, não dois ───────────────────────────
+  it('verapamil + diltiazem gera UM achado, não dois (classe + subconjunto)', () => {
+    const r = dups([med('verapamil'), med('diltiazem')])
+    expect(r).toHaveLength(1)
+    expect(r[0].title).toContain('Bloqueador Ca')
+  })
+
+  // ── Duplicidade real, com gravidade calibrada pelo dano ───────────────────
+  it('dois anticoagulantes orais são URGENT', () => {
+    const r = dups([med('varfarina'), med('rivaroxabana')])
+    expect(r).toHaveLength(1)
+    expect(r[0].riskLevel).toBe('URGENT')
+  })
+  it('dois AINEs são HIGH', () => {
+    expect(dups([med('ibuprofeno'), med('naproxeno')])[0].riskLevel).toBe('HIGH')
+  })
+  it('dois ISRS são HIGH', () => {
+    expect(dups([med('fluoxetina'), med('sertralina')])[0].riskLevel).toBe('HIGH')
+  })
+  it('dois IBPs são MODERATE — sem benefício, mas dano menor', () => {
+    expect(dups([med('omeprazol'), med('pantoprazol')])[0].riskLevel).toBe('MODERATE')
+  })
+  it('gravidade não é uniforme entre classes', () => {
+    const anticoag = dups([med('varfarina'), med('rivaroxabana')])[0].riskLevel
+    const ibp = dups([med('omeprazol'), med('pantoprazol')])[0].riskLevel
+    expect(anticoag).not.toBe(ibp)
+  })
+
+  // ── Cenário legítimo é sinalizado, não silenciado ─────────────────────────
+  it('dois antipsicóticos alertam COM a ressalva de intencionalidade', () => {
+    const r = dups([med('haloperidol'), med('risperidona')])
+    expect(r).toHaveLength(1)
+    expect(r[0].description).toMatch(/intencional/i)
+  })
+
+  // ── O título nomeia a classe, para o farmacêutico triar de relance ────────
+  it('o título identifica a classe duplicada', () => {
+    expect(dups([med('fluoxetina'), med('sertralina')])[0].title).toContain('ISRS')
+  })
+})
+
 describe('Camada externa DDInter', () => {
   it('par presente só no DDInter é detectado com source', () => {
     const r = checkInteractions(['tramadol', 'claritromicina'])

@@ -5,6 +5,40 @@
 > decisão clínica** (uso interno/assistencial, sem revenda). Não é parecer jurídico
 > formal — confirmar com a assessoria jurídica/RT antes de ingerir bases com licença.
 
+
+> ## ⚠️ ADENDO 2026-08-31 — A PREMISSA DESTE PARECER MUDOU
+>
+> Este parecer foi escrito para **"órgão público, sem fins comerciais, integração a
+> software próprio de apoio à decisão clínica (uso interno/assistencial, sem
+> revenda)"**. Toda a conclusão sobre o DDInter depende dessa premissa.
+>
+> **O PRM Care hoje é produto comercial** — cobra por pacotes de token via Mercado
+> Pago (`/tokens`, `payments/checkout`, modelos `TokenPackage`/`Payment`). A
+> cláusula **NonCommercial** do CC BY-NC-SA 4.0 deixou de ser atendida, e a
+> **ShareAlike** exigiria que as derivações herdassem a mesma licença — incompatível
+> com software proprietário. A recomendação nº 2 abaixo ("se o RT/jurídico aceitar
+> CC BY-NC-SA, ingerir o DDInter") **não se aplica mais ao produto comercial**.
+>
+> **Decisão de 31/08/2026: manter sem custo.** Não haverá licença comercial paga.
+> A pendência fica registrada para decisão futura entre os caminhos gratuitos:
+>
+> 1. **Reconstruir a camada a partir de openFDA/DailyMed (SPL)** — domínio público
+>    (gov. EUA), já integrado ao RAG, e a seção de interações da bula é fonte
+>    legítima. É o único caminho gratuito que preserva cobertura ampla. Projeto
+>    real, não uma tarde de trabalho.
+> 2. **Tirar o módulo de interações da cobrança** — ataca o NC, mas o ShareAlike
+>    continua de pé enquanto o dado derivado for distribuído no bundle.
+> 3. **Remover a camada externa** — custo clínico medido em 31/08/2026: cobertura
+>    cai de **957 para 129 fármacos**, e **15.705 interações graves** entre
+>    fármacos que a base própria desconhece deixam de ser detectadas.
+>
+> Enquanto a decisão não é tomada, a cláusula de **atribuição (BY)** foi corrigida
+> em todas as saídas — ver `src/lib/ddi-attribution.ts` (commit `2da98ea`).
+> Atribuição correta não sana NC nem SA; é o mínimo exigível e demonstra boa-fé.
+>
+> Não é parecer jurídico. Envolve produto em produção e receita — vale conferência
+> com assessoria.
+
 ## Veredito por fonte
 
 | Fonte | Tem interações? | Disponível hoje | Licença | Pode a Secretaria usar (NC/assistencial)? |

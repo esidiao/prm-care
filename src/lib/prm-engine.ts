@@ -1951,15 +1951,91 @@ function findInteractions(medications: MedicationContext[]) {
   return Array.from(byPair.values())
 }
 
+/**
+ * Política de duplicidade por classe.
+ *
+ * Nem toda classe repetida é duplicidade: em várias, a associação é o padrão de
+ * cuidado, e alertar sobre ela produz fadiga de alerta em cima de conduta
+ * CORRETA — o farmacêutico deixa de confiar no módulo.
+ *
+ * `exempt`  → a associação é conduta padrão; nunca gerar achado.
+ * `risk`    → gravidade calibrada pelo dano da repetição, não uniforme.
+ * `caveat`  → há cenário legítimo; entra no texto para o farmacêutico julgar.
+ */
+interface DuplicationPolicy {
+  exempt?: true
+  exemptReason?: string
+  risk?: RiskLevel
+  caveat?: string
+}
+
+const DUPLICATION_POLICY: Record<string, DuplicationPolicy> = {
+  // ── Associação é padrão de cuidado — não alertar ──────────────────────────
+  'Antiagregante': {
+    exempt: true,
+    exemptReason: 'dupla antiagregação (AAS + inibidor de P2Y12) é conduta padrão após SCA/stent',
+  },
+  'Opioide': {
+    exempt: true,
+    exemptReason: 'opioide basal de longa duração + resgate de curta é o esquema padrão em dor crônica/oncológica',
+  },
+  'Nitrato': {
+    exempt: true,
+    exemptReason: 'nitrato de longa duração + sublingual de resgate é o esquema padrão em angina',
+  },
+  // Subconjunto de 'Bloqueador Ca' (verapamil/diltiazem). Sem isenção aqui, um
+  // paciente com os dois gera DOIS achados para o mesmo problema.
+  'BCC não-diidropiridínico': {
+    exempt: true,
+    exemptReason: 'subconjunto de Bloqueador Ca — a duplicidade já é reportada por aquela classe',
+  },
+
+  // ── Duplicidade de alto risco ─────────────────────────────────────────────
+  'Anticoagulante oral': { risk: RiskLevel.URGENT },
+  'AINE':                { risk: RiskLevel.HIGH },
+  'Benzodiazepínico':    { risk: RiskLevel.HIGH },
+  'Hipnótico Z':         { risk: RiskLevel.HIGH },
+  'ISRS':                { risk: RiskLevel.HIGH },
+  'Antidepressivo tricíclico': { risk: RiskLevel.HIGH },
+  'Sulfonilureia':       { risk: RiskLevel.HIGH },
+  'IECA':                { risk: RiskLevel.HIGH },
+  'BRA-II (Sartana)':    { risk: RiskLevel.HIGH },
+
+  // ── Duplicidade com cenário legítimo possível ─────────────────────────────
+  'Antipsicótico': {
+    risk: RiskLevel.MODERATE,
+    caveat: 'A associação de antipsicóticos pode ser intencional em psiquiatria refratária, mas é desencorajada como rotina.',
+  },
+  'Antihistamínico H1': {
+    risk: RiskLevel.MODERATE,
+    caveat: 'Pode ser intencional (não-sedativo de dia + sedativo à noite); confirmar a intenção.',
+  },
+  'Diurético de alça': {
+    risk: RiskLevel.MODERATE,
+    caveat: 'Bloqueio sequencial do néfron pode ser intencional em ICC refratária — mas com alça + tiazídico, não dois de alça.',
+  },
+}
+
+/** Sem política explícita, a duplicidade é moderada. */
+const DUPLICATION_DEFAULT_RISK = RiskLevel.MODERATE
+
 function checkDuplicateTherapy(medications: MedicationContext[]) {
-  const duplicates: Array<{ group: MedicationContext[]; reason: string }> = []
+  const duplicates: Array<{ group: MedicationContext[]; reason: string; className: string; risk: RiskLevel; caveat?: string }> = []
   for (const [className, keywords] of Object.entries(CLASS_KEYWORDS)) {
+    const policy = DUPLICATION_POLICY[className] || {}
+    if (policy.exempt) continue
+
     const matching = medications.filter(med =>
       keywords.some(kw => norm(med.activeIngredient).includes(norm(kw)))
     )
+    // Dois REGISTROS do mesmo princípio ativo continuam sendo duplicidade real
+    // (bula + genérico, ou lançamento repetido) — não deduplicar por nome.
     if (matching.length > 1) {
       duplicates.push({
         group: matching,
+        className,
+        risk: policy.risk || DUPLICATION_DEFAULT_RISK,
+        caveat: policy.caveat,
         reason: `${matching.length} medicamentos da classe ${className} em uso simultâneo: ${matching.map(m => m.activeIngredient).join(', ')}.`,
       })
     }
@@ -2001,9 +2077,9 @@ function findNecessityPRMs(context: PatientContext): PRMFindingResult[] {
   for (const dup of checkDuplicateTherapy(context.medications)) {
     findings.push({
       category: PRMCategory.NECESSITY,
-      riskLevel: RiskLevel.MODERATE,
-      title: 'Duplicidade terapêutica detectada',
-      description: dup.reason,
+      riskLevel: dup.risk,
+      title: `Duplicidade terapêutica — ${dup.className}`,
+      description: dup.caveat ? `${dup.reason} ${dup.caveat}` : dup.reason,
       clinicalEvidence: `Medicamentos da mesma classe em uso simultâneo: ${dup.group.map(m => m.activeIngredient).join(', ')}.`,
       potentialImpact: 'Risco aumentado de efeitos adversos sem benefício adicional. Possível interação de classe.',
       pharmacistConduct: 'Verificar se a combinação é intencional. Caso contrário, discutir com o prescritor a racionalização do esquema.',

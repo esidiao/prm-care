@@ -29,6 +29,7 @@ const navItems = [
   { href: '/interactions', label: 'Interações', icon: Link2 },
   { href: '/pharmacogenomics', label: 'Farmacogenômica', icon: Dna },
   { href: '/reports', label: 'Relatórios', icon: FileText },
+  { href: '/impacto', label: 'Impacto', icon: TrendingUp },
   { href: '/analyses', label: 'Histórico', icon: BarChart3 },
   { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
   { href: '/resources', label: 'Bases de Dados', icon: Globe },

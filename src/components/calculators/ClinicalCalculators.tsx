@@ -1,10 +1,10 @@
 'use client'
 import React, { useState, useId } from 'react'
-import { Calculator, Activity, Heart, ClipboardList, Info, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import { Calculator, Activity, Heart, ClipboardList, Info, RotateCcw, ChevronDown, ChevronUp, Droplets, ShieldAlert } from 'lucide-react'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
-type CalcTab = 'ckd-epi' | 'cockcroft' | 'charlson' | 'ascvd'
+type CalcTab = 'ckd-epi' | 'cockcroft' | 'charlson' | 'ascvd' | 'chadsvasc' | 'hasbled'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -556,11 +556,168 @@ function CardiovascularRiskCalc() {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
+// == CHA2DS2-VASc -- risco tromboembolico em fibrilacao atrial ===============
+// Lip GYH et al., Chest 2010. Diretrizes ESC 2024 / SBC: anticoagular a partir
+// de 2 pontos em homens e 3 em mulheres -- o ponto do sexo feminino e
+// modificador de risco, nao fator isolado.
+
+const CHADSVASC_ITEMS = [
+  { key: 'chf',      label: 'Insuficiencia cardiaca / disfuncao de VE',    points: 1 },
+  { key: 'htn',      label: 'Hipertensao arterial',                        points: 1 },
+  { key: 'age75',    label: 'Idade >= 75 anos',                            points: 2 },
+  { key: 'dm',       label: 'Diabetes mellitus',                           points: 1 },
+  { key: 'stroke',   label: 'AVC / AIT / tromboembolismo previo',          points: 2 },
+  { key: 'vascular', label: 'Doenca vascular (IAM, DAP ou placa aortica)', points: 1 },
+  { key: 'age65',    label: 'Idade 65-74 anos',                            points: 1 },
+  { key: 'female',   label: 'Sexo feminino',                               points: 1 },
+] as const
+
+/** AVC/ano por escore -- Friberg et al., Eur Heart J 2012 (coorte sueca). */
+const CHADSVASC_RISK: Record<number, string> = {
+  0: '0,2%', 1: '0,6%', 2: '2,2%', 3: '3,2%', 4: '4,8%',
+  5: '7,2%', 6: '9,7%', 7: '11,2%', 8: '10,8%', 9: '12,2%',
+}
+
+function ChadsVascCalc() {
+  const [sel, setSel] = useState<Set<string>>(new Set())
+  const toggle = (k: string) => setSel(prev => {
+    const n = new Set(prev)
+    // Faixas etarias sao mutuamente exclusivas -- 65-74 e >=75 nao somam
+    if (k === 'age75' && n.has('age65')) n.delete('age65')
+    if (k === 'age65' && n.has('age75')) n.delete('age75')
+    if (n.has(k)) n.delete(k)
+    else n.add(k)
+    return n
+  })
+
+  const total = CHADSVASC_ITEMS.filter(i => sel.has(i.key)).reduce((acc, i) => acc + i.points, 0)
+  const female = sel.has('female')
+  const limiar = female ? 3 : 2
+  const anticoagular = total >= limiar
+
+  const cor = total === 0 ? ('green' as const)
+    : total < limiar ? ('yellow' as const)
+    : total <= 4 ? ('orange' as const)
+    : ('red' as const)
+
+  return (
+    <div className="space-y-5">
+      <InfoBox>
+        <p className="font-semibold text-foreground">Quando usar</p>
+        <p>Estima risco de AVC em fibrilacao atrial <b>nao valvar</b>. Nao se aplica a FA valvar (estenose mitral moderada/grave ou protese mecanica), em que a anticoagulacao e indicada independentemente do escore.</p>
+      </InfoBox>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {CHADSVASC_ITEMS.map(i => (
+          <label key={i.key} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm cursor-pointer hover:bg-muted transition-colors">
+            <input type="checkbox" checked={sel.has(i.key)} onChange={() => toggle(i.key)} className="h-4 w-4 rounded border-border" />
+            <span className="flex-1 text-foreground">{i.label}</span>
+            <span className="text-xs font-semibold text-muted-foreground">+{i.points}</span>
+          </label>
+        ))}
+      </div>
+
+      <ResultBox
+        label="CHA2DS2-VASc"
+        value={total}
+        unit="pontos"
+        interpretation={anticoagular ? 'Anticoagulacao oral indicada' : 'Anticoagulacao nao indicada apenas pelo escore'}
+        color={cor}
+        note={'Risco estimado de AVC: ' + (CHADSVASC_RISK[total] ?? '--') + ' ao ano - Limiar para ' + (female ? 'mulheres' : 'homens') + ': ' + limiar + ' pontos'}
+      />
+
+      {anticoagular && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <b>Antes de anticoagular, calcule o HAS-BLED.</b> Escore de sangramento alto nao contraindica a anticoagulacao -- indica corrigir os fatores modificaveis e intensificar o acompanhamento.
+        </div>
+      )}
+
+      <button onClick={() => setSel(new Set())} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+        <RotateCcw className="h-3 w-3" /> Limpar
+      </button>
+    </div>
+  )
+}
+
+// == HAS-BLED -- risco de sangramento sob anticoagulacao =====================
+// Pisters R et al., Chest 2010. >=3 = risco alto: NAO e contraindicacao, e sim
+// gatilho para corrigir fatores modificaveis e encurtar o intervalo de revisao.
+
+const HASBLED_ITEMS = [
+  { key: 'htn',     label: 'Hipertensao nao controlada (PAS > 160 mmHg)',                     points: 1, modificavel: true },
+  { key: 'renal',   label: 'Funcao renal alterada (dialise, transplante, Cr > 2,26 mg/dL)',   points: 1, modificavel: false },
+  { key: 'liver',   label: 'Funcao hepatica alterada (cirrose ou BT > 2x / TGO-TGP > 3x)',    points: 1, modificavel: false },
+  { key: 'stroke',  label: 'AVC previo',                                                       points: 1, modificavel: false },
+  { key: 'bleed',   label: 'Sangramento previo ou predisposicao (anemia)',                     points: 1, modificavel: false },
+  { key: 'inr',     label: 'INR labil (TTR < 60%, se em varfarina)',                           points: 1, modificavel: true },
+  { key: 'age65',   label: 'Idade > 65 anos',                                                  points: 1, modificavel: false },
+  { key: 'drugs',   label: 'Farmacos que aumentam sangramento (AINE, antiagregante)',          points: 1, modificavel: true },
+  { key: 'alcohol', label: 'Alcool >= 8 doses/semana',                                         points: 1, modificavel: true },
+] as const
+
+function HasBledCalc() {
+  const [sel, setSel] = useState<Set<string>>(new Set())
+  const toggle = (k: string) => setSel(prev => {
+    const n = new Set(prev)
+    if (n.has(k)) n.delete(k)
+    else n.add(k)
+    return n
+  })
+
+  const total = HASBLED_ITEMS.filter(i => sel.has(i.key)).reduce((acc, i) => acc + i.points, 0)
+  const alto = total >= 3
+  const modificaveis = HASBLED_ITEMS.filter(i => sel.has(i.key) && i.modificavel)
+
+  return (
+    <div className="space-y-5">
+      <InfoBox>
+        <p className="font-semibold text-foreground">Como interpretar</p>
+        <p>Escore &gt;= 3 indica risco alto de sangramento -- <b>nao e contraindicacao a anticoagulacao</b>. O uso correto e identificar os fatores modificaveis, corrigi-los e revisar o paciente com mais frequencia.</p>
+      </InfoBox>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {HASBLED_ITEMS.map(i => (
+          <label key={i.key} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm cursor-pointer hover:bg-muted transition-colors">
+            <input type="checkbox" checked={sel.has(i.key)} onChange={() => toggle(i.key)} className="h-4 w-4 rounded border-border" />
+            <span className="flex-1 text-foreground">{i.label}</span>
+            {i.modificavel && <span className="rounded-full bg-green-100 px-1.5 text-[10px] font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">modificavel</span>}
+            <span className="text-xs font-semibold text-muted-foreground">+{i.points}</span>
+          </label>
+        ))}
+      </div>
+
+      <ResultBox
+        label="HAS-BLED"
+        value={total}
+        unit="pontos"
+        interpretation={alto ? 'Risco alto de sangramento' : 'Risco baixo a moderado'}
+        color={alto ? 'red' : total === 2 ? 'orange' : 'green'}
+        note={alto ? 'Corrigir os fatores modificaveis e encurtar o intervalo de revisao' : 'Manter acompanhamento de rotina'}
+      />
+
+      {modificaveis.length > 0 && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-xs text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200">
+          <b>Intervencao farmaceutica possivel -- {modificaveis.length} fator(es) modificavel(is):</b>
+          <ul className="mt-1 list-disc list-inside space-y-0.5">
+            {modificaveis.map(m => <li key={m.key}>{m.label}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <button onClick={() => setSel(new Set())} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+        <RotateCcw className="h-3 w-3" /> Limpar
+      </button>
+    </div>
+  )
+}
+
 const TABS: { id: CalcTab; label: string; icon: React.ElementType; description: string }[] = [
   { id: 'ckd-epi',   label: 'CKD-EPI',          icon: Activity,      description: 'TFG estimada (2021)' },
   { id: 'cockcroft', label: 'Cockcroft-Gault',   icon: Calculator,    description: 'Clearance de creatinina' },
   { id: 'charlson',  label: 'Charlson',          icon: ClipboardList, description: 'Escore de comorbidades' },
   { id: 'ascvd',     label: 'Risco Cardiovascular', icon: Heart,      description: 'Framingham 10 anos' },
+  { id: 'chadsvasc', label: 'CHA2DS2-VASc',       icon: ShieldAlert, description: 'Risco de AVC em FA' },
+  { id: 'hasbled',   label: 'HAS-BLED',           icon: Droplets,    description: 'Risco de sangramento' },
 ]
 
 export function ClinicalCalculators() {
@@ -612,6 +769,8 @@ export function ClinicalCalculators() {
         {tab === 'cockcroft' && <CockcroftGaultCalc />}
         {tab === 'charlson'  && <CharlsonCalc />}
         {tab === 'ascvd'     && <CardiovascularRiskCalc />}
+        {tab === 'chadsvasc' && <ChadsVascCalc />}
+        {tab === 'hasbled'   && <HasBledCalc />}
       </div>
 
       {/* Disclaimer */}

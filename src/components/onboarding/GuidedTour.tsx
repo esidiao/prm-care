@@ -137,13 +137,13 @@ const steps: TourStep[] = [
     icon: Calculator,
     color: 'from-teal-600 to-teal-800',
     title: 'Calculadoras Clínicas',
-    description: '4 calculadoras farmacêuticas integradas.',
-    detail: 'Função renal por CKD-EPI (2021) e clearance de creatinina por Cockcroft-Gault, índice de comorbidade de Charlson e risco cardiovascular em 10 anos por Framingham.',
+    description: '6 calculadoras farmacêuticas integradas.',
+    detail: 'Função renal por CKD-EPI (2021) e clearance de creatinina por Cockcroft-Gault, índice de comorbidade de Charlson, risco cardiovascular em 10 anos por Framingham, e o par CHA₂DS₂-VASc + HAS-BLED para a decisão de anticoagular em fibrilação atrial.',
     href: '/calculators',
     hrefLabel: 'Abrir calculadoras',
     visual: (
       <div className="grid grid-cols-2 gap-1.5 py-1">
-        {['CKD-EPI', 'Cockcroft-Gault', 'Charlson', 'Risco CV (Framingham)'].map(c => (
+        {['CKD-EPI', 'Cockcroft-Gault', 'Charlson', 'Risco CV (Framingham)', 'CHA₂DS₂-VASc', 'HAS-BLED'].map(c => (
           <div key={c} className="rounded bg-white/10 px-2 py-1.5 text-[10px] text-white/70 text-center">{c}</div>
         ))}
       </div>
