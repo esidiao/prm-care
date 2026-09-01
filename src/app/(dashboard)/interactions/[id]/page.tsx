@@ -3,6 +3,7 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, AlertTriangle, Phone, Stethoscope } from 'lucide-react'
+import { DDI_ATTRIBUTION } from '@/lib/ddi-attribution'
 
 const COR: Record<string, string> = { contraindicated: 'border-red-300', major: 'border-orange-300', moderate: 'border-amber-300', minor: 'border-green-300' }
 const CHIP: Record<string, string> = { contraindicated: 'bg-red-100 text-red-800', major: 'bg-orange-100 text-orange-800', moderate: 'bg-amber-100 text-amber-800', minor: 'bg-green-100 text-green-800' }
@@ -42,6 +43,9 @@ export default async function InteractionsDetailPage({ params }: { params: { id:
           )
         })}
         {results.length === 0 && <p className="text-sm text-muted-foreground">Sem interações registradas nesta consulta.</p>}
+
+        {/* Atribuição obrigatória — esta página distribui resultados da base externa */}
+        <p className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">{DDI_ATTRIBUTION}</p>
       </div>
 
       {decision && (

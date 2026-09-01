@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 import { canonicalizeDrug } from '@/lib/drug-aliases'
 import { escapeHtml } from '@/lib/utils'
+import { DDI_ATTRIBUTION, DDI_ATTRIBUTION_SHORT, DDI_SOURCE_LABEL } from '@/lib/ddi-attribution'
 
 /**
  * Escapa valores interpolados no HTML da janela de impressão. A janela é aberta
@@ -167,6 +168,7 @@ export default function InteractionsPage() {
       ${resp.notFound ? '<p>Nenhuma interação relevante (fármaco, alimento ou suplemento) na base disponível.</p>' : ''}
       <p style="margin-top:22px">_______________________________________<br><b>${esc(pharmacist)}</b> — Farmacêutico(a) responsável (CRF)</p>
       <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:10px">${esc(resp.advisory)}</p>
+      <p style="font-size:10px;color:#94a3b8;margin-top:6px">${esc(DDI_ATTRIBUTION)}</p>
       </body>`)
     w.document.close(); w.focus(); setTimeout(() => w.print(), 250)
   }
@@ -275,7 +277,7 @@ export default function InteractionsPage() {
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${s.chip}`}>{it.severityLabel}</span>
                     <span className="font-semibold text-foreground">{it.drugs[0]} + {it.drugs[1]}</span>
                     {(it.evidenceLevel || e?.evidenceLevel) && <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">Evidência: {it.evidenceLevel || e?.evidenceLevel}</span>}
-                    {it.source && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] text-violet-800">DDInter</span>}
+                    {it.source && <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] text-violet-800">{DDI_SOURCE_LABEL}</span>}
                   </div>
                   <dl className="mt-2 space-y-1.5 text-sm">
                     <div><dt className="inline font-semibold text-muted-foreground">Mecanismo: </dt><dd className="inline text-foreground">{it.mechanism}</dd></div>
@@ -346,7 +348,7 @@ export default function InteractionsPage() {
           <p className="mt-5 rounded-lg bg-teal-50 px-4 py-3 text-xs leading-relaxed text-teal-900">{resp.advisory}</p>
 
           {resp.interactions.some(i => i.source) && (
-            <p className="mt-2 text-[11px] text-muted-foreground">Parte das interações provém da base <b>DDInter 2.0</b> (ddinter.scbdd.com), licença CC BY-NC-SA 4.0 — uso não-comercial/assistencial, com atribuição.</p>
+            <p className="mt-2 text-[11px] text-muted-foreground">{DDI_ATTRIBUTION}</p>
           )}
 
           {/* Decisão clínica — disponível após salvar a consulta */}

@@ -3,6 +3,7 @@ import { useState, useRef } from 'react'
 import { toPng } from 'html-to-image'
 import { FileText, Printer, Copy, MessageCircle, Check, ShieldAlert, Loader2, Image as ImageIcon, AlertTriangle, Search } from 'lucide-react'
 import { escapeHtml } from '@/lib/utils'
+import { DDI_ATTRIBUTION_SHORT } from '@/lib/ddi-attribution'
 
 /**
  * Escapa qualquer valor antes de interpolá-lo no HTML do relatório impresso.
@@ -133,6 +134,7 @@ export function ReconciliationReportPanel(p: Props) {
       ${block('Plano de acompanhamento', notes.plano)}
       <p style="margin-top:24px">_______________________________________<br><b>${esc(p.pharmacist)}</b> — Farmacêutico(a) responsável (CRF)</p>
       <p style="font-size:11px;color:#64748b;border-top:1px solid #e2e8f0;padding-top:8px;margin-top:14px">${DISCLAIMER}</p>
+      ${tech && detected.some(i => i.source) ? `<p style="font-size:10px;color:#94a3b8;margin-top:6px">${esc(DDI_ATTRIBUTION_SHORT)}</p>` : ''}
     </body>`
   }
 
