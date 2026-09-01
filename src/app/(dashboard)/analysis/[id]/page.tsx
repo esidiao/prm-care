@@ -13,6 +13,8 @@ import { AnalysisComparison } from '@/components/analysis/AnalysisComparison'
 import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 import { LabTrends } from '@/components/analysis/LabTrends'
 import { SoapRecord } from '@/components/analysis/SoapRecord'
+import { OportunidadePreco } from '@/components/analysis/OportunidadePreco'
+import { buscarOportunidades } from '@/lib/oportunidade-preco'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -39,6 +41,14 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
   })
 
   if (!analysis) notFound()
+
+  // Oportunidade de economia nos medicamentos ativos do paciente (dado CMED).
+  // Consulta separada de propósito: falhar aqui não pode derrubar a análise.
+  const oportunidades = await buscarOportunidades(
+    analysis.patient.medications.map(m => ({
+      activeIngredient: m.activeIngredient, dose: m.dose, doseUnit: m.doseUnit,
+    })),
+  ).catch(() => [])
 
   // Fetch previous analysis for same patient (for comparison)
   const previousAnalysis = await prisma.pRMAnalysis.findFirst({
@@ -193,6 +203,9 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
 
       {/* Farmacogenômica (CPIC) — derivada automaticamente dos medicamentos */}
       <PgxAlerts drugs={analysis.patient.medications.map(m => m.activeIngredient)} />
+
+      {/* Alternativa mais econômica na mesma dose — dado CMED */}
+      <OportunidadePreco oportunidades={oportunidades} />
 
       {/* SOAP — registro clínico revisável pelo farmacêutico */}
       {analysis.soapRecord && (

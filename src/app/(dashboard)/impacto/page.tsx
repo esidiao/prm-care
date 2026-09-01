@@ -3,9 +3,10 @@ import prisma from '@/lib/prisma'
 import Link from 'next/link'
 import {
   TrendingUp, CheckCircle2, AlertTriangle, Phone, Clock,
-  Stethoscope, FlaskConical, ArrowRight,
+  Stethoscope, FlaskConical, ArrowRight, TrendingDown,
 } from 'lucide-react'
 import { RiskLevel } from '@prisma/client'
+import { contarOportunidades } from '@/lib/oportunidade-preco'
 
 /**
  * Painel de impacto clínico.
@@ -101,6 +102,10 @@ export default async function ImpactoPage() {
       prisma.pRMAnalysis.count({ where: { userId, createdAt: { gte: desde } } }),
     ])
 
+  // Oportunidade de troca por equivalente mais econômico. Falha aqui não pode
+  // derrubar o painel inteiro — é métrica acessória.
+  const oportunidade = await contarOportunidades(userId).catch(() => ({ medicamentos: 0, pacientes: 0 }))
+
   const totalPRM = porRisco.reduce((s, r) => s + r._count._all, 0)
   const totalResolvidos = resolvidos.reduce((s, r) => s + r._count._all, 0)
   const resolvidosPorRisco = new Map(resolvidos.map(r => [r.riskLevel, r._count._all]))
@@ -146,13 +151,17 @@ export default async function ImpactoPage() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Cartao icone={CheckCircle2} rotulo="PRMs resolvidos" valor={totalResolvidos}
               detalhe={`de ${totalPRM} identificados · ${pct(totalResolvidos, totalPRM)}% de resolução`} destaque />
             <Cartao icone={AlertTriangle} rotulo="Graves resolvidos" valor={gravesResolvidos}
               detalhe={`de ${graves} urgentes/altos · ${pct(gravesResolvidos, graves)}%`} />
             <Cartao icone={Stethoscope} rotulo="Intervenções" valor={decisoes}
               detalhe="registradas em consultas de interação" />
+            <Cartao icone={TrendingDown} rotulo="Troca por equivalente" valor={oportunidade.medicamentos}
+              detalhe={oportunidade.medicamentos > 0
+                ? `medicamentos com opção mais econômica na mesma dose · ${oportunidade.pacientes} paciente(s)`
+                : 'nenhuma oportunidade identificada no período'} />
             <Cartao icone={Clock} rotulo="Tempo até resolver" valor={medianaDias ?? '—'}
               sufixo={medianaDias !== null ? 'dias' : undefined}
               detalhe={medianaDias !== null ? `mediana de ${dias.length} achados resolvidos` : 'sem achados resolvidos ainda'} />
@@ -221,9 +230,14 @@ export default async function ImpactoPage() {
         <p>Janela de 12 meses, contando apenas registros do seu usuário. &quot;Resolvido&quot; é o achado
           marcado como tal na tela da análise; o tempo até resolver usa a <b>mediana</b>, não a média —
           um achado esquecido por meses distorceria a média a favor do próprio indicador.</p>
-        <p><b>Não há estimativa de custo evitado.</b> O sistema não armazena preço de medicamento nem
-          custo de internação, e projetar economia sem esses dados seria número inventado. Fechar essa
-          lacuna depende de ingerir a tabela CMED — está registrado como pendência.</p>
+        <p><b>Troca por equivalente é oportunidade, não economia realizada.</b> Desde 01/09/2026 a
+          base de preços da CMED está integrada, e o painel conta em quantos medicamentos existe
+          alternativa mais econômica na <b>mesma dose</b>, comparada <b>por unidade</b> — nunca por
+          preço de caixa, que faria embalagem pequena parecer barata.</p>
+        <p>O número é de <b>medicamentos com oportunidade</b>, não de reais economizados: o prontuário
+          registra princípio ativo e dose, não a apresentação que o paciente compra. Sem saber o que
+          ele paga hoje, projetar economia em reais seria número inventado. Custo de internação
+          evitada continua fora do alcance dos dados.</p>
       </div>
     </div>
   )
