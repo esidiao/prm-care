@@ -36,3 +36,4 @@ scripts/
 .vercel
 
 .vercel
+.etl-cache/

@@ -70,10 +70,25 @@ apresentação existe, se tem genérico, qual a tarja, quanto custa.
 Fases, em ordem de valor por esforço:
 
 1. **ETL das duas planilhas para tabelas próprias**, com job de atualização.
-   Cuidados verificados: o CSV da CMED tem **59 linhas de preâmbulo** — o
-   cabeçalho real está na linha 60; ambos são `;` com encoding **latin-1**; e a
-   coluna `SITUACAO_REGISTRO` permite filtrar registro caduco/cancelado, que não
-   deve aparecer como opção terapêutica.
+   **Armadilhas confirmadas rodando o ETL** (`scripts/etl/anvisa-cmed.mjs`), não
+   só lendo a documentação:
+   - **Os dois arquivos têm encodings DIFERENTES**: o da ANVISA é `latin-1` e o
+     da CMED é `UTF-8`. Fixar um corrompe o outro em silêncio — vira
+     `restriÃ§Ã£o` no lugar de `restrição`, e o dado entra torto sem erro
+     nenhum. *(Correção de 01/09: a primeira versão deste parecer afirmava
+     latin-1 para ambos, antes de o ETL ser executado.)*
+   - **A CMED grafa colunas com acento** (`SUBSTÂNCIA`, `APRESENTAÇÃO`). Ler a
+     versão sem acento devolve `undefined` sem erro: na primeira execução o
+     cruzamento com a base clínica deu **zero** por causa disso. O ETL canoniza
+     o cabeçalho.
+   - O CSV da CMED tem **59 linhas de preâmbulo**; o cabeçalho está na linha 60,
+     e a posição muda a cada publicação — procurar é mais seguro que fixar.
+   - `SITUACAO_REGISTRO` permite filtrar registro caduco/cancelado, que não deve
+     aparecer como opção terapêutica.
+
+   **Volumes reais medidos em 01/09/2026:** 43.445 medicamentos registrados
+   (17.270 ativos) e 25.699 apresentações na CMED, das quais 13.086
+   comercializadas, cobrindo **1.917 princípios ativos distintos**.
 2. **Tela de monografia** unindo: dado ANVISA (identidade e regulação) + CMED
    (apresentações e preço) + nosso conteúdo próprio (posologia, farmacocinética,
    alimento/horário, interações) + openFDA como leitura complementar rotulada
