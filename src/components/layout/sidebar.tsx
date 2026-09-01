@@ -26,6 +26,7 @@ const navItems = [
   { href: '/dashboard', label: 'Painel', icon: LayoutDashboard },
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
+  { href: '/medicamentos', label: 'Medicamentos', icon: Pill },
   { href: '/interactions', label: 'Interações', icon: Link2 },
   { href: '/pharmacogenomics', label: 'Farmacogenômica', icon: Dna },
   { href: '/reports', label: 'Relatórios', icon: FileText },
