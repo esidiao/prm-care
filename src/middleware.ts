@@ -123,7 +123,11 @@ export default withAuth(
 )
 
 export const config = {
+  // manifest.json, sw.js, /icons e /offline precisam ser alcançáveis SEM sessão:
+  // o navegador lê o manifest antes de qualquer login, e um service worker
+  // redirecionado para /login nunca chega a registrar. Antes disto o manifest
+  // devolvia 307 em produção e o app não instalava direito.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|logo.svg|images/|.*\\.jpg$|.*\\.jpeg$|.*\\.png$|.*\\.webp$|.*\\.svg$|.*\\.gif$|.*\\.ico$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|logo.svg|manifest.json|sw.js|icons/|offline|images/|.*\\.jpg$|.*\\.jpeg$|.*\\.png$|.*\\.webp$|.*\\.svg$|.*\\.gif$|.*\\.ico$).*)',
   ],
 }
