@@ -156,6 +156,7 @@ model User {
   knowledgeEntries  KnowledgeBase[]
   payments          Payment[]
   soapAttestations  SOAPRecord[]       @relation("SoapAttestedBy")
+  adverseEvents     AdverseEventReport[]
 
   @@map("users")
 }
@@ -266,6 +267,7 @@ model Patient {
 
   @@unique([userId, code])
   @@map("patients")
+  adverseEvents     AdverseEventReport[]
 }
 
 model Comorbidity {
@@ -886,4 +888,42 @@ model RefApresentacao {
   @@index([produto])
   @@index([registro])
   @@map("ref_apresentacoes")
+}
+
+/// Suspeita de reação adversa a medicamento — registro clínico + ficha VigiMed.
+/// O sistema NÃO submete ao VigiMed (não há API pública para profissional);
+/// registra a suspeita, monta a ficha e guarda o protocolo do envio manual.
+/// Ver prisma/sql/eventos_adversos.sql e docs do campo em lib/evento-adverso.ts.
+model AdverseEventReport {
+  id           String    @id @default(cuid())
+  patientId    String
+  userId       String
+
+  medicamentos String    @db.Text
+  reacao       String    @db.Text
+  dataInicio   DateTime
+  dataFim      DateTime?
+
+  /// Valores restringidos por CHECK no banco — ver o SQL
+  gravidade    String
+  desfecho     String
+  acaoTomada   String
+  reexposicao  String    @default("NAO_APLICA")
+
+  historicoRelevante String? @db.Text
+  observacoes        String? @db.Text
+
+  /// Nulo enquanto não foi notificado à ANVISA. O envio é manual, pelo portal.
+  notificadoEm     DateTime?
+  protocoloVigimed String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([userId, notificadoEm])
+  @@index([patientId, dataInicio(sort: Desc)])
+  @@map("adverse_event_reports")
 }

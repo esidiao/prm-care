@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
   Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
-  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna, ShieldCheck } from 'lucide-react'
+  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@prisma/client'
@@ -29,6 +29,7 @@ const navItems = [
   { href: '/interactions', label: 'Interações', icon: Link2 },
   { href: '/pharmacogenomics', label: 'Farmacogenômica', icon: Dna },
   { href: '/reports', label: 'Relatórios', icon: FileText },
+  { href: '/eventos-adversos', label: 'Reações Adversas', icon: ShieldAlert },
   { href: '/impacto', label: 'Impacto', icon: TrendingUp },
   { href: '/analyses', label: 'Histórico', icon: BarChart3 },
   { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
