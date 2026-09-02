@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
   Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
-  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna,
-} from 'lucide-react'
+  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna, ShieldCheck } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@prisma/client'
@@ -44,6 +43,7 @@ const adminItems = [
   { href: '/admin/financeiro', label: 'Financeiro', icon: TrendingUp },
   { href: '/admin/users', label: 'Usuários', icon: Users },
   { href: '/admin/knowledge', label: 'Base Clínica', icon: BookOpen },
+  { href: '/admin/curadoria', label: 'Curadoria', icon: ShieldCheck },
   { href: '/admin/tokens', label: 'Pacotes', icon: Coins },
 ]
 

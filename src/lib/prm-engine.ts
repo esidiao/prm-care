@@ -42,7 +42,29 @@ function medContains(med: MedicationContext, keyword: string): boolean {
 
 // ─── 1. INTERAÇÕES MEDICAMENTOSAS ────────────────────────────────────────────
 
-interface KnownInteraction {
+/**
+ * Procedência de uma regra clínica.
+ *
+ * OPCIONAL DE PROPÓSITO: são 198 pares já escritos, e exigir preenchimento de
+ * todos de uma vez travaria a adoção. O relatório de curadoria conta quantos
+ * ainda não têm — o vencimento vira número medido em vez de descoberta por acaso.
+ *
+ * As regras seguem no CÓDIGO, e não numa tabela editável pelo admin: `analyzePRM`
+ * é função pura e síncrona, com testes cobrindo cada regra. Trocar isso por
+ * formulário tiraria controle de versão, revisão por diff e cobertura de teste
+ * de conteúdo que decide conduta clínica. O que o Micromedex tem de forte é
+ * processo editorial, não painel de edição livre.
+ */
+interface Procedencia {
+  /** Data ISO da última revisão clínica — ex.: '2026-09-01' */
+  revisadoEm?: string
+  /** Quem revisou: nome ou CRF do farmacêutico responsável */
+  revisor?: string
+  /** Referência que sustenta a regra — diretriz, artigo, bula */
+  fonte?: string
+}
+
+interface KnownInteraction extends Procedencia {
   drug1: string
   drug2: string
   severity: 'minor' | 'moderate' | 'major' | 'contraindicated'
@@ -649,7 +671,7 @@ const BEERS_CRITERIA_DRUGS: Record<string, { warning: string; level: 'high' | 'm
 // ─── 7. CRITÉRIOS STOPP v3 (2023) ─────────────────────────────────────────────
 // Medicamentos inapropriados em idosos por contexto clínico específico
 
-interface STOPPCriterion {
+interface STOPPCriterion extends Procedencia {
   drugs: string[]
   condition: string
   conditionKeywords: string[]
@@ -944,7 +966,7 @@ const STOPP_CRITERIA: STOPPCriterion[] = [
 
 // ─── 8. CRITÉRIOS START v3 (tratamentos que deveriam ser iniciados) ───────────
 
-interface STARTCriterion {
+interface STARTCriterion extends Procedencia {
   missingDrugs: string[]
   condition: string
   conditionKeywords: string[]
@@ -1773,7 +1795,7 @@ const CLASS_KEYWORDS: Record<string, string[]> = {
  * CLASS_KEYWORDS), não apenas pares de nomes enumerados. Cobrem efeitos de classe
  * onde o risco independe do princípio ativo específico (ex.: opioide+benzo).
  */
-interface ClassInteraction {
+interface ClassInteraction extends Procedencia {
   class1: string
   class2: string
   severity: KnownInteraction['severity']
@@ -3460,6 +3482,55 @@ function findDoseDurationPRMs(context: PatientContext): PRMFindingResult[] {
     }
   }
   return findings
+}
+
+/**
+ * Inventário das regras clínicas, para o relatório de curadoria.
+ *
+ * Exporta apenas a procedência e um identificador legível — não o conteúdo
+ * clínico —, para que a tela de governança não vire uma segunda cópia da base.
+ */
+export interface RegraInventariada {
+  grupo: 'Interação' | 'Interação de classe' | 'STOPP' | 'START'
+  identificacao: string
+  revisadoEm?: string
+  revisor?: string
+  fonte?: string
+  evidenceLevel?: string
+}
+
+export function inventariarRegras(): RegraInventariada[] {
+  const out: RegraInventariada[] = []
+  for (const r of KNOWN_INTERACTIONS) {
+    out.push({
+      grupo: 'Interação',
+      identificacao: `${r.drug1} + ${r.drug2}`,
+      revisadoEm: r.revisadoEm, revisor: r.revisor, fonte: r.fonte,
+      evidenceLevel: r.evidenceLevel,
+    })
+  }
+  for (const r of CLASS_INTERACTIONS) {
+    out.push({
+      grupo: 'Interação de classe',
+      identificacao: `${r.class1} + ${r.class2}`,
+      revisadoEm: r.revisadoEm, revisor: r.revisor, fonte: r.fonte,
+    })
+  }
+  for (const r of STOPP_CRITERIA) {
+    out.push({
+      grupo: 'STOPP',
+      identificacao: `${r.drugs.join('/')} — ${r.condition}`,
+      revisadoEm: r.revisadoEm, revisor: r.revisor, fonte: r.fonte,
+    })
+  }
+  for (const r of START_CRITERIA) {
+    out.push({
+      grupo: 'START',
+      identificacao: `${r.missingDrugs.join('/')} — ${r.condition}`,
+      revisadoEm: r.revisadoEm, revisor: r.revisor, fonte: r.fonte,
+    })
+  }
+  return out
 }
 
 export function analyzePRM(context: PatientContext): AnalysisResult {
