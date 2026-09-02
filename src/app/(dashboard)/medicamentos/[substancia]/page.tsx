@@ -7,6 +7,8 @@ import {
   Link2, TrendingDown, Building2,
 } from 'lucide-react'
 import { getPKProfile } from '@/lib/pharma-pk-db'
+import { buscarPreparoInjetavel, temFormaInjetavel } from '@/lib/drug-lookup-service'
+import { PreparoInjetavelSecao } from '@/components/analysis/PreparoInjetavel'
 
 /**
  * Monografia de uma substância.
@@ -80,6 +82,13 @@ export default async function MonografiaPage({ params }: { params: { substancia:
     : null
 
   const genericos = apresentacoes.filter(a => /gen[eé]rico/i.test(a.tipoProduto || '')).length
+
+  // Preparo de injetável só faz sentido se a substância TEM forma injetável.
+  // Consulta externa isolada: a openFDA fora do ar não pode derrubar a monografia.
+  const ehInjetavel = temFormaInjetavel(apresentacoes.map(a => a.apresentacao))
+  const preparo = ehInjetavel
+    ? await buscarPreparoInjetavel(componentes[0]).catch(() => null)
+    : null
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 space-y-5">
@@ -175,6 +184,8 @@ export default async function MonografiaPage({ params }: { params: { substancia:
           As informações abaixo vêm apenas do registro público.
         </div>
       )}
+
+      {preparo && <PreparoInjetavelSecao preparo={preparo} substancia={substancia} />}
 
       <Link
         href={`/interactions?drug=${encodeURIComponent(substancia)}`}

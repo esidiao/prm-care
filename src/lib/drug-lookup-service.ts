@@ -298,6 +298,91 @@ function truncate(text: string, maxLen: number): string {
   return text.substring(0, maxLen) + '...'
 }
 
+// ── Preparo e administração de injetável (lacuna 03, fase A) ─────────────────
+
+/**
+ * Seções de preparo e administração da bula norte-americana (SPL/openFDA).
+ *
+ * ESCOLHA CENTRAL: devolvemos o TEXTO DA BULA, VERBATIM, em vez de extrair
+ * afirmações estruturadas dele. A tentativa de extrair produz erro grave — a
+ * bula do midazolam diz que o flumazenil "may PRECIPITATE acute withdrawal
+ * reactions", e um extrator por palavra-chave registraria isso como
+ * incompatibilidade física. Citar não inventa; extrair inventa.
+ *
+ * ISTO NÃO É COMPATIBILIDADE EM Y. É diluente, pH, material e conservação —
+ * fármaco × veículo, não fármaco × fármaco. Não existe base livre e licenciável
+ * de compatibilidade Y-site; ver docs/PARECER_FONTES_COMPATIBILIDADE_IV.md.
+ *
+ * A bula é NORTE-AMERICANA. O produto registrado na ANVISA pode ter excipiente,
+ * apresentação e diluente diferentes — a tela precisa dizer isso ao leitor.
+ */
+export interface PreparoInjetavel {
+  resolvedName: string
+  /** Posologia e administração — onde vive diluente, tempo de infusão, cautela */
+  administracao: string
+  /** Apresentação, conservação e material do recipiente */
+  conservacao: string
+  /** Descrição do produto — costuma trazer pH e composição do veículo */
+  descricao: string
+}
+
+const preparoCache = new Map<string, PreparoInjetavel | null>()
+
+export async function buscarPreparoInjetavel(drugName: string): Promise<PreparoInjetavel | null> {
+  const englishName = await resolveToEnglish(drugName)
+  const cacheKey = englishName.toLowerCase()
+  if (preparoCache.has(cacheKey)) return preparoCache.get(cacheKey) ?? null
+
+  // Restringe a formas injetáveis: a mesma substância costuma ter bula oral, e a
+  // seção de administração dela não responde nada sobre preparo parenteral.
+  const estrategias = [
+    `openfda.generic_name:"${englishName}"+AND+openfda.route:"INTRAVENOUS"`,
+    `openfda.substance_name:"${englishName.toUpperCase()}"+AND+openfda.route:"INTRAVENOUS"`,
+    `openfda.generic_name:"${englishName}"+AND+dosage_forms_and_strengths:"injection"`,
+  ]
+
+  for (const search of estrategias) {
+    try {
+      const url = `${OPENFDA_BASE}/drug/label.json?search=${search}&limit=1`
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) })
+      if (!res.ok) continue
+      const data = await res.json()
+      if (!data.results?.length) continue
+
+      const l = data.results[0]
+      const info: PreparoInjetavel = {
+        resolvedName: englishName,
+        administracao: truncate(l.dosage_and_administration?.[0] || '', 2500),
+        conservacao: truncate(
+          [l.how_supplied?.[0], l.storage_and_handling?.[0]].filter(Boolean).join('\n\n'), 1200),
+        descricao: truncate(l.description?.[0] || '', 1200),
+      }
+
+      // Sem nenhuma das três seções, é ruído: não vale ocupar espaço na tela.
+      if (!info.administracao && !info.conservacao && !info.descricao) continue
+
+      preparoCache.set(cacheKey, info)
+      return info
+    } catch {
+      continue
+    }
+  }
+
+  preparoCache.set(cacheKey, null)
+  return null
+}
+
+/**
+ * A substância tem apresentação injetável entre as comercializadas?
+ *
+ * A CMED grava a forma no texto livre da apresentação. Procuramos os rótulos que
+ * a lista usa de fato — "SOL INJ", "PO LIOF", "SUS INJ", "EMU INJ".
+ */
+export function temFormaInjetavel(apresentacoes: Array<string | null>): boolean {
+  const re = /\b(SOL\s*INJ|P[OÓ]\s*LIOF|SUS\s*INJ|EMU\s*INJ|INJ\b|IV\b)/i
+  return apresentacoes.some(a => !!a && re.test(a))
+}
+
 // ── Verificação direta de interações ─────────────────────────────────────────
 
 export interface DirectInteraction {
