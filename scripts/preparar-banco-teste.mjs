@@ -22,7 +22,14 @@
  */
 
 import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import pg from 'pg'
+
+// Resolvido a partir do próprio arquivo: o script tem que funcionar mesmo
+// chamado de outro diretório.
+const RAIZ_PROJETO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 const URL_TESTE = process.env.DATABASE_URL_TESTE
 
@@ -92,8 +99,12 @@ const noBanco = new pg.Client({
   connectionTimeoutMillis: 8000,
 })
 await noBanco.connect()
-await noBanco.query('CREATE EXTENSION IF NOT EXISTS pgcrypto')
-console.log('  extensão pgcrypto pronta')
+// Em PRODUÇÃO o pgcrypto vive no schema `extensions`. Instalar em `public` aqui
+// criaria um banco que se comporta diferente — e a diferença só apareceria na
+// hora de gravar na trilha de auditoria.
+await noBanco.query('CREATE SCHEMA IF NOT EXISTS extensions')
+await noBanco.query('CREATE EXTENSION IF NOT EXISTS pgcrypto SCHEMA extensions')
+console.log('  extensão pgcrypto em `extensions` (como em produção)')
 await noBanco.end()
 
 // ── 3. Aplicar o schema ─────────────────────────────────────────────────────
@@ -104,7 +115,27 @@ execFileSync('npx', ['prisma', 'db', 'push', '--skip-generate', '--accept-data-l
   shell: true,
 })
 
-// ── 4. Conferir ─────────────────────────────────────────────────────────────
+// ── 4. Lógica que o Prisma não expressa ─────────────────────────────────────
+// `db push` recria tabelas e índices, e mais nada: CHECKs, funções e triggers
+// ficam de fora. Sem este passo o banco de teste ACEITA valor que produção
+// rejeita e não encadeia a auditoria — teste passaria aqui e falharia lá.
+console.log('\n  aplicando CHECKs, funções e trigger…')
+const logica = new pg.Client({
+  host: alvo.hostname,
+  port: Number(alvo.port || 5432),
+  user: decodeURIComponent(alvo.username),
+  password: decodeURIComponent(alvo.password),
+  database: nomeBanco,
+  connectionTimeoutMillis: 8000,
+})
+await logica.connect()
+await logica.query(readFileSync(path.join(RAIZ_PROJETO, 'prisma', 'sql', 'logica-de-banco.sql'), 'utf8'))
+const chk = await logica.query(`SELECT count(*)::int AS n FROM pg_constraint WHERE contype='c' AND connamespace='public'::regnamespace`)
+const trg = await logica.query(`SELECT count(*)::int AS n FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid WHERE NOT t.tgisinternal`)
+console.log(`  ${chk.rows[0].n} CHECK constraints · ${trg.rows[0].n} trigger(s)`)
+await logica.end()
+
+// ── 5. Conferir ─────────────────────────────────────────────────────────────
 const conf = new pg.Client({
   host: alvo.hostname,
   port: Number(alvo.port || 5432),
@@ -118,9 +149,11 @@ const t = await conf.query(`SELECT count(*)::int AS n FROM information_schema.ta
 console.log(`\n  ${t.rows[0].n} tabelas no banco de teste`)
 await conf.end()
 
+// Sem ecoar a senha: a URL completa está na variável que o usuário já definiu.
+const urlMascarada = URL_TESTE.replace(/\/\/[^@]+@/, '//***@')
 console.log(`
-Pronto. Para rodar testes contra ele, aponte DATABASE_URL para:
-  ${URL_TESTE}
+Pronto. Para rodar testes contra ele, aponte DATABASE_URL para o mesmo valor de
+DATABASE_URL_TESTE (${urlMascarada}).
 
 O .env do projeto NÃO foi alterado — ele continua apontando para produção, e
 mudá-lo automaticamente seria a receita para rodar teste no banco errado.
