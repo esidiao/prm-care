@@ -619,6 +619,14 @@ model AuditLog {
   details     Json?
   createdAt   DateTime @default(now())
 
+  /// Encadeamento por hash — ver prisma/sql/audit_logs_encadeamento.sql.
+  /// Preenchidos por TRIGGER no banco, nunca pela aplicação: há chamadas diretas
+  /// a `auditLog.create` que não passam pelo helper `logAudit()`, e encadear no
+  /// código deixaria essas de fora em silêncio.
+  sequencia    BigInt? @unique
+  hash         String?
+  hashAnterior String?
+
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")

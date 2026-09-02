@@ -6,6 +6,7 @@ import {
   RefreshCw, User, Shield, FlaskConical, FileText,
   Coins, BookOpen, Trash2, Settings, Download
 } from 'lucide-react'
+import { IntegridadeAuditoria } from '@/components/admin/IntegridadeAuditoria'
 
 interface AuditLog {
   id: string
@@ -141,6 +142,9 @@ export default function AdminLogsPage() {
           </button>
         </div>
       </div>
+
+      {/* Integridade da cadeia — lacuna 09 */}
+      <IntegridadeAuditoria />
 
       {/* Filters */}
       <div className="flex flex-wrap gap-3">
