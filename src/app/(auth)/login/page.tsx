@@ -9,7 +9,10 @@ import { z } from 'zod'
 import { Pill, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Shield, Users, FileText, Activity } from 'lucide-react'
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'CPF ou e-mail obrigatório'),
+  // O login é por E-MAIL. O modelo `User` não tem campo CPF e o `authorize()`
+  // busca só por `email` — anunciar CPF fazia o usuário culpar a própria senha
+  // por uma falha que era do identificador.
+  email: z.string().min(1, 'E-mail obrigatório'),
   password: z.string().min(1, 'Senha obrigatória'),
 })
 type LoginForm = z.infer<typeof loginSchema>
@@ -43,7 +46,7 @@ function LoginForm() {
     })
     setIsLoading(false)
     if (result?.error) {
-      setError('E-mail/CPF ou senha incorretos. Verifique seus dados e tente novamente.')
+      setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.')
       return
     }
     router.push(callbackUrl)
@@ -90,16 +93,20 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">CPF ou E-mail</label>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">E-mail</label>
               <input
                 id="email"
                 {...register('email')}
+                // type="text", NÃO "email": a conta 90919912168 tem um CPF gravado no
+                // campo de e-mail (contorno feito antes de existir suporte a CPF).
+                // A validação nativa de type="email" bloquearia justamente a conta
+                // que mais entra no sistema.
                 type="text"
                 autoComplete="username"
                 className={`w-full rounded-xl border px-4 py-3 text-sm bg-muted focus:bg-card transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
                   errors.email ? 'border-red-300 bg-red-50' : 'border-border'
                 }`}
-                placeholder="CPF (apenas números) ou e-mail"
+                placeholder="seu@email.com"
               />
               {errors.email && <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.email.message}</p>}
             </div>
