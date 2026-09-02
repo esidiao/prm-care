@@ -50,8 +50,12 @@ export async function PATCH(req: NextRequest) {
     value: z.union([z.string(), z.number(), z.boolean()]).optional(),
   })
 
-  const body = schema.parse(await req.json())
-  const { userId, action, value } = body
+  const raw = await req.json().catch(() => null)
+  const parsed = schema.safeParse(raw)
+  if (!parsed.success) {
+    return NextResponse.json({ error: 'Dados inválidos', details: parsed.error.flatten() }, { status: 400 })
+  }
+  const { userId, action, value } = parsed.data
 
   if (userId === session.user.id && action === 'toggle_active') {
     return NextResponse.json({ error: 'Não pode desativar a própria conta.' }, { status: 400 })

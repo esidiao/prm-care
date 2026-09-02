@@ -182,10 +182,10 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
   if (findings.length === 0) {
     return (
-      <div className="rounded-xl border bg-white p-10 text-center shadow-sm">
+      <div className="rounded-xl border bg-card p-10 text-center shadow-sm">
         <CheckCircle2 className="mx-auto mb-3 h-12 w-12 text-green-400" />
-        <p className="font-semibold text-gray-700">Nenhum PRM identificado</p>
-        <p className="text-sm text-gray-400 mt-1">Isso não exclui problemas não detectáveis com os dados disponíveis.</p>
+        <p className="font-semibold text-foreground">Nenhum PRM identificado</p>
+        <p className="text-sm text-muted-foreground mt-1">Isso não exclui problemas não detectáveis com os dados disponíveis.</p>
       </div>
     )
   }
@@ -195,9 +195,9 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
       {/* Barra de controles */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="text-lg font-bold text-foreground">
             PRMs identificados
-            <span className="ml-2 text-sm font-normal text-gray-500">
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
               ({filtered.length} de {findings.length})
             </span>
           </h2>
@@ -207,7 +207,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
               {resolvedCount} resolvido{resolvedCount !== 1 ? 's' : ''}
             </span>
             {pendingCount > 0 && (
-              <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-xs font-medium">
+              <span className="rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-xs font-medium">
                 {pendingCount} pendente{pendingCount !== 1 ? 's' : ''}
               </span>
             )}
@@ -216,10 +216,10 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
         <div className="flex items-center gap-2">
           {/* Expandir/Colapsar */}
-          <button onClick={expandAll} className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors">
+          <button onClick={expandAll} className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
             Expandir todos
           </button>
-          <button onClick={collapseAll} className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1 rounded border border-gray-200 hover:bg-gray-50 transition-colors">
+          <button onClick={collapseAll} className="text-xs text-muted-foreground hover:text-foreground px-2 py-1 rounded border border-border hover:bg-muted transition-colors">
             Colapsar todos
           </button>
 
@@ -228,8 +228,8 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
             onClick={() => setShowFilters(f => !f)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${
               showFilters || activeFilters > 0
-                ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]'
-                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+                ? 'bg-brand-800 text-white border-brand-800'
+                : 'bg-card text-muted-foreground border-border hover:bg-muted'
             }`}
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -266,7 +266,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 return (
                   <button key={level} onClick={() => toggleFilter(filterRisk, setFilterRisk, level)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                      active ? `${cfg.badge} border-current` : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                      active ? `${cfg.badge} border-current` : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                     }`}>
                     {cfg.label}
                   </button>
@@ -284,7 +284,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 return (
                   <button key={key} onClick={() => toggleFilter(filterCat, setFilterCat, key)}
                     className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                      active ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                      active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                     }`}>
                     {label}
                   </button>
@@ -300,7 +300,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
               {([['all', 'Todos'], ['pending', 'Pendentes'], ['resolved', 'Resolvidos']] as const).map(([val, label]) => (
                 <button key={val} onClick={() => setFilterResolved(val)}
                   className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
-                    filterResolved === val ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                    filterResolved === val ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                   }`}>
                   {label}
                 </button>
@@ -321,11 +321,11 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
       {/* Sem resultados de filtro */}
       {filtered.length === 0 && (
-        <div className="rounded-xl border bg-white p-8 text-center">
-          <Filter className="mx-auto h-8 w-8 text-gray-300 mb-2" />
-          <p className="text-sm text-gray-500">Nenhum PRM corresponde aos filtros selecionados.</p>
+        <div className="rounded-xl border bg-card p-8 text-center">
+          <Filter className="mx-auto h-8 w-8 text-gray-300 dark:text-gray-600 mb-2" />
+          <p className="text-sm text-muted-foreground">Nenhum PRM corresponde aos filtros selecionados.</p>
           <button onClick={() => { setFilterRisk([]); setFilterCat([]); setFilterResolved('all') }}
-            className="mt-3 text-xs text-[#1e3a5f] hover:underline">
+            className="mt-3 text-xs text-brand-800 hover:underline">
             Limpar filtros
           </button>
         </div>
@@ -345,7 +345,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
             }`}
           >
             {/* Card header — sempre visível */}
-            <div className="bg-white px-5 py-4">
+            <div className="bg-card px-5 py-4">
               <div className="flex items-start gap-3">
                 {/* Botão de resolução */}
                 <button
@@ -355,10 +355,10 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                   title={finding.isResolved ? 'Marcar como pendente' : 'Marcar como resolvido'}
                 >
                   {isLoading
-                    ? <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
+                    ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
                     : finding.isResolved
                       ? <CheckCircle2 className="h-5 w-5 text-green-500" />
-                      : <Circle className="h-5 w-5 text-gray-300 hover:text-green-400" />
+                      : <Circle className="h-5 w-5 text-gray-300 dark:text-gray-600 hover:text-green-400" />
                   }
                 </button>
 
@@ -368,13 +368,13 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${cfg.badge}`}>
                       {cfg.label}
                     </span>
-                    <span className="rounded-full bg-gray-100 text-gray-600 px-2.5 py-0.5 text-xs">
+                    <span className="rounded-full bg-muted text-muted-foreground px-2.5 py-0.5 text-xs">
                       {CATEGORY_LABELS[finding.category] || finding.category}
                     </span>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs ${
                       finding.confidenceLevel === 'high' ? 'bg-green-50 text-green-700' :
                       finding.confidenceLevel === 'moderate' ? 'bg-yellow-50 text-yellow-700' :
-                      'bg-gray-50 text-gray-500'
+                      'bg-muted text-muted-foreground'
                     }`}>
                       Confiança: {finding.confidenceLevel === 'high' ? 'Alta' : finding.confidenceLevel === 'moderate' ? 'Moderada' : 'Baixa'}
                     </span>
@@ -386,7 +386,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                   </div>
 
                   {/* Título — remove prefixo [IA] e exibe como badge */}
-                  <h3 className={`font-semibold text-gray-900 flex items-center gap-2 flex-wrap ${finding.isResolved ? 'line-through text-gray-400' : ''}`}>
+                  <h3 className={`font-semibold text-foreground flex items-center gap-2 flex-wrap ${finding.isResolved ? 'line-through text-muted-foreground' : ''}`}>
                     {finding.title.replace(/^\[IA\]\s*/i, '')}
                     {finding.title.startsWith('[IA]') && (
                       <span className="text-[10px] font-normal bg-purple-100 text-purple-600 px-1.5 py-0.5 rounded-full not-italic no-underline">IA</span>
@@ -395,7 +395,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
                   {/* Descrição curta */}
                   {!isOpen && (
-                    <p className="text-sm text-gray-500 mt-1 line-clamp-2">{finding.description}</p>
+                    <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{finding.description}</p>
                   )}
 
                   {/* Notas de resolução */}
@@ -413,7 +413,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     <button
                       onClick={() => toggleNotes(finding.id)}
                       className={`rounded-lg p-1.5 border transition-colors text-xs ${
-                        noteOpen ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600'
+                        noteOpen ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground'
                       }`}
                       title="Adicionar nota de resolução"
                     >
@@ -424,7 +424,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                   {/* Expandir/colapsar */}
                   <button
                     onClick={() => toggleExpand(finding.id)}
-                    className="rounded-lg p-1.5 border border-gray-200 text-gray-400 hover:bg-gray-50 hover:text-gray-600 transition-colors"
+                    className="rounded-lg p-1.5 border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                     title={isOpen ? 'Colapsar' : 'Expandir detalhes'}
                   >
                     {isOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
@@ -441,7 +441,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                       onChange={e => setResolveNotes(prev => ({ ...prev, [finding.id]: e.target.value }))}
                       placeholder="Descreva a conduta tomada, ajuste de dose, substituto prescrito, orientação fornecida…"
                       rows={3}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
                     />
                   </div>
                   <div className="flex items-center justify-between gap-2">
@@ -460,7 +460,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                     <div className="flex gap-2">
                       <button
                         onClick={() => toggleNotes(finding.id)}
-                        className="px-3 py-1 text-xs text-gray-500 hover:text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-50"
+                        className="px-3 py-1 text-xs text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted"
                       >
                         Cancelar
                       </button>
@@ -480,9 +480,9 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
 
             {/* Detalhes expandidos */}
             {isOpen && (
-              <div className="border-t border-gray-100 bg-gray-50/50 px-5 py-4 space-y-3">
+              <div className="border-t border-border bg-muted/50 px-5 py-4 space-y-3">
                 {/* Descrição */}
-                <p className="text-sm text-gray-600 leading-relaxed">{finding.description}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{finding.description}</p>
 
                 {/* Grid de condutas — compacto */}
                 <div className="grid gap-2 sm:grid-cols-2">
@@ -494,7 +494,7 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                   ].map(({ icon, label, text, color }) => text ? (
                     <div key={label} className={`rounded-lg border p-3 ${color}`}>
                       <p className="text-[10px] font-bold uppercase tracking-wide mb-1 opacity-70">{icon} {label}</p>
-                      <p className="text-xs text-gray-700 leading-relaxed">{text}</p>
+                      <p className="text-xs text-foreground leading-relaxed">{text}</p>
                     </div>
                   ) : null)}
                 </div>
@@ -503,27 +503,27 @@ export function FindingsPanel({ findings: initialFindings, analysisId, totalPRMs
                 {(finding.needsPrescriberContact || finding.needsReferral || finding.interventionDeadline || finding.reevaluationPeriod || finding.monitoring || finding.suggestedExams) && (
                   <div className="flex flex-wrap gap-1.5 text-[11px]">
                     {finding.needsPrescriberContact && (
-                      <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-white px-2.5 py-1 text-blue-700">
+                      <span className="flex items-center gap-1 rounded-full border border-blue-200 bg-card px-2.5 py-1 text-blue-700">
                         <Phone className="h-3 w-3" /> Contato c/ prescritor
                       </span>
                     )}
                     {finding.needsReferral && (
-                      <span className="flex items-center gap-1 rounded-full border border-red-200 bg-white px-2.5 py-1 text-red-700">
+                      <span className="flex items-center gap-1 rounded-full border border-red-200 bg-card px-2.5 py-1 text-red-700">
                         <Building2 className="h-3 w-3" /> Encaminhamento necessário
                       </span>
                     )}
                     {finding.interventionDeadline && (
-                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600">
+                      <span className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-muted-foreground">
                         <Clock className="h-3 w-3" /> {finding.interventionDeadline}
                       </span>
                     )}
                     {finding.reevaluationPeriod && (
-                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600">
+                      <span className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-muted-foreground">
                         <RefreshCw className="h-3 w-3" /> Reavaliação: {finding.reevaluationPeriod}
                       </span>
                     )}
                     {finding.monitoring && (
-                      <span className="flex items-center gap-1 rounded-full border border-gray-200 bg-white px-2.5 py-1 text-gray-600 max-w-xs truncate" title={finding.monitoring}>
+                      <span className="flex items-center gap-1 rounded-full border border-border bg-card px-2.5 py-1 text-muted-foreground max-w-xs truncate" title={finding.monitoring}>
                         👁 {finding.monitoring}
                       </span>
                     )}

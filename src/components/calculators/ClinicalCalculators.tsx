@@ -1,10 +1,10 @@
 'use client'
-import React, { useState } from 'react'
-import { Calculator, Activity, Heart, ClipboardList, Info, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react'
+import React, { useState, useId } from 'react'
+import { Calculator, Activity, Heart, ClipboardList, Info, RotateCcw, ChevronDown, ChevronUp, Droplets, ShieldAlert } from 'lucide-react'
 
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
-type CalcTab = 'ckd-epi' | 'cockcroft' | 'charlson' | 'ascvd'
+type CalcTab = 'ckd-epi' | 'cockcroft' | 'charlson' | 'ascvd' | 'chadsvasc' | 'hasbled'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -12,15 +12,18 @@ function Field({ label, unit, value, onChange, min = 0, max = 999, step = 1, hin
   label: string; unit?: string; value: string; onChange: (v: string) => void
   min?: number; max?: number; step?: number; hint?: string
 }) {
+  // Field/Select são reutilizados várias vezes na mesma tela: um id fixo se
+  // repetiria no DOM e quebraria a associação do label. useId() dá um por instância.
+  const id = useId()
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-700">{label}{unit ? <span className="text-gray-400 font-normal"> ({unit})</span> : ''}</label>
-      <input
+      <label className="text-xs font-medium text-foreground" htmlFor={id}>{label}{unit ? <span className="text-muted-foreground font-normal"> ({unit})</span> : ''}</label>
+      <input id={id}
         type="number" value={value} onChange={e => onChange(e.target.value)}
         min={min} max={max} step={step}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
       />
-      {hint && <p className="text-[10px] text-gray-400">{hint}</p>}
+      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
     </div>
   )
 }
@@ -29,11 +32,12 @@ function Select({ label, value, onChange, options }: {
   label: string; value: string; onChange: (v: string) => void
   options: { value: string; label: string }[]
 }) {
+  const id = useId()
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-gray-700">{label}</label>
-      <select value={value} onChange={e => onChange(e.target.value)}
-        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]">
+      <label className="text-xs font-medium text-foreground" htmlFor={id}>{label}</label>
+      <select id={id} value={value} onChange={e => onChange(e.target.value)}
+        className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800">
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -65,7 +69,7 @@ function ResultBox({ label, value, unit, interpretation, color = 'blue', note }:
 
 function InfoBox({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-600 space-y-1">
+    <div className="rounded-lg bg-muted border border-border p-3 text-xs text-muted-foreground space-y-1">
       {children}
     </div>
   )
@@ -125,8 +129,8 @@ function CKDEPICalc() {
             interpretation={`Estágio ${result.stage} — ${result.desc}`}
             color={result.color}
           />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Implicações clínicas</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Implicações clínicas</p>
             {[
               { cond: result.gfr >= 60, text: '✓ Metformina: segura (monitorar com TFG 45-60)', ok: true },
               { cond: result.gfr < 60,  text: `${result.gfr < 30 ? '🚫' : '⚠️'} Metformina: ${result.gfr < 30 ? 'contraindicada' : 'reduzir dose'}`, ok: false },
@@ -142,14 +146,14 @@ function CKDEPICalc() {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular a TFG
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar detalhes' : 'Sobre a equação CKD-EPI 2021'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -165,7 +169,7 @@ function CKDEPICalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -220,8 +224,8 @@ function CockcroftGaultCalc() {
             interpretation={result.stage}
             color={result.color}
           />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Ajuste de dose sugerido</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Ajuste de dose sugerido</p>
             {[
               { cond: result.clcr >= 50,   text: '✓ Maioria dos medicamentos: dose normal', ok: true },
               { cond: result.clcr < 50 && result.clcr >= 30, text: '⚠️ Metformina: dose máx. 1500 mg/dia. Monitorar', ok: false },
@@ -238,14 +242,14 @@ function CockcroftGaultCalc() {
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular o ClCr
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar detalhes' : 'Sobre Cockcroft-Gault'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -261,7 +265,7 @@ function CockcroftGaultCalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -329,26 +333,26 @@ function CharlsonCalc() {
             hint="A idade pontua: 50-59=1, 60-69=2, 70-79=3, ≥80=4" />
           {a > 0 && <p className="text-xs text-blue-600 mt-1">Pontos pela idade: {agePoints}</p>}
         </div>
-        <div className="rounded-lg bg-gray-50 border border-gray-200 p-3 text-xs text-gray-500">
-          <p className="font-semibold text-gray-700 mb-1">Como usar</p>
+        <div className="rounded-lg bg-muted border border-border p-3 text-xs text-muted-foreground">
+          <p className="font-semibold text-foreground mb-1">Como usar</p>
           <p>Marque as condições presentes. O escore prediz mortalidade em 10 anos e complexidade clínica.</p>
         </div>
       </div>
 
       <div>
-        <p className="text-xs font-semibold text-gray-700 mb-2">Comorbidades</p>
+        <p className="text-xs font-semibold text-foreground mb-2">Comorbidades</p>
         <div className="grid gap-1.5 sm:grid-cols-2">
           {CHARLSON_CONDITIONS.map(c => (
             <label key={c.key}
               className={`flex items-center gap-2.5 rounded-lg border px-3 py-2.5 cursor-pointer transition-all text-sm ${
                 selected.has(c.key)
-                  ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f]'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  ? 'border-brand-800 bg-brand-800/5 text-brand-800'
+                  : 'border-border bg-card text-foreground hover:border-muted-foreground/40'
               }`}>
               <input type="checkbox" checked={selected.has(c.key)} onChange={() => toggle(c.key)}
-                className="accent-[#1e3a5f] h-3.5 w-3.5 flex-shrink-0" />
+                className="accent-brand-800 h-3.5 w-3.5 flex-shrink-0" />
               <span className="flex-1 leading-tight">{c.label}</span>
-              <span className={`text-xs font-bold flex-shrink-0 ${selected.has(c.key) ? 'text-[#1e3a5f]' : 'text-gray-400'}`}>
+              <span className={`text-xs font-bold flex-shrink-0 ${selected.has(c.key) ? 'text-brand-800' : 'text-muted-foreground'}`}>
                 +{c.points}
               </span>
             </label>
@@ -363,9 +367,9 @@ function CharlsonCalc() {
           <ResultBox label="Mortalidade estimada" value={`${mortality10y}`} unit="%"
             interpretation="em 10 anos" color={total >= 4 ? 'red' : total >= 2 ? 'orange' : 'green'}
             note="Estimativa baseada em coortes originais" />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-1.5">
-            <p className="text-xs font-semibold text-gray-700">Interpretação clínica</p>
-            <p className="text-xs text-gray-600">
+          <div className="rounded-xl border border-border bg-card p-4 space-y-1.5">
+            <p className="text-xs font-semibold text-foreground">Interpretação clínica</p>
+            <p className="text-xs text-muted-foreground">
               {total === 0 ? 'Sem comorbidades significativas. Baixa complexidade farmacoterapêutica esperada.'
                : total <= 2 ? 'Comorbidades leves. Considerar interações medicamentosas e ajuste de doses.'
                : total <= 5 ? 'Alta carga de comorbidades. Risco elevado de PRMs, polifarmácia e interações.'
@@ -380,7 +384,7 @@ function CharlsonCalc() {
         </div>
       )}
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -508,27 +512,27 @@ function CardiovascularRiskCalc() {
           <ResultBox label="Risco cardiovascular" value={`${result.risk}`} unit="%"
             interpretation={`${riskLabel} — em 10 anos`} color={riskColor}
             note="Framingham Risk Score (Eventos coronarianos maiores)" />
-          <div className="rounded-xl border border-gray-200 bg-white p-4 space-y-2">
-            <p className="text-xs font-semibold text-gray-700">Implicações terapêuticas</p>
+          <div className="rounded-xl border border-border bg-card p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Implicações terapêuticas</p>
             {result.risk >= 20 && <p className="text-xs text-red-700">🚨 Alto risco — estatina indicada independente do LDL</p>}
             {result.risk >= 20 && <p className="text-xs text-red-700">🚨 AAS 75-100 mg/dia se sem contraindicação</p>}
             {result.risk >= 10 && result.risk < 20 && <p className="text-xs text-orange-700">⚠️ Risco intermediário — discutir estatina com prescritor</p>}
             {result.risk < 10 && <p className="text-xs text-green-700">✓ Baixo risco — foco em mudanças de estilo de vida</p>}
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-muted-foreground mt-2">
               Meta LDL: {result.risk >= 20 ? '< 70 mg/dL (alto risco)' : result.risk >= 10 ? '< 100 mg/dL (int.)' : '< 130 mg/dL (baixo)'}
             </p>
-            <p className="text-xs text-gray-500">Meta PA: &lt;130/80 mmHg (ACC/AHA 2017)</p>
+            <p className="text-xs text-muted-foreground">Meta PA: &lt;130/80 mmHg (ACC/AHA 2017)</p>
           </div>
         </div>
       ) : (
-        <div className="rounded-xl border-2 border-dashed border-gray-200 py-8 text-center text-sm text-gray-400">
+        <div className="rounded-xl border-2 border-dashed border-border py-8 text-center text-sm text-muted-foreground">
           Preencha os campos para calcular o risco cardiovascular
         </div>
       )}
 
       <div>
         <button onClick={() => setShowDetail(d => !d)}
-          className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700">
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground">
           <Info className="h-3.5 w-3.5" />
           {showDetail ? 'Ocultar' : 'Sobre o Escore de Framingham'}
           {showDetail ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
@@ -543,7 +547,7 @@ function CardiovascularRiskCalc() {
         )}
       </div>
 
-      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600">
+      <button onClick={reset} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
         <RotateCcw className="h-3 w-3" /> Limpar
       </button>
     </div>
@@ -552,11 +556,168 @@ function CardiovascularRiskCalc() {
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
+// == CHA2DS2-VASc -- risco tromboembolico em fibrilacao atrial ===============
+// Lip GYH et al., Chest 2010. Diretrizes ESC 2024 / SBC: anticoagular a partir
+// de 2 pontos em homens e 3 em mulheres -- o ponto do sexo feminino e
+// modificador de risco, nao fator isolado.
+
+const CHADSVASC_ITEMS = [
+  { key: 'chf',      label: 'Insuficiencia cardiaca / disfuncao de VE',    points: 1 },
+  { key: 'htn',      label: 'Hipertensao arterial',                        points: 1 },
+  { key: 'age75',    label: 'Idade >= 75 anos',                            points: 2 },
+  { key: 'dm',       label: 'Diabetes mellitus',                           points: 1 },
+  { key: 'stroke',   label: 'AVC / AIT / tromboembolismo previo',          points: 2 },
+  { key: 'vascular', label: 'Doenca vascular (IAM, DAP ou placa aortica)', points: 1 },
+  { key: 'age65',    label: 'Idade 65-74 anos',                            points: 1 },
+  { key: 'female',   label: 'Sexo feminino',                               points: 1 },
+] as const
+
+/** AVC/ano por escore -- Friberg et al., Eur Heart J 2012 (coorte sueca). */
+const CHADSVASC_RISK: Record<number, string> = {
+  0: '0,2%', 1: '0,6%', 2: '2,2%', 3: '3,2%', 4: '4,8%',
+  5: '7,2%', 6: '9,7%', 7: '11,2%', 8: '10,8%', 9: '12,2%',
+}
+
+function ChadsVascCalc() {
+  const [sel, setSel] = useState<Set<string>>(new Set())
+  const toggle = (k: string) => setSel(prev => {
+    const n = new Set(prev)
+    // Faixas etarias sao mutuamente exclusivas -- 65-74 e >=75 nao somam
+    if (k === 'age75' && n.has('age65')) n.delete('age65')
+    if (k === 'age65' && n.has('age75')) n.delete('age75')
+    if (n.has(k)) n.delete(k)
+    else n.add(k)
+    return n
+  })
+
+  const total = CHADSVASC_ITEMS.filter(i => sel.has(i.key)).reduce((acc, i) => acc + i.points, 0)
+  const female = sel.has('female')
+  const limiar = female ? 3 : 2
+  const anticoagular = total >= limiar
+
+  const cor = total === 0 ? ('green' as const)
+    : total < limiar ? ('yellow' as const)
+    : total <= 4 ? ('orange' as const)
+    : ('red' as const)
+
+  return (
+    <div className="space-y-5">
+      <InfoBox>
+        <p className="font-semibold text-foreground">Quando usar</p>
+        <p>Estima risco de AVC em fibrilacao atrial <b>nao valvar</b>. Nao se aplica a FA valvar (estenose mitral moderada/grave ou protese mecanica), em que a anticoagulacao e indicada independentemente do escore.</p>
+      </InfoBox>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {CHADSVASC_ITEMS.map(i => (
+          <label key={i.key} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm cursor-pointer hover:bg-muted transition-colors">
+            <input type="checkbox" checked={sel.has(i.key)} onChange={() => toggle(i.key)} className="h-4 w-4 rounded border-border" />
+            <span className="flex-1 text-foreground">{i.label}</span>
+            <span className="text-xs font-semibold text-muted-foreground">+{i.points}</span>
+          </label>
+        ))}
+      </div>
+
+      <ResultBox
+        label="CHA2DS2-VASc"
+        value={total}
+        unit="pontos"
+        interpretation={anticoagular ? 'Anticoagulacao oral indicada' : 'Anticoagulacao nao indicada apenas pelo escore'}
+        color={cor}
+        note={'Risco estimado de AVC: ' + (CHADSVASC_RISK[total] ?? '--') + ' ao ano - Limiar para ' + (female ? 'mulheres' : 'homens') + ': ' + limiar + ' pontos'}
+      />
+
+      {anticoagular && (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          <b>Antes de anticoagular, calcule o HAS-BLED.</b> Escore de sangramento alto nao contraindica a anticoagulacao -- indica corrigir os fatores modificaveis e intensificar o acompanhamento.
+        </div>
+      )}
+
+      <button onClick={() => setSel(new Set())} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+        <RotateCcw className="h-3 w-3" /> Limpar
+      </button>
+    </div>
+  )
+}
+
+// == HAS-BLED -- risco de sangramento sob anticoagulacao =====================
+// Pisters R et al., Chest 2010. >=3 = risco alto: NAO e contraindicacao, e sim
+// gatilho para corrigir fatores modificaveis e encurtar o intervalo de revisao.
+
+const HASBLED_ITEMS = [
+  { key: 'htn',     label: 'Hipertensao nao controlada (PAS > 160 mmHg)',                     points: 1, modificavel: true },
+  { key: 'renal',   label: 'Funcao renal alterada (dialise, transplante, Cr > 2,26 mg/dL)',   points: 1, modificavel: false },
+  { key: 'liver',   label: 'Funcao hepatica alterada (cirrose ou BT > 2x / TGO-TGP > 3x)',    points: 1, modificavel: false },
+  { key: 'stroke',  label: 'AVC previo',                                                       points: 1, modificavel: false },
+  { key: 'bleed',   label: 'Sangramento previo ou predisposicao (anemia)',                     points: 1, modificavel: false },
+  { key: 'inr',     label: 'INR labil (TTR < 60%, se em varfarina)',                           points: 1, modificavel: true },
+  { key: 'age65',   label: 'Idade > 65 anos',                                                  points: 1, modificavel: false },
+  { key: 'drugs',   label: 'Farmacos que aumentam sangramento (AINE, antiagregante)',          points: 1, modificavel: true },
+  { key: 'alcohol', label: 'Alcool >= 8 doses/semana',                                         points: 1, modificavel: true },
+] as const
+
+function HasBledCalc() {
+  const [sel, setSel] = useState<Set<string>>(new Set())
+  const toggle = (k: string) => setSel(prev => {
+    const n = new Set(prev)
+    if (n.has(k)) n.delete(k)
+    else n.add(k)
+    return n
+  })
+
+  const total = HASBLED_ITEMS.filter(i => sel.has(i.key)).reduce((acc, i) => acc + i.points, 0)
+  const alto = total >= 3
+  const modificaveis = HASBLED_ITEMS.filter(i => sel.has(i.key) && i.modificavel)
+
+  return (
+    <div className="space-y-5">
+      <InfoBox>
+        <p className="font-semibold text-foreground">Como interpretar</p>
+        <p>Escore &gt;= 3 indica risco alto de sangramento -- <b>nao e contraindicacao a anticoagulacao</b>. O uso correto e identificar os fatores modificaveis, corrigi-los e revisar o paciente com mais frequencia.</p>
+      </InfoBox>
+
+      <div className="grid gap-2 sm:grid-cols-2">
+        {HASBLED_ITEMS.map(i => (
+          <label key={i.key} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm cursor-pointer hover:bg-muted transition-colors">
+            <input type="checkbox" checked={sel.has(i.key)} onChange={() => toggle(i.key)} className="h-4 w-4 rounded border-border" />
+            <span className="flex-1 text-foreground">{i.label}</span>
+            {i.modificavel && <span className="rounded-full bg-green-100 px-1.5 text-[10px] font-semibold text-green-800 dark:bg-green-900/40 dark:text-green-300">modificavel</span>}
+            <span className="text-xs font-semibold text-muted-foreground">+{i.points}</span>
+          </label>
+        ))}
+      </div>
+
+      <ResultBox
+        label="HAS-BLED"
+        value={total}
+        unit="pontos"
+        interpretation={alto ? 'Risco alto de sangramento' : 'Risco baixo a moderado'}
+        color={alto ? 'red' : total === 2 ? 'orange' : 'green'}
+        note={alto ? 'Corrigir os fatores modificaveis e encurtar o intervalo de revisao' : 'Manter acompanhamento de rotina'}
+      />
+
+      {modificaveis.length > 0 && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-xs text-green-900 dark:border-green-900 dark:bg-green-950/40 dark:text-green-200">
+          <b>Intervencao farmaceutica possivel -- {modificaveis.length} fator(es) modificavel(is):</b>
+          <ul className="mt-1 list-disc list-inside space-y-0.5">
+            {modificaveis.map(m => <li key={m.key}>{m.label}</li>)}
+          </ul>
+        </div>
+      )}
+
+      <button onClick={() => setSel(new Set())} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+        <RotateCcw className="h-3 w-3" /> Limpar
+      </button>
+    </div>
+  )
+}
+
 const TABS: { id: CalcTab; label: string; icon: React.ElementType; description: string }[] = [
   { id: 'ckd-epi',   label: 'CKD-EPI',          icon: Activity,      description: 'TFG estimada (2021)' },
   { id: 'cockcroft', label: 'Cockcroft-Gault',   icon: Calculator,    description: 'Clearance de creatinina' },
   { id: 'charlson',  label: 'Charlson',          icon: ClipboardList, description: 'Escore de comorbidades' },
   { id: 'ascvd',     label: 'Risco Cardiovascular', icon: Heart,      description: 'Framingham 10 anos' },
+  { id: 'chadsvasc', label: 'CHA2DS2-VASc',       icon: ShieldAlert, description: 'Risco de AVC em FA' },
+  { id: 'hasbled',   label: 'HAS-BLED',           icon: Droplets,    description: 'Risco de sangramento' },
 ]
 
 export function ClinicalCalculators() {
@@ -568,8 +729,8 @@ export function ClinicalCalculators() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Calculadoras Clínicas</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Ferramentas de suporte à decisão farmacêutica — resultados não substituem avaliação clínica</p>
+        <h1 className="text-2xl font-bold text-foreground">Calculadoras Clínicas</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">Ferramentas de suporte à decisão farmacêutica — resultados não substituem avaliação clínica</p>
       </div>
 
       {/* Tabs */}
@@ -581,13 +742,13 @@ export function ClinicalCalculators() {
             <button key={t.id} onClick={() => setTab(t.id)}
               className={`flex flex-col items-center gap-2 rounded-xl border p-4 text-center transition-all ${
                 active
-                  ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white shadow-md'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-brand-800 bg-brand-800 text-white shadow-md'
+                  : 'border-border bg-card text-foreground hover:border-muted-foreground/40 hover:bg-muted'
               }`}>
-              <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-[#1e3a5f]'}`} />
+              <Icon className={`h-5 w-5 ${active ? 'text-white' : 'text-brand-800'}`} />
               <div>
                 <p className="text-xs font-semibold leading-tight">{t.label}</p>
-                <p className={`text-[10px] leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-gray-400'}`}>{t.description}</p>
+                <p className={`text-[10px] leading-tight mt-0.5 ${active ? 'text-white/70' : 'text-muted-foreground'}`}>{t.description}</p>
               </div>
             </button>
           )
@@ -595,12 +756,12 @@ export function ClinicalCalculators() {
       </div>
 
       {/* Calculadora ativa */}
-      <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-gray-100">
-          {React.createElement(current.icon, { className: 'h-5 w-5 text-[#1e3a5f]' })}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-border">
+          {React.createElement(current.icon, { className: 'h-5 w-5 text-brand-800' })}
           <div>
-            <h2 className="font-semibold text-gray-900">{current.label}</h2>
-            <p className="text-xs text-gray-500">{current.description}</p>
+            <h2 className="font-semibold text-foreground">{current.label}</h2>
+            <p className="text-xs text-muted-foreground">{current.description}</p>
           </div>
         </div>
 
@@ -608,6 +769,8 @@ export function ClinicalCalculators() {
         {tab === 'cockcroft' && <CockcroftGaultCalc />}
         {tab === 'charlson'  && <CharlsonCalc />}
         {tab === 'ascvd'     && <CardiovascularRiskCalc />}
+        {tab === 'chadsvasc' && <ChadsVascCalc />}
+        {tab === 'hasbled'   && <HasBledCalc />}
       </div>
 
       {/* Disclaimer */}

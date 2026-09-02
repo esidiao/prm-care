@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server'
+import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { seedDefaultPackages } from '@/lib/seed-packages'
 
 export async function GET() {
+  // Único chamador é /tokens (dashboard autenticado). Sem a sessão, um GET
+  // anônimo chegava a disparar seedDefaultPackages() — uma escrita no banco.
+  const session = await getSession()
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
   try {
     let packages = await prisma.tokenPackage.findMany({
       where: { isActive: true },

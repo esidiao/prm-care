@@ -20,7 +20,7 @@ export function ThemeToggle() {
   }, [])
 
   if (!mounted) {
-    return <div className="h-8 w-8 rounded-lg border border-gray-200 bg-gray-50" />
+    return <div className="h-8 w-8 rounded-lg border border-border bg-muted" />
   }
 
   const options = [
@@ -36,13 +36,13 @@ export function ThemeToggle() {
       <button
         onClick={() => setOpen(o => !o)}
         title="Alternar tema"
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
+        className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
       >
         <CurrentIcon className="h-4 w-4" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-1.5 w-36 rounded-xl border border-gray-200 bg-white py-1 shadow-xl dark:border-gray-700 dark:bg-gray-800">
+        <div className="absolute right-0 top-full z-50 mt-1.5 w-36 rounded-xl border border-border bg-card py-1 shadow-xl">
           {options.map(opt => {
             const Icon = opt.icon
             const active = theme === opt.value
@@ -53,7 +53,7 @@ export function ThemeToggle() {
                 className={`flex w-full items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
                   active
                     ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
+                    : 'text-foreground hover:bg-muted'
                 }`}
               >
                 <Icon className="h-3.5 w-3.5 flex-shrink-0" />

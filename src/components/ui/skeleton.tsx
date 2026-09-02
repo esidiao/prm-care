@@ -4,7 +4,7 @@ export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'animate-pulse rounded-md bg-gray-200 dark:bg-gray-700',
+        'animate-pulse rounded-md bg-muted',
         className,
       )}
     />
@@ -15,7 +15,7 @@ export function Skeleton({ className }: { className?: string }) {
 
 export function SkeletonCard({ className }: { className?: string }) {
   return (
-    <div className={cn('rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm', className)}>
+    <div className={cn('rounded-xl border border-border bg-card p-5 shadow-sm', className)}>
       <Skeleton className="h-4 w-1/3 mb-4" />
       <div className="space-y-2">
         <Skeleton className="h-3 w-full" />
@@ -28,7 +28,7 @@ export function SkeletonCard({ className }: { className?: string }) {
 
 export function SkeletonRow() {
   return (
-    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+    <div className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
       <Skeleton className="h-9 w-9 rounded-lg flex-shrink-0" />
       <div className="flex-1 space-y-1.5">
         <Skeleton className="h-3.5 w-2/5" />
@@ -43,7 +43,7 @@ export function SkeletonStatGrid() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {[...Array(4)].map((_, i) => (
-        <div key={i} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm">
+        <div key={i} className="rounded-xl border border-border bg-card p-4 shadow-sm">
           <Skeleton className="h-3 w-16 mb-3" />
           <Skeleton className="h-7 w-12 mb-1" />
           <Skeleton className="h-2.5 w-20" />
@@ -74,8 +74,8 @@ export function SkeletonPatientProfile() {
           <SkeletonCard />
         </div>
         <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-            <div className="border-b border-gray-100 dark:border-gray-700 px-5 py-4 flex justify-between">
+          <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+            <div className="border-b border-border px-5 py-4 flex justify-between">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-16" />
             </div>
@@ -96,8 +96,8 @@ export function SkeletonDashboard() {
         <SkeletonCard className="h-64" />
         <SkeletonCard className="h-64" />
       </div>
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-100 dark:border-gray-700 px-5 py-4">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="border-b border-border px-5 py-4">
           <Skeleton className="h-4 w-40" />
         </div>
         {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
@@ -116,8 +116,8 @@ export function SkeletonPatientsPage() {
         </div>
         <Skeleton className="h-9 w-32 rounded-lg" />
       </div>
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-100 dark:border-gray-700 px-4 py-3 flex gap-2">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="border-b border-border px-4 py-3 flex gap-2">
           <Skeleton className="h-9 flex-1 rounded-lg" />
           <Skeleton className="h-9 w-24 rounded-lg" />
           <Skeleton className="h-9 w-24 rounded-lg" />
@@ -132,8 +132,8 @@ export function SkeletonReportsPage() {
   return (
     <div className="space-y-4">
       <SkeletonStatGrid />
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
-        <div className="border-b border-gray-100 dark:border-gray-700 px-4 py-3">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="border-b border-border px-4 py-3">
           <Skeleton className="h-9 w-full rounded-lg" />
         </div>
         {[...Array(6)].map((_, i) => <SkeletonRow key={i} />)}

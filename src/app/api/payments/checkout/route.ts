@@ -2,11 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { preference } from '@/lib/mercadopago'
+import { purchaseLimiter } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  const rl = await purchaseLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas tentativas de pagamento em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
   }
 
   try {

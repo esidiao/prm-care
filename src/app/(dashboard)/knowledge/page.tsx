@@ -33,7 +33,7 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.FC<{ className?: 
   DOSAGE:           { label: 'Posologia',          icon: Pill,          color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800' },
   HEALTH_ALERT:     { label: 'Alerta de saúde',   icon: Activity,      color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950 border-purple-200 dark:border-purple-800' },
   PROTOCOL:         { label: 'Protocolo',          icon: FileText,      color: 'text-teal-600',   bg: 'bg-teal-50 dark:bg-teal-950 border-teal-200 dark:border-teal-800' },
-  PACKAGE_INSERT:   { label: 'Bula',               icon: FileText,      color: 'text-gray-600',   bg: 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700' },
+  PACKAGE_INSERT:   { label: 'Bula',               icon: FileText,      color: 'text-muted-foreground',   bg: 'bg-muted border-border' },
   GUIDELINE:        { label: 'Diretriz clínica',   icon: BookOpen,      color: 'text-emerald-600',bg: 'bg-emerald-50 dark:bg-emerald-950 border-emerald-200 dark:border-emerald-800' },
   ADVERSE_REACTION: { label: 'Reação adversa',    icon: AlertTriangle, color: 'text-yellow-600', bg: 'bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800' },
 }
@@ -41,8 +41,8 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.FC<{ className?: 
 const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   PENDING:   { label: 'Pendente',  color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' },
   VALIDATED: { label: 'Validado',  color: 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' },
-  EXPIRED:   { label: 'Expirado',  color: 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400' },
-  ARCHIVED:  { label: 'Arquivado', color: 'bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500' },
+  EXPIRED:   { label: 'Expirado',  color: 'bg-muted text-muted-foreground' },
+  ARCHIVED:  { label: 'Arquivado', color: 'bg-muted text-muted-foreground' },
 }
 
 // ── New Entry Form ────────────────────────────────────────────────────────────
@@ -103,7 +103,7 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
     <div>
       <button
         onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#16304f] transition-colors shadow-sm"
+        className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 transition-colors shadow-sm"
       >
         <Plus className="h-4 w-4" />
         Nova entrada
@@ -111,13 +111,13 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
 
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-2xl rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 px-6 py-4">
+          <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4">
               <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
-                <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Nova entrada na base de conhecimento</h2>
+                <BookOpen className="h-4 w-4 text-brand-800 dark:text-blue-400" />
+                <h2 className="text-base font-semibold text-foreground">Nova entrada na base de conhecimento</h2>
               </div>
-              <button onClick={() => { setOpen(false); reset() }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+              <button onClick={() => { setOpen(false); reset() }} className="text-muted-foreground hover:text-foreground">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -125,18 +125,18 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
             <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-3 gap-4">
                 <div className="col-span-2">
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Título *</label>
-                  <input
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="title">Título *</label>
+                  <input id="title"
                     value={title} onChange={e => setTitle(e.target.value)}
                     placeholder="Ex: Interação Warfarina + AAS"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Tipo *</label>
-                  <select
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="type">Tipo *</label>
+                  <select id="type"
                     value={type} onChange={e => setType(e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   >
                     {Object.entries(TYPE_CONFIG).map(([k, v]) => (
                       <option key={k} value={k}>{v.label}</option>
@@ -146,71 +146,71 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Resumo (exibido na listagem)</label>
+                <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="summary">Resumo (exibido na listagem)</label>
                 <input
-                  value={summary} onChange={e => setSummary(e.target.value)}
+                  id="summary" value={summary} onChange={e => setSummary(e.target.value)}
                   placeholder="Uma linha descrevendo o conteúdo…"
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Conteúdo clínico *</label>
+                <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="content">Conteúdo clínico *</label>
                 <textarea
-                  value={content} onChange={e => setContent(e.target.value)}
+                  id="content" value={content} onChange={e => setContent(e.target.value)}
                   placeholder="Descreva a interação, contraindicação, protocolo ou alerta com detalhes clínicos relevantes…"
                   rows={5}
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Fonte *</label>
-                  <input
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="source">Fonte *</label>
+                  <input id="source"
                     value={source} onChange={e => setSource(e.target.value)}
                     placeholder="Ex: Micromedex, UpToDate, ANVISA"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">URL da fonte</label>
-                  <input
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="sourceurl">URL da fonte</label>
+                  <input id="sourceurl"
                     value={sourceUrl} onChange={e => setSourceUrl(e.target.value)}
                     placeholder="https://…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Medicamentos envolvidos</label>
-                  <input
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="drugnamesraw">Medicamentos envolvidos</label>
+                  <input id="drugnamesraw"
                     value={drugNamesRaw} onChange={e => setDrugNamesRaw(e.target.value)}
                     placeholder="Warfarina, AAS, Metformina…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
-                  <p className="text-[10px] text-gray-400 mt-1">Separados por vírgula</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Separados por vírgula</p>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Tags</label>
-                  <input
+                  <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="tagsraw">Tags</label>
+                  <input id="tagsraw"
                     value={tagsRaw} onChange={e => setTagsRaw(e.target.value)}
                     placeholder="anticoagulante, idoso, renal…"
-                    className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
                   />
-                  <p className="text-[10px] text-gray-400 mt-1">Separadas por vírgula</p>
+                  <p className="text-[10px] text-muted-foreground mt-1">Separadas por vírgula</p>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Observações adicionais</label>
-                <textarea
+                <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="observations">Observações adicionais</label>
+                <textarea id="observations"
                   value={observations} onChange={e => setObservations(e.target.value)}
                   placeholder="Notas clínicas, contexto de uso, população-alvo…"
                   rows={2}
-                  className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+                  className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
                 />
               </div>
 
@@ -221,14 +221,14 @@ function NewEntryForm({ onCreated }: { onCreated: () => void }) {
               )}
             </form>
 
-            <div className="flex justify-end gap-3 border-t border-gray-100 dark:border-gray-800 px-6 py-4">
-              <button onClick={() => { setOpen(false); reset() }} className="px-4 py-2 text-sm text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+            <div className="flex justify-end gap-3 border-t border-border px-6 py-4">
+              <button onClick={() => { setOpen(false); reset() }} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-muted transition-colors">
                 Cancelar
               </button>
               <button
                 onClick={handleSubmit as never}
                 disabled={saving}
-                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-[#1e3a5f] rounded-lg hover:bg-[#16304f] disabled:opacity-60 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-brand-800 rounded-lg hover:bg-brand-900 disabled:opacity-60 transition-colors"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 {saving ? 'Salvando…' : 'Salvar entrada'}
@@ -259,7 +259,7 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
   }
 
   return (
-    <div className={`rounded-xl border overflow-hidden bg-white dark:bg-gray-800 shadow-sm ${cfg.bg}`}>
+    <div className={`rounded-xl border overflow-hidden bg-card shadow-sm ${cfg.bg}`}>
       {/* Header */}
       <div
         className="flex items-start gap-3 px-4 py-3.5 cursor-pointer hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors"
@@ -276,11 +276,11 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
             </span>
             <span className={`text-[10px] font-medium ${cfg.color}`}>{cfg.label}</span>
           </div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 leading-snug">
+          <h3 className="text-sm font-semibold text-foreground leading-snug">
             {entry.title}
           </h3>
           {entry.summary && (
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{entry.summary}</p>
+            <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{entry.summary}</p>
           )}
 
           {/* Drug pills */}
@@ -292,30 +292,30 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
                 </span>
               ))}
               {entry.drugNames.length > 4 && (
-                <span className="text-[10px] text-gray-400">+{entry.drugNames.length - 4}</span>
+                <span className="text-[10px] text-muted-foreground">+{entry.drugNames.length - 4}</span>
               )}
             </div>
           )}
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[10px] text-gray-400 dark:text-gray-500 hidden sm:block">
+          <span className="text-[10px] text-muted-foreground hidden sm:block">
             {new Date(entry.createdAt).toLocaleDateString('pt-BR')}
           </span>
           {expanded ? (
-            <ChevronUp className="h-4 w-4 text-gray-400" />
+            <ChevronUp className="h-4 w-4 text-muted-foreground" />
           ) : (
-            <ChevronDown className="h-4 w-4 text-gray-400" />
+            <ChevronDown className="h-4 w-4 text-muted-foreground" />
           )}
         </div>
       </div>
 
       {/* Expanded content */}
       {expanded && (
-        <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-4 space-y-3 bg-white dark:bg-gray-800">
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900 p-3">
-            <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">📋 Conteúdo clínico</p>
-            <p className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line leading-relaxed">
+        <div className="border-t border-border px-4 py-4 space-y-3 bg-card">
+          <div className="rounded-lg bg-muted p-3">
+            <p className="text-xs font-semibold text-foreground mb-1.5">📋 Conteúdo clínico</p>
+            <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
               {entry.content}
             </p>
           </div>
@@ -329,15 +329,15 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs text-gray-500 dark:text-gray-400">
-                Fonte: <strong className="text-gray-700 dark:text-gray-300">{entry.source}</strong>
+              <span className="text-xs text-muted-foreground">
+                Fonte: <strong className="text-foreground">{entry.source}</strong>
               </span>
               {entry.sourceUrl && (
                 <a
                   href={entry.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-0.5 text-xs text-[#1e3a5f] dark:text-blue-400 hover:underline"
+                  className="flex items-center gap-0.5 text-xs text-brand-800 dark:text-blue-400 hover:underline"
                 >
                   Acessar <ExternalLink className="h-3 w-3" />
                 </a>
@@ -345,7 +345,7 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
               {entry.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1">
                   {entry.tags.map(t => (
-                    <span key={t} className="flex items-center gap-0.5 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-[10px] text-gray-600 dark:text-gray-400">
+                    <span key={t} className="flex items-center gap-0.5 rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
                       <Tag className="h-2.5 w-2.5" /> {t}
                     </span>
                   ))}
@@ -362,7 +362,7 @@ function EntryCard({ entry, onDelete }: { entry: Entry; onDelete: (id: string) =
             </button>
           </div>
 
-          <p className="text-[10px] text-gray-400 dark:text-gray-600">
+          <p className="text-[10px] text-muted-foreground">
             Adicionado por {entry.createdBy.name || entry.createdBy.email} em {new Date(entry.createdAt).toLocaleString('pt-BR')}
           </p>
         </div>
@@ -419,8 +419,8 @@ export default function KnowledgePage() {
       {/* Header */}
       <div className="flex items-start justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Base de conhecimento clínico</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <h1 className="text-2xl font-bold text-foreground">Base de conhecimento clínico</h1>
+          <p className="text-sm text-muted-foreground mt-1">
             Interações, contraindicações, protocolos e alertas farmacêuticos
           </p>
         </div>
@@ -438,11 +438,11 @@ export default function KnowledgePage() {
               className={`flex items-center gap-2 rounded-xl border p-3 text-left transition-all ${
                 filterType === key
                   ? `${cfg.bg} border-current shadow-sm`
-                  : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                  : 'bg-card border-border hover:border-muted-foreground/40'
               }`}
             >
               <Icon className={`h-4 w-4 flex-shrink-0 ${cfg.color}`} />
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300 truncate">{cfg.label}</span>
+              <span className="text-xs font-medium text-foreground truncate">{cfg.label}</span>
             </button>
           )
         })}
@@ -451,15 +451,15 @@ export default function KnowledgePage() {
       {/* Search + filters */}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             value={q}
             onChange={e => setQ(e.target.value)}
             placeholder="Buscar por título, conteúdo ou medicamento…"
-            className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+            className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
           />
           {q && (
-            <button onClick={() => setQ('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+            <button onClick={() => setQ('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
               <X className="h-4 w-4" />
             </button>
           )}
@@ -468,7 +468,7 @@ export default function KnowledgePage() {
         <select
           value={filterType}
           onChange={e => setFilterType(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todos os tipos</option>
           {Object.entries(TYPE_CONFIG).map(([k, v]) => (
@@ -479,7 +479,7 @@ export default function KnowledgePage() {
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value)}
-          className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-gray-700 dark:text-gray-300 focus:border-[#1e3a5f] focus:outline-none"
+          className="rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground focus:border-brand-800 focus:outline-none"
         >
           <option value="">Todos os status</option>
           {Object.entries(STATUS_CONFIG).map(([k, v]) => (
@@ -491,13 +491,13 @@ export default function KnowledgePage() {
       {/* Results */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             {loading ? 'Carregando…' : `${total} entrada${total !== 1 ? 's' : ''} encontrada${total !== 1 ? 's' : ''}`}
           </p>
           {filterType || filterStatus || debouncedQ ? (
             <button
               onClick={() => { setQ(''); setFilterType(''); setFilterStatus('VALIDATED') }}
-              className="text-xs text-[#1e3a5f] dark:text-blue-400 hover:underline"
+              className="text-xs text-brand-800 dark:text-blue-400 hover:underline"
             >
               Limpar filtros
             </button>
@@ -509,10 +509,10 @@ export default function KnowledgePage() {
             <Loader2 className="h-7 w-7 animate-spin text-gray-300 dark:text-gray-600" />
           </div>
         ) : entries.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 dark:border-gray-700 py-16 text-center">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
             <BookOpen className="h-10 w-10 text-gray-200 dark:text-gray-700 mb-3" />
-            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Nenhuma entrada encontrada</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            <p className="text-sm font-medium text-muted-foreground">Nenhuma entrada encontrada</p>
+            <p className="text-xs text-muted-foreground mt-1">
               {debouncedQ ? 'Tente outros termos de busca' : 'Clique em "Nova entrada" para começar'}
             </p>
           </div>
@@ -530,17 +530,17 @@ export default function KnowledgePage() {
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               ← Anterior
             </button>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-sm text-muted-foreground">
               {page} de {pages}
             </span>
             <button
               onClick={() => setPage(p => Math.min(pages, p + 1))}
               disabled={page === pages}
-              className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
               Próxima →
             </button>

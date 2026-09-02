@@ -38,14 +38,14 @@ export default async function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Configurações</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400">Gerencie sua conta e preferências</p>
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground">Configurações</h1>
+        <p className="text-sm text-muted-foreground">Gerencie sua conta e preferências</p>
       </div>
 
       {/* ── Dados da conta (read-only) ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-        <h2 className="mb-3 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Dados da conta
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="mb-3 font-semibold text-foreground flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Dados da conta
         </h2>
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
           {[
@@ -56,25 +56,25 @@ export default async function SettingsPage() {
             { label: 'Último acesso', value: user.lastLoginAt ? formatDateTime(user.lastLoginAt) : '—' },
           ].map(({ label, value }) => (
             <div key={label} className="flex flex-col">
-              <dt className="text-xs text-gray-400 dark:text-gray-500">{label}</dt>
-              <dd className="font-medium text-gray-800 dark:text-gray-200">{value}</dd>
+              <dt className="text-xs text-muted-foreground">{label}</dt>
+              <dd className="font-medium text-foreground">{value}</dd>
             </div>
           ))}
         </dl>
       </div>
 
       {/* ── Foto de perfil ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Foto de perfil
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Foto de perfil
         </h2>
         <AvatarUpload currentImage={user.image} userName={user.name} />
       </div>
 
       {/* ── Editar perfil ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <User className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Editar perfil
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2 text-sm">
+          <User className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Editar perfil
         </h2>
         <ProfileForm
           profile={{
@@ -89,13 +89,13 @@ export default async function SettingsPage() {
       </div>
 
       {/* ── Plano e tokens ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <Coins className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Plano e tokens
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2 text-sm">
+          <Coins className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Plano e tokens
         </h2>
-        <div className="flex items-center justify-between rounded-xl bg-[#eff6ff] dark:bg-[#1e3a5f]/20 p-4">
+        <div className="flex items-center justify-between rounded-xl bg-[#eff6ff] dark:bg-brand-800/20 p-4">
           <div>
-            <p className="font-semibold text-[#1e3a5f] dark:text-blue-300">Plano {PLAN_LABELS[user.plan]}</p>
+            <p className="font-semibold text-brand-800 dark:text-blue-300">Plano {PLAN_LABELS[user.plan]}</p>
             <p className="text-sm text-blue-700 dark:text-blue-400">
               {user.plan === 'INSTITUTIONAL' ? 'Acesso ilimitado' : `Saldo: ${user.tokenBalance} tokens`}
             </p>
@@ -103,7 +103,7 @@ export default async function SettingsPage() {
           {user.plan !== 'INSTITUTIONAL' && (
             <a
               href="/tokens"
-              className="rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors"
+              className="rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors"
             >
               Comprar tokens
             </a>
@@ -112,9 +112,9 @@ export default async function SettingsPage() {
       </div>
 
       {/* ── Segurança / Senha ── */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-          <Key className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Alterar senha
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+        <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2 text-sm">
+          <Key className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Alterar senha
         </h2>
         {!user.password ? (
           <div className="rounded-lg bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 p-4 text-sm">
@@ -127,13 +127,13 @@ export default async function SettingsPage() {
         <div className={!user.password ? 'mt-4' : ''}>
           <PasswordForm hasPassword={!!user.password} />
         </div>
-        <div className="mt-4 flex items-center justify-between rounded-lg border border-gray-100 dark:border-gray-700 px-4 py-3 text-sm">
+        <div className="mt-4 flex items-center justify-between rounded-lg border border-border px-4 py-3 text-sm">
           <div>
-            <p className="font-medium text-gray-900 dark:text-gray-100">Autenticação em dois fatores</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500">Camada extra de segurança (TOTP)</p>
+            <p className="font-medium text-foreground">Autenticação em dois fatores</p>
+            <p className="text-xs text-muted-foreground">Camada extra de segurança (TOTP)</p>
           </div>
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            user.twoFactorEnabled ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+            user.twoFactorEnabled ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-muted text-muted-foreground'
           }`}>
             {user.twoFactorEnabled ? 'Ativo' : 'Inativo'}
           </span>
@@ -142,18 +142,18 @@ export default async function SettingsPage() {
 
       {/* ── Consentimentos LGPD ── */}
       {user.consents.length > 0 && (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
-          <h2 className="mb-4 font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2 text-sm">
-            <Shield className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" /> Consentimentos LGPD
+        <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2 text-sm">
+            <Shield className="h-4 w-4 text-brand-800 dark:text-blue-400" /> Consentimentos LGPD
           </h2>
           <div className="space-y-2">
             {user.consents.map((consent) => (
-              <div key={consent.id} className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-gray-700 px-4 py-2.5">
+              <div key={consent.id} className="flex items-center justify-between rounded-lg border border-border px-4 py-2.5">
                 <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-medium text-foreground">
                     {CONSENT_LABELS[consent.type] ?? consent.type}
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     v{consent.version} · {formatDateTime(consent.acceptedAt)}
                   </p>
                 </div>
@@ -169,10 +169,10 @@ export default async function SettingsPage() {
           </div>
           <div className="mt-4 flex items-center gap-3">
             <Link href="/settings/my-data"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-xs font-semibold text-white hover:bg-[#162d4a] transition-colors">
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-2 text-xs font-semibold text-white hover:bg-brand-900 transition-colors">
               <Download className="h-3.5 w-3.5" /> Exportar / Meus Dados
             </Link>
-            <a href="mailto:privacidade@prmcare.com.br" className="text-xs text-[#1e3a5f] dark:text-blue-400 underline">
+            <a href="mailto:privacidade@prmcare.com.br" className="text-xs text-brand-800 dark:text-blue-400 underline">
               Falar com o DPO
             </a>
           </div>
@@ -187,7 +187,7 @@ export default async function SettingsPage() {
           Dados clínicos são anonimizados (não excluídos) por obrigação legal (CFF/CFM).
         </p>
         <Link href="/settings/my-data"
-          className="inline-flex items-center gap-2 rounded-lg border border-red-300 dark:border-red-800 bg-white dark:bg-gray-900 px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
+          className="inline-flex items-center gap-2 rounded-lg border border-red-300 dark:border-red-800 bg-card px-4 py-2 text-sm font-medium text-red-700 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950 transition-colors">
           Gerenciar dados e exclusão (LGPD)
         </Link>
       </div>

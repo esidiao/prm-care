@@ -37,7 +37,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const analysis = await prisma.pRMAnalysis.findFirst({ where: { id: params.id, userId: session.user.id } })
   if (!analysis) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
 
-  const { findingId, isResolved, resolvedNotes } = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
+  const { findingId, isResolved, resolvedNotes } = body
 
   // SECURITY: verificar que o finding pertence à análise verificada (evita IDOR)
   const updated = await prisma.pRMFinding.update({

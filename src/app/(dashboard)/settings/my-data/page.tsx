@@ -35,17 +35,17 @@ export default function MyDataPage() {
     <div className="space-y-6 max-w-2xl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Meus Dados — LGPD</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Meus Dados — LGPD</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Seus direitos como titular de dados pessoais (Lei 13.709/2018)
         </p>
       </div>
 
       {/* Direitos */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-4 w-4 text-[#1e3a5f]" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Seus direitos garantidos pela LGPD</h2>
+          <Shield className="h-4 w-4 text-brand-800" />
+          <h2 className="font-semibold text-foreground text-sm">Seus direitos garantidos pela LGPD</h2>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           {[
@@ -54,14 +54,14 @@ export default function MyDataPage() {
             { icon: Lock, label: 'Retificação', desc: 'Corrija dados incompletos ou incorretos no seu perfil', art: 'Art. 18, III' },
             { icon: Trash2, label: 'Exclusão', desc: 'Solicite a exclusão dos seus dados pessoais', art: 'Art. 18, VI' },
           ].map(({ icon: Icon, label, desc, art }) => (
-            <div key={label} className="flex items-start gap-3 rounded-lg bg-gray-50 dark:bg-gray-700/50 p-3">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-[#1e3a5f]/10">
-                <Icon className="h-4 w-4 text-[#1e3a5f]" />
+            <div key={label} className="flex items-start gap-3 rounded-lg bg-muted dark:bg-gray-700/50 p-3">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-brand-800/10">
+                <Icon className="h-4 w-4 text-brand-800" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{desc}</p>
-                <p className="text-[10px] text-[#1e3a5f] mt-0.5 font-medium">{art}</p>
+                <p className="text-sm font-semibold text-foreground">{label}</p>
+                <p className="text-xs text-muted-foreground">{desc}</p>
+                <p className="text-[10px] text-brand-800 mt-0.5 font-medium">{art}</p>
               </div>
             </div>
           ))}
@@ -69,12 +69,12 @@ export default function MyDataPage() {
       </div>
 
       {/* Exportar dados */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm">
+      <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
           <Download className="h-4 w-4 text-emerald-600" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Portabilidade — Exportar meus dados</h2>
+          <h2 className="font-semibold text-foreground text-sm">Portabilidade — Exportar meus dados</h2>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+        <p className="text-xs text-muted-foreground mb-4">
           Baixe um arquivo JSON com todos os seus dados: perfil, consentimentos, histórico de análises e log de acessos.
           Os dados de pacientes não são incluídos para proteger a privacidade deles.
         </p>
@@ -100,12 +100,12 @@ export default function MyDataPage() {
       </div>
 
       {/* Solicitar exclusão */}
-      <div className="rounded-xl border border-red-200 bg-white dark:bg-gray-800 dark:border-red-900 p-5 shadow-sm">
+      <div className="rounded-xl border border-red-200 bg-card dark:border-red-900 p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-2">
           <Trash2 className="h-4 w-4 text-red-600" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100 text-sm">Solicitar exclusão de dados</h2>
+          <h2 className="font-semibold text-foreground text-sm">Solicitar exclusão de dados</h2>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">
+        <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
           Ao solicitar a exclusão, sua conta e dados pessoais serão removidos em até <strong>15 dias úteis</strong>.
           Dados clínicos de pacientes serão anonimizados para cumprir obrigações legais de retenção (CFF/CFM).
         </p>
@@ -123,15 +123,15 @@ export default function MyDataPage() {
         ) : (
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-xs font-medium text-foreground mb-1.5" htmlFor="deletionreason">
                 Motivo da solicitação <span className="text-red-500">*</span>
               </label>
-              <textarea
+              <textarea id="deletionreason"
                 value={deletionReason}
                 onChange={e => setDeletionReason(e.target.value)}
                 placeholder="Ex: Não utilizo mais o serviço / Desejo encerrar minha conta…"
                 rows={3}
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 placeholder-gray-400 focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400 resize-none"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-red-400 focus:outline-none focus:ring-1 focus:ring-red-400 resize-none"
               />
             </div>
 
@@ -156,8 +156,8 @@ export default function MyDataPage() {
       </div>
 
       {/* Contato DPO */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 p-4 text-xs text-gray-500 dark:text-gray-400">
-        <p><strong className="text-gray-700 dark:text-gray-300">Encarregado de Dados (DPO):</strong> Para dúvidas sobre privacidade e proteção de dados, entre em contato pelo e-mail <span className="text-[#1e3a5f] dark:text-blue-400">privacidade@prmcare.com.br</span></p>
+      <div className="rounded-xl border border-border bg-muted dark:bg-gray-800/50 p-4 text-xs text-muted-foreground">
+        <p><strong className="text-foreground">Encarregado de Dados (DPO):</strong> Para dúvidas sobre privacidade e proteção de dados, entre em contato pelo e-mail <span className="text-brand-800 dark:text-blue-400">privacidade@prmcare.com.br</span></p>
         <p className="mt-1">Referência legal: Lei Geral de Proteção de Dados Pessoais — Lei nº 13.709, de 14 de agosto de 2018.</p>
       </div>
     </div>

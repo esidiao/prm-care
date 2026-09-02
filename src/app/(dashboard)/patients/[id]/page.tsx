@@ -94,7 +94,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Back link */}
-      <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/patients" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Pacientes
       </Link>
 
@@ -104,22 +104,22 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       {/* Patient header — stacks on mobile */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">{patient.name || patient.code}</h1>
-          {patient.name && <p className="text-gray-400 text-sm">{patient.code}</p>}
+          <h1 className="text-xl sm:text-2xl font-bold text-foreground">{patient.name || patient.code}</h1>
+          {patient.name && <p className="text-muted-foreground text-sm">{patient.code}</p>}
           {patient.isAnonymized && (
-            <span className="mt-1 inline-flex rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-600">Anonimizado</span>
+            <span className="mt-1 inline-flex rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">Anonimizado</span>
           )}
         </div>
         {/* Action buttons — scrollable row on mobile, wrapped on sm+ */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 sm:flex-wrap sm:justify-end shrink-0">
           <Link href={`/patients/${patient.id}/edit`}
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
             <Pencil className="h-4 w-4" />
             <span className="hidden sm:inline">Editar perfil</span>
           </Link>
           {patient.analyses.length > 0 && (
             <Link href={`/patients/${patient.id}/history`}
-              className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+              className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">Histórico</span>
             </Link>
@@ -128,7 +128,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             <ExportMenu mode="prms-only" patientId={patient.id} variant="icon" />
           )}
           <Link href={`/patients/${patient.id}/report`}
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
             title="Relatório completo do paciente">
             <ClipboardList className="h-4 w-4" />
             <span className="hidden sm:inline">Relatório</span>
@@ -140,13 +140,13 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             <span className="hidden sm:inline">Conciliação</span>
           </Link>
           <Link href={`/patients/${patient.id}/referral`}
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
             title="Carta de Encaminhamento Médico">
             <Send className="h-4 w-4" />
             <span className="hidden sm:inline">Encaminhar</span>
           </Link>
           <Link href={`/analysis/new?patientId=${patient.id}`}
-            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             <FlaskConical className="h-4 w-4" />
             <span>Nova análise</span>
           </Link>
@@ -196,9 +196,9 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         {/* Left column — patient info */}
         <div className="space-y-3 sm:space-y-4 lg:col-span-1">
           {/* Demographics */}
-          <div className="rounded-xl border bg-white p-5 shadow-sm">
-            <h2 className="mb-4 font-semibold text-gray-900 flex items-center gap-2">
-              <Activity className="h-4 w-4 text-[#1e3a5f]" /> Dados clínicos
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <h2 className="mb-4 font-semibold text-foreground flex items-center gap-2">
+              <Activity className="h-4 w-4 text-brand-800" /> Dados clínicos
             </h2>
             <dl className="space-y-3 text-sm">
               {[
@@ -215,8 +215,8 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                 { label: 'Função hepática', value: patient.hepaticFunction ? HEPATIC_FUNCTION_LABELS[patient.hepaticFunction] || patient.hepaticFunction : '—' },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between gap-2">
-                  <dt className="text-gray-500 flex-shrink-0">{label}</dt>
-                  <dd className="font-medium text-gray-900 text-right">{value}</dd>
+                  <dt className="text-muted-foreground flex-shrink-0">{label}</dt>
+                  <dd className="font-medium text-foreground text-right">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -224,12 +224,12 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
           {/* Diagnoses */}
           {patient.diagnoses.length > 0 && (
-            <div className="rounded-xl border bg-white p-5 shadow-sm">
-              <h2 className="mb-3 font-semibold text-gray-900">Diagnósticos</h2>
+            <div className="rounded-xl border bg-card p-5 shadow-sm">
+              <h2 className="mb-3 font-semibold text-foreground">Diagnósticos</h2>
               <ul className="space-y-2">
                 {patient.diagnoses.map((d) => (
                   <li key={d.id} className="flex items-start gap-2 text-sm">
-                    <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-[#1e3a5f]' : 'bg-gray-300'}`} />
+                    <span className={`mt-0.5 h-2 w-2 flex-shrink-0 rounded-full ${d.isPrimary ? 'bg-brand-800' : 'bg-muted'}`} />
                     <span>{d.name}{d.icd10Code ? ` (${d.icd10Code})` : ''}</span>
                   </li>
                 ))}
@@ -239,11 +239,11 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
           {/* Comorbidities */}
           {patient.comorbidities.length > 0 && (
-            <div className="rounded-xl border bg-white p-5 shadow-sm">
-              <h2 className="mb-3 font-semibold text-gray-900">Comorbidades</h2>
+            <div className="rounded-xl border bg-card p-5 shadow-sm">
+              <h2 className="mb-3 font-semibold text-foreground">Comorbidades</h2>
               <div className="flex flex-wrap gap-2">
                 {patient.comorbidities.map((c) => (
-                  <span key={c.id} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-[#1e3a5f]">{c.name}</span>
+                  <span key={c.id} className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-brand-800">{c.name}</span>
                 ))}
               </div>
             </div>
@@ -269,18 +269,18 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         {/* Right column — medications & analyses */}
         <div className="space-y-3 sm:space-y-4 lg:col-span-2">
           {/* Medications */}
-          <div className="rounded-xl border bg-white shadow-sm">
+          <div className="rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
-              <h2 className="font-semibold text-gray-900 flex items-center gap-2">
-                <Pill className="h-4 w-4 text-[#1e3a5f]" /> Medicamentos ({patient.medications.length})
+              <h2 className="font-semibold text-foreground flex items-center gap-2">
+                <Pill className="h-4 w-4 text-brand-800" /> Medicamentos ({patient.medications.length})
               </h2>
               <Link href={`/patients/${patient.id}/medications/new`}
-                className="flex items-center gap-1 text-xs font-medium text-[#1e3a5f] hover:underline">
+                className="flex items-center gap-1 text-xs font-medium text-brand-800 hover:underline">
                 <Plus className="h-3 w-3" /> Adicionar
               </Link>
             </div>
             {patient.medications.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-400">Nenhum medicamento cadastrado</div>
+              <div className="py-8 text-center text-sm text-muted-foreground">Nenhum medicamento cadastrado</div>
             ) : (
               <div className="divide-y">
                 {patient.medications.map((med) => (
@@ -288,17 +288,17 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-medium text-gray-900">{med.activeIngredient}</span>
-                          {med.tradeName && <span className="text-xs text-gray-400">({med.tradeName})</span>}
+                          <span className="font-medium text-foreground">{med.activeIngredient}</span>
+                          {med.tradeName && <span className="text-xs text-muted-foreground">({med.tradeName})</span>}
                           {med.isSelfMedication && (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs text-orange-700">Automedicação</span>
                           )}
                         </div>
-                        <p className="mt-0.5 text-sm text-gray-500">
+                        <p className="mt-0.5 text-sm text-muted-foreground">
                           {med.dose ? `${med.dose}${med.doseUnit || ''}` : ''} {med.pharmaceuticalForm || ''} {med.frequency ? `· ${med.frequency}` : ''}
                           {med.route ? ` · ${med.route}` : ''}
                         </p>
-                        {med.indication && <p className="mt-0.5 text-xs text-gray-400">Para: {med.indication}</p>}
+                        {med.indication && <p className="mt-0.5 text-xs text-muted-foreground">Para: {med.indication}</p>}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <span className={`text-xs rounded-full px-2 py-0.5 ${
@@ -324,32 +324,32 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
           {/* Lab Results */}
           {patient.labResults.length > 0 && (
-            <div className="rounded-xl border bg-white shadow-sm">
+            <div className="rounded-xl border bg-card shadow-sm">
               <div className="border-b px-5 py-4">
-                <h2 className="font-semibold text-gray-900">Exames laboratoriais</h2>
+                <h2 className="font-semibold text-foreground">Exames laboratoriais</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <thead className="bg-gray-50">
+                  <thead className="bg-muted">
                     <tr>
-                      <th className="px-5 py-2.5 text-left text-xs text-gray-500">Exame</th>
-                      <th className="px-5 py-2.5 text-left text-xs text-gray-500">Resultado</th>
-                      <th className="px-5 py-2.5 text-left text-xs text-gray-500">Referência</th>
-                      <th className="px-5 py-2.5 text-left text-xs text-gray-500">Data</th>
+                      <th className="px-5 py-2.5 text-left text-xs text-muted-foreground">Exame</th>
+                      <th className="px-5 py-2.5 text-left text-xs text-muted-foreground">Resultado</th>
+                      <th className="px-5 py-2.5 text-left text-xs text-muted-foreground">Referência</th>
+                      <th className="px-5 py-2.5 text-left text-xs text-muted-foreground">Data</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {patient.labResults.map((lab) => (
                       <tr key={lab.id} className={lab.isAbnormal ? 'bg-red-50' : ''}>
-                        <td className="px-5 py-2.5 font-medium text-gray-900">{lab.examName}</td>
-                        <td className={`px-5 py-2.5 font-medium ${lab.isAbnormal ? 'text-red-700' : 'text-gray-700'}`}>
+                        <td className="px-5 py-2.5 font-medium text-foreground">{lab.examName}</td>
+                        <td className={`px-5 py-2.5 font-medium ${lab.isAbnormal ? 'text-red-700' : 'text-foreground'}`}>
                           {lab.value} {lab.unit || ''}
                           {lab.isAbnormal && ' ⚠️'}
                         </td>
-                        <td className="px-5 py-2.5 text-gray-500">
+                        <td className="px-5 py-2.5 text-muted-foreground">
                           {lab.referenceMin || lab.referenceMax ? `${lab.referenceMin ?? ''}–${lab.referenceMax ?? ''} ${lab.unit || ''}` : '—'}
                         </td>
-                        <td className="px-5 py-2.5 text-gray-500">{lab.collectedAt ? formatDate(lab.collectedAt) : '—'}</td>
+                        <td className="px-5 py-2.5 text-muted-foreground">{lab.collectedAt ? formatDate(lab.collectedAt) : '—'}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -391,34 +391,34 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
           />
 
           {/* Recent analyses */}
-          <div className="rounded-xl border bg-white shadow-sm">
+          <div className="rounded-xl border bg-card shadow-sm">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div className="flex items-center gap-3">
-                <h2 className="font-semibold text-gray-900">Análises PRM</h2>
+                <h2 className="font-semibold text-foreground">Análises PRM</h2>
                 {patient.analyses.length >= 2 && (
                   <Link href={`/patients/${patient.id}/history`}
-                    className="flex items-center gap-1 text-xs text-[#1e3a5f] hover:underline">
+                    className="flex items-center gap-1 text-xs text-brand-800 hover:underline">
                     <History className="h-3 w-3" /> Ver histórico
                   </Link>
                 )}
               </div>
               <Link href={`/analysis/new?patientId=${patient.id}`}
-                className="flex items-center gap-1 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] transition-colors">
+                className="flex items-center gap-1 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-900 transition-colors">
                 <FlaskConical className="h-3 w-3" /> Nova análise
               </Link>
             </div>
             {patient.analyses.length === 0 ? (
-              <div className="py-8 text-center text-sm text-gray-400">Nenhuma análise realizada</div>
+              <div className="py-8 text-center text-sm text-muted-foreground">Nenhuma análise realizada</div>
             ) : (
               <div className="divide-y">
                 {patient.analyses.map((a) => (
                   <Link key={a.id} href={`/analysis/${a.id}`}
-                    className="flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition-colors">
+                    className="flex items-center justify-between px-5 py-4 hover:bg-muted transition-colors">
                     <div className="flex items-center gap-3">
-                      <Calendar className="h-4 w-4 text-gray-400" />
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{formatDateTime(a.createdAt)}</p>
-                        <p className="text-xs text-gray-400">{a.totalPRMs} PRM(s) identificado(s)</p>
+                        <p className="text-sm font-medium text-foreground">{formatDateTime(a.createdAt)}</p>
+                        <p className="text-xs text-muted-foreground">{a.totalPRMs} PRM(s) identificado(s)</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">

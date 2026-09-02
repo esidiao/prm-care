@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { writeLimiter } from '@/lib/rate-limit'
 import prisma from '@/lib/prisma'
 
 // ── GET /api/patients/[id]/scales ─────────────────────────────────────────────
@@ -25,6 +26,9 @@ export async function GET(
       ...(scaleType ? { scaleType } : {}),
     },
     orderBy: { appliedAt: 'desc' },
+    // Teto defensivo: escalas se acumulam a cada reavaliação do paciente e o
+    // campo `answers` (JSON) torna cada registro pesado. As mais recentes primeiro.
+    take: 200,
     select: {
       id: true,
       scaleType: true,
@@ -49,13 +53,24 @@ export async function POST(
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
+  const rl = await writeLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas operações em pouco tempo. Aguarde alguns instantes.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } },
+    )
+  }
+
   const patient = await prisma.patient.findFirst({
     where: { id: params.id, userId: session.user.id },
     select: { id: true },
   })
   if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 })
 
-  const body = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { scaleType, answers, totalScore, severity, notes, appliedAt } = body
 
   if (!scaleType) return NextResponse.json({ error: 'Tipo de escala não informado' }, { status: 400 })

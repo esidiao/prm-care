@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { z } from 'zod'
+
+const patchSchema = z.object({
+  isActive: z.boolean().optional(),
+  activeIngredient: z.string().min(1).optional(),
+  tradeName: z.string().nullable().optional(),
+  dose: z.number().nullable().optional(),
+  doseUnit: z.string().nullable().optional(),
+  pharmaceuticalForm: z.string().nullable().optional(),
+  route: z.string().optional(),
+  frequency: z.string().nullable().optional(),
+  indication: z.string().nullable().optional(),
+  adherence: z.string().optional(),
+  isSelfMedication: z.boolean().optional(),
+  adverseEffects: z.string().nullable().optional(),
+})
 
 export async function DELETE(
   req: NextRequest,
@@ -53,23 +69,28 @@ export async function PATCH(
     return NextResponse.json({ error: 'Medicamento não encontrado' }, { status: 404 })
   }
 
-  const body = await req.json()
+  let data: z.infer<typeof patchSchema>
+  try {
+    data = patchSchema.parse(await req.json())
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Dados inválidos', details: err.errors }, { status: 400 })
+  }
 
   const updated = await prisma.medication.update({
     where: { id: params.id },
     data: {
-      isActive: body.isActive ?? medication.isActive,
-      ...(body.activeIngredient !== undefined && { activeIngredient: body.activeIngredient }),
-      ...(body.tradeName !== undefined && { tradeName: body.tradeName }),
-      ...(body.dose !== undefined && { dose: body.dose }),
-      ...(body.doseUnit !== undefined && { doseUnit: body.doseUnit }),
-      ...(body.pharmaceuticalForm !== undefined && { pharmaceuticalForm: body.pharmaceuticalForm }),
-      ...(body.route !== undefined && { route: body.route }),
-      ...(body.frequency !== undefined && { frequency: body.frequency }),
-      ...(body.indication !== undefined && { indication: body.indication }),
-      ...(body.adherence !== undefined && { adherence: body.adherence }),
-      ...(body.isSelfMedication !== undefined && { isSelfMedication: body.isSelfMedication }),
-      ...(body.adverseEffects !== undefined && { adverseEffects: body.adverseEffects }),
+      isActive: data.isActive ?? medication.isActive,
+      ...(data.activeIngredient !== undefined && { activeIngredient: data.activeIngredient }),
+      ...(data.tradeName !== undefined && { tradeName: data.tradeName }),
+      ...(data.dose !== undefined && { dose: data.dose }),
+      ...(data.doseUnit !== undefined && { doseUnit: data.doseUnit }),
+      ...(data.pharmaceuticalForm !== undefined && { pharmaceuticalForm: data.pharmaceuticalForm }),
+      ...(data.route !== undefined && { route: data.route as any }),
+      ...(data.frequency !== undefined && { frequency: data.frequency }),
+      ...(data.indication !== undefined && { indication: data.indication }),
+      ...(data.adherence !== undefined && { adherence: data.adherence as any }),
+      ...(data.isSelfMedication !== undefined && { isSelfMedication: data.isSelfMedication }),
+      ...(data.adverseEffects !== undefined && { adverseEffects: data.adverseEffects }),
     },
   })
 

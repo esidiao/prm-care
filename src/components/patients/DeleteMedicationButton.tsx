@@ -29,7 +29,7 @@ export function DeleteMedicationButton({ medicationId, medicationName }: { medic
       onClick={handleDelete}
       disabled={loading}
       title="Excluir medicamento"
-      className="ml-2 rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
+      className="ml-2 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors disabled:opacity-50"
     >
       {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
     </button>

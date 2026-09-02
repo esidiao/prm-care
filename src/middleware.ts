@@ -12,7 +12,7 @@ function getIp(req: Request): string {
 }
 
 export default withAuth(
-  function middleware(req) {
+  async function middleware(req) {
     const token    = req.nextauth.token
     const pathname = req.nextUrl.pathname
     const ip       = getIp(req)
@@ -22,7 +22,7 @@ export default withAuth(
 
     // Auth endpoints (login / register)
     if (pathname.startsWith('/api/auth') || pathname === '/api/auth/register') {
-      const rl = rateLimit(`auth:${ip}`, { limit: 15, windowSecs: 60 })
+      const rl = await rateLimit(`auth:${ip}`, { limit: 15, windowSecs: 60 })
       if (!rl.success) {
         return new NextResponse(
           JSON.stringify({ error: 'Muitas tentativas. Tente novamente em instantes.' }),
@@ -40,7 +40,7 @@ export default withAuth(
     // Analysis endpoint (IA + token consumption)
     if (pathname === '/api/analysis' && req.method === 'POST') {
       const userId = token?.id as string ?? ip
-      const rl = rateLimit(`analysis:${userId}`, { limit: 10, windowSecs: 60 })
+      const rl = await rateLimit(`analysis:${userId}`, { limit: 10, windowSecs: 60 })
       if (!rl.success) {
         return new NextResponse(
           JSON.stringify({ error: 'Limite de análises por minuto atingido. Aguarde um momento.' }),
@@ -52,7 +52,7 @@ export default withAuth(
     // Export endpoints
     if (pathname.startsWith('/api/export')) {
       const userId = token?.id as string ?? ip
-      const rl = rateLimit(`export:${userId}`, { limit: 5, windowSecs: 300 })
+      const rl = await rateLimit(`export:${userId}`, { limit: 5, windowSecs: 300 })
       if (!rl.success) {
         return new NextResponse(
           JSON.stringify({ error: 'Muitas exportações em pouco tempo. Aguarde 5 minutos.' }),
@@ -110,7 +110,11 @@ export default withAuth(
           pathname === '/terms' ||
           pathname === '/privacy' ||
           pathname.startsWith('/api/auth') ||
-          pathname === '/api/payments/webhook'  // Webhook do MP não precisa de autenticação de usuário
+          pathname === '/api/payments/webhook' ||  // Webhook do MP se autentica por HMAC
+          // Cron da Vercel: não há sessão de usuário num disparo agendado. A rota
+          // NÃO é pública — ela exige `Authorization: Bearer $CRON_SECRET` no
+          // próprio handler e devolve 404 sem ele. Mesmo modelo do webhook acima.
+          pathname.startsWith('/api/cron/')
         ) return true
         return !!token
       },
@@ -119,7 +123,11 @@ export default withAuth(
 )
 
 export const config = {
+  // manifest.json, sw.js, /icons e /offline precisam ser alcançáveis SEM sessão:
+  // o navegador lê o manifest antes de qualquer login, e um service worker
+  // redirecionado para /login nunca chega a registrar. Antes disto o manifest
+  // devolvia 307 em produção e o app não instalava direito.
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|logo.svg|images/|.*\\.jpg$|.*\\.jpeg$|.*\\.png$|.*\\.webp$|.*\\.svg$|.*\\.gif$|.*\\.ico$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|logo.svg|manifest.json|sw.js|icons/|offline|images/|.*\\.jpg$|.*\\.jpeg$|.*\\.png$|.*\\.webp$|.*\\.svg$|.*\\.gif$|.*\\.ico$).*)',
   ],
 }

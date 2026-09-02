@@ -336,6 +336,13 @@
            text-muted-foreground bg-muted/40 border border-border;
   }
 
+  /* ── Heading hierarchy — Plus Jakarta Sans weight 700-800 ── */
+  .heading    { @apply font-bold tracking-tight text-foreground; }
+  .heading-xl { @apply heading text-3xl; }
+  .heading-lg { @apply heading text-2xl; }
+  .heading-md { @apply heading text-xl; }
+  .heading-sm { @apply heading text-base; }
+
   /* ── Empty state ── */
   .empty-state {
     @apply flex flex-col items-center justify-center py-16 px-6 text-center;
@@ -348,6 +355,21 @@
   .page-header {
     @apply mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between;
   }
+
+  /* ── Card com borda-esquerda por nível de risco ── */
+  .card-risk-urgent  { @apply border-l-4 border-l-red-500; }
+  .card-risk-high    { @apply border-l-4 border-l-orange-400; }
+  .card-risk-moderate { @apply border-l-4 border-l-amber-400; }
+  .card-risk-low     { @apply border-l-4 border-l-emerald-400; }
+
+  /* ── Status pill (análise / encontro) ── */
+  .spill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold border;
+  }
+  .spill-urgent  { @apply spill; color: hsl(var(--risk-urg-fg)); background: hsl(var(--risk-urg-bg)); border-color: hsl(var(--risk-urg-border)); }
+  .spill-high    { @apply spill; color: hsl(var(--risk-high-fg)); background: hsl(var(--risk-high-bg)); border-color: hsl(var(--risk-high-border)); }
+  .spill-moderate { @apply spill; color: hsl(var(--risk-mod-fg)); background: hsl(var(--risk-mod-bg)); border-color: hsl(var(--risk-mod-border)); }
+  .spill-low     { @apply spill; color: hsl(var(--risk-low-fg)); background: hsl(var(--risk-low-bg)); border-color: hsl(var(--risk-low-border)); }
 
   /* ── Skeleton loading ── */
   .skeleton {

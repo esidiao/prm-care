@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
+import { writeLimiter } from '@/lib/rate-limit'
 import prisma from '@/lib/prisma'
+import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
 const medicationSchema = z.object({
@@ -53,6 +55,14 @@ export async function POST(
 ) {
   const session = await getSession()
   if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  const rl = await writeLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas operações em pouco tempo. Aguarde alguns instantes.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } },
+    )
+  }
 
   const patient = await prisma.patient.findFirst({
     where: { id: params.id, userId: session.user.id },
@@ -121,17 +131,56 @@ export async function PATCH(
   })
   if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 })
 
-  const { medicationId, ...data } = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
+  const { medicationId } = body
   if (!medicationId) return NextResponse.json({ error: 'medicationId obrigatório' }, { status: 400 })
 
-  const medication = await prisma.medication.update({
-    where: { id: medicationId, patientId: params.id },
-    data: {
-      ...data,
-      startDate: data.startDate ? new Date(data.startDate) : undefined,
-      endDate: data.endDate ? new Date(data.endDate) : undefined,
-    },
-  })
+  let data: Partial<ReturnType<typeof medicationSchema.parse>>
+  try {
+    data = medicationSchema.partial().parse(body)
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Dados inválidos', details: err.errors }, { status: 400 })
+  }
+
+  let medication
+  try {
+    medication = await prisma.medication.update({
+      where: { id: medicationId, patientId: params.id },
+      data: {
+        activeIngredient: data.activeIngredient,
+        tradeName: data.tradeName,
+        dose: data.dose !== undefined && data.dose !== ''
+          ? parseFloat(String(data.dose)) || null
+          : undefined,
+        doseUnit: data.doseUnit,
+        pharmaceuticalForm: data.pharmaceuticalForm,
+        route: data.route as any,
+        frequency: data.frequency,
+        frequencyHours: data.frequencyHours,
+        schedule: data.schedule,
+        indication: data.indication,
+        isPrescribed: data.isPrescribed,
+        isSelfMedication: data.isSelfMedication,
+        durationOfUse: data.durationOfUse,
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate ? new Date(data.endDate) : undefined,
+        adherence: data.adherence as any,
+        adverseEffects: data.adverseEffects,
+        prescriber: data.prescriber,
+        observations: data.observations,
+        isActive: data.isActive,
+      },
+    })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return NextResponse.json({ error: 'Medicamento não encontrado' }, { status: 404 })
+    }
+    console.error('[MEDICATION_PATCH]', e)
+    return NextResponse.json({ error: 'Erro ao atualizar medicamento.' }, { status: 500 })
+  }
 
   return NextResponse.json({ success: true, data: medication })
 }
@@ -148,14 +197,26 @@ export async function DELETE(
   })
   if (!patient) return NextResponse.json({ error: 'Paciente não encontrado' }, { status: 404 })
 
-  const { medicationId } = await req.json()
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
+  const { medicationId } = body
   if (!medicationId) return NextResponse.json({ error: 'medicationId obrigatório' }, { status: 400 })
 
   // Soft delete — mark as inactive
-  await prisma.medication.update({
-    where: { id: medicationId, patientId: params.id },
-    data: { isActive: false },
-  })
+  try {
+    await prisma.medication.update({
+      where: { id: medicationId, patientId: params.id },
+      data: { isActive: false },
+    })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      return NextResponse.json({ error: 'Medicamento não encontrado' }, { status: 404 })
+    }
+    console.error('[MEDICATION_DELETE]', e)
+    return NextResponse.json({ error: 'Erro ao remover medicamento.' }, { status: 500 })
+  }
 
   return NextResponse.json({ success: true })
 }

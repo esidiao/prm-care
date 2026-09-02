@@ -40,7 +40,7 @@ function fmt(date: string) {
 }
 
 function SeverityBadge({ severity, label }: { severity: string; label: string }) {
-  const cls = SEVERITY_BADGE_CLASSES[severity as SeverityLevel] ?? 'bg-gray-100 text-gray-700 border-gray-200'
+  const cls = SEVERITY_BADGE_CLASSES[severity as SeverityLevel] ?? 'bg-muted text-foreground border-border'
   return (
     <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${cls}`}>
       {label}
@@ -138,18 +138,18 @@ function ScaleForm({
         <div className="flex items-center gap-3">
           <ScaleIcon type={scale.type} />
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-gray-100">{scale.name}</h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{scale.description}</p>
+            <h3 className="font-semibold text-foreground">{scale.name}</h3>
+            <p className="text-xs text-muted-foreground">{scale.description}</p>
           </div>
         </div>
-        <button onClick={onCancel} className="rounded-full p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+        <button onClick={onCancel} className="rounded-full p-1 text-muted-foreground hover:bg-muted">
           <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Progress */}
       <div className="space-y-1">
-        <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>
             {answered} de {scale.questionCount} respondidas
             {!complete && answered > 0 && (
@@ -159,15 +159,15 @@ function ScaleForm({
             )}
           </span>
           {complete && severity && (
-            <span className="font-medium text-[#1e3a5f] dark:text-blue-400">
+            <span className="font-medium text-brand-800 dark:text-blue-400">
               Score: <strong>{totalScore}/{scale.maxScore}</strong>
             </span>
           )}
         </div>
-        <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${
-              complete ? 'bg-emerald-500' : 'bg-[#1e3a5f]'
+              complete ? 'bg-emerald-500' : 'bg-brand-800'
             }`}
             style={{ width: `${(answered / scale.questionCount) * 100}%` }}
           />
@@ -177,9 +177,9 @@ function ScaleForm({
       {/* Questions */}
       <div className="space-y-4">
         {scale.questions.map((q, idx) => (
-          <div key={q.id} className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <p className="mb-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-              <span className="mr-2 text-gray-400 dark:text-gray-500">{idx + 1}.</span>
+          <div key={q.id} className="rounded-lg border border-border p-4">
+            <p className="mb-3 text-sm font-medium text-foreground">
+              <span className="mr-2 text-muted-foreground">{idx + 1}.</span>
               {q.text}
             </p>
             <div className="flex flex-col gap-2">
@@ -190,8 +190,8 @@ function ScaleForm({
                     key={opt.value}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 text-sm transition-colors ${
                       isSelected
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f] dark:bg-[#1e3a5f]/20 dark:text-blue-300'
-                        : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                        ? 'border-brand-800 bg-brand-800/5 text-brand-800 dark:bg-brand-800/20 dark:text-blue-300'
+                        : 'border-border text-foreground hover:border-muted-foreground/40'
                     }`}
                   >
                     <input
@@ -204,13 +204,13 @@ function ScaleForm({
                     />
                     <div className={`flex h-4 w-4 items-center justify-center rounded-full border-2 flex-shrink-0 transition-colors ${
                       isSelected
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f] dark:border-blue-400 dark:bg-blue-500'
-                        : 'border-gray-300 dark:border-gray-600'
+                        ? 'border-brand-800 bg-brand-800 dark:border-blue-400 dark:bg-blue-500'
+                        : 'border-border'
                     }`}>
-                      {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                      {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-card" />}
                     </div>
                     <span>{opt.label}</span>
-                    <span className="ml-auto font-mono text-xs text-gray-400 shrink-0">({opt.value} pt)</span>
+                    <span className="ml-auto font-mono text-xs text-muted-foreground shrink-0">({opt.value} pt)</span>
                   </label>
                 )
               })}
@@ -231,28 +231,28 @@ function ScaleForm({
 
       {/* Result preview */}
       {complete && severity && (
-        <div className="rounded-lg border-2 border-[#1e3a5f]/20 bg-[#1e3a5f]/5 dark:bg-[#1e3a5f]/10 p-4">
+        <div className="rounded-lg border-2 border-brand-800/20 bg-brand-800/5 dark:bg-brand-800/10 p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <span className="text-sm font-semibold text-foreground">
               Score: {totalScore}/{scale.maxScore}
             </span>
             <SeverityBadge severity={severity} label={scale.getSeverityLabel(severity)} />
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{scale.getRecommendation(severity)}</p>
+          <p className="text-xs text-muted-foreground">{scale.getRecommendation(severity)}</p>
         </div>
       )}
 
       {/* Notes */}
       <div>
-        <label className="mb-1 block text-xs font-medium text-gray-700 dark:text-gray-300">
+        <label className="mb-1 block text-xs font-medium text-foreground" htmlFor="notes">
           Observações clínicas (opcional)
         </label>
-        <textarea
+        <textarea id="notes"
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
           placeholder="Contexto clínico relevante, medicamentos suspeitos, encaminhamentos realizados..."
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f] resize-none"
+          className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800 resize-none"
         />
       </div>
 
@@ -262,7 +262,7 @@ function ScaleForm({
       <div className="flex justify-end gap-2">
         <button
           onClick={onCancel}
-          className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted"
         >
           Cancelar
         </button>
@@ -270,7 +270,7 @@ function ScaleForm({
           onClick={handleSubmit}
           disabled={!complete || saving}
           title={!complete ? `Responda todas as ${scale.questionCount} questões para salvar` : ''}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
           {saving ? 'Salvando...' : complete ? 'Salvar avaliação' : `Faltam ${scale.questionCount - answered} questão(ões)`}
@@ -314,21 +314,21 @@ function AssessmentCard({
   }
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-start justify-between gap-2">
         <div className="flex items-center gap-3 min-w-0">
           <ScaleIcon type={record.scaleType as ScaleType} size="sm" />
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <span className="text-sm font-medium text-foreground">
                 {scale.name}
               </span>
               <SeverityBadge severity={severity} label={scale.getSeverityLabel(severity)} />
-              <span className="text-sm font-bold text-gray-700 dark:text-gray-300">
+              <span className="text-sm font-bold text-foreground">
                 {record.totalScore}/{scale.maxScore}
               </span>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {fmt(record.appliedAt)} · {record.user.name || record.user.email}
             </p>
           </div>
@@ -336,14 +336,14 @@ function AssessmentCard({
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => setExpanded((v) => !v)}
-            className="rounded p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+            className="rounded p-1 text-muted-foreground hover:bg-muted"
           >
             {expanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
           </button>
           {!confirmDelete ? (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="rounded p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+              className="rounded p-1 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
             >
               <Trash2 className="h-4 w-4" />
             </button>
@@ -358,7 +358,7 @@ function AssessmentCard({
               </button>
               <button
                 onClick={() => setConfirmDelete(false)}
-                className="rounded px-2 py-1 text-xs text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted"
               >
                 Não
               </button>
@@ -368,10 +368,10 @@ function AssessmentCard({
       </div>
 
       {expanded && (
-        <div className="mt-4 space-y-3 border-t border-gray-100 dark:border-gray-700 pt-3">
+        <div className="mt-4 space-y-3 border-t border-border pt-3">
           {/* Recommendation */}
-          <div className="rounded-lg bg-gray-50 dark:bg-gray-900 p-3 text-xs text-gray-700 dark:text-gray-300">
-            <p className="font-semibold mb-1 text-gray-900 dark:text-gray-100">Conduta sugerida</p>
+          <div className="rounded-lg bg-muted p-3 text-xs text-foreground">
+            <p className="font-semibold mb-1 text-foreground">Conduta sugerida</p>
             {scale.getRecommendation(severity)}
           </div>
           {/* Answers */}
@@ -381,9 +381,9 @@ function AssessmentCard({
               const opt = q.options.find((o) => o.value === ans?.answer)
               return (
                 <div key={q.id} className="flex items-start gap-2 text-xs">
-                  <span className="text-gray-400 w-5 shrink-0">{idx + 1}.</span>
-                  <span className="text-gray-600 dark:text-gray-400 flex-1">{q.text}</span>
-                  <span className={`shrink-0 font-medium ${(ans?.answer ?? 0) > 1 ? 'text-orange-600 dark:text-orange-400' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <span className="text-muted-foreground w-5 shrink-0">{idx + 1}.</span>
+                  <span className="text-muted-foreground flex-1">{q.text}</span>
+                  <span className={`shrink-0 font-medium ${(ans?.answer ?? 0) > 1 ? 'text-orange-600 dark:text-orange-400' : 'text-foreground'}`}>
                     {opt?.label ?? '—'} ({ans?.answer ?? 0})
                   </span>
                 </div>
@@ -430,8 +430,8 @@ function ScaleTrendChart({ records, scale }: { records: AssessmentRecord[]; scal
       : [{ y: 3, label: 'Média' }]
 
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
-      <h4 className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-100">
+    <div className="rounded-lg border border-border bg-card p-4">
+      <h4 className="mb-3 text-sm font-semibold text-foreground">
         Evolução — {scale.name}
       </h4>
       <ResponsiveContainer width="100%" height={160}>
@@ -509,17 +509,17 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
   }, {})
 
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+    <div className="rounded-xl border border-border bg-card shadow-sm">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div className="flex items-center gap-2">
-          <Brain className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
-          <h2 className="font-semibold text-gray-900 dark:text-gray-100">
+          <Brain className="h-4 w-4 text-brand-800 dark:text-blue-400" />
+          <h2 className="font-semibold text-foreground">
             Escalas Clínicas Validadas
           </h2>
           <button
             onClick={() => setShowInfo((v) => !v)}
-            className="rounded-full p-0.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="rounded-full p-0.5 text-muted-foreground hover:text-foreground"
           >
             <Info className="h-3.5 w-3.5" />
           </button>
@@ -530,7 +530,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
               href={`/patients/${patientId}/scales/report`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted transition-colors"
             >
               <Printer className="h-3.5 w-3.5" /> Relatório
             </a>
@@ -539,7 +539,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
             <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setDropdownOpen((v) => !v)}
-                className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f] px-3 py-1.5 text-xs font-medium text-white hover:bg-[#162d4a] active:bg-[#162d4a] transition-colors"
+                className="flex items-center gap-1.5 rounded-lg bg-brand-800 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-900 active:bg-brand-900 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Nova aplicação</span>
@@ -547,17 +547,17 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
                 <ChevronDown className={`h-3 w-3 ml-0.5 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
               {dropdownOpen && (
-                <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-20">
+                <div className="absolute right-0 top-full mt-1 w-56 rounded-xl border border-border bg-card shadow-xl z-20">
                   {SCALE_LIST.map((s) => (
                     <button
                       key={s.type}
                       onClick={() => { setActiveForm(s.type); setDropdownOpen(false) }}
-                      className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 first:rounded-t-xl last:rounded-b-xl transition-colors"
+                      className="flex w-full items-center gap-3 px-3 py-3 text-left hover:bg-muted first:rounded-t-xl last:rounded-b-xl transition-colors"
                     >
                       <ScaleIcon type={s.type} size="sm" />
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100 text-sm">{s.name}</p>
-                        <p className="text-xs text-gray-400">{s.questionCount} questões · score 0–{s.maxScore}</p>
+                        <p className="font-medium text-foreground text-sm">{s.name}</p>
+                        <p className="text-xs text-muted-foreground">{s.questionCount} questões · score 0–{s.maxScore}</p>
                       </div>
                     </button>
                   ))}
@@ -570,13 +570,13 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
 
       {/* Info panel */}
       {showInfo && (
-        <div className="border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-950 px-5 py-3">
+        <div className="border-b border-border bg-blue-50 dark:bg-blue-950 px-5 py-3">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             {SCALE_LIST.map((s) => (
               <div key={s.type} className="text-xs">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">{s.name}</span>
-                <p className="text-gray-500 dark:text-gray-400 mt-0.5">{s.description}</p>
-                <p className="text-gray-400 dark:text-gray-500 mt-1 italic">{s.reference}</p>
+                <span className="font-semibold text-foreground">{s.name}</span>
+                <p className="text-muted-foreground mt-0.5">{s.description}</p>
+                <p className="text-muted-foreground mt-1 italic">{s.reference}</p>
               </div>
             ))}
           </div>
@@ -586,7 +586,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
       <div className="p-5 space-y-4">
         {/* Active form */}
         {activeForm && (
-          <div className="rounded-xl border-2 border-[#1e3a5f]/20 bg-gray-50 dark:bg-gray-900 p-5">
+          <div className="rounded-xl border-2 border-brand-800/20 bg-muted p-5">
             <ScaleForm
               scale={SCALES[activeForm]}
               patientId={patientId}
@@ -599,8 +599,8 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
         {assessments.length === 0 && !activeForm ? (
           <div className="py-10 text-center">
             <Brain className="mx-auto h-8 w-8 text-gray-300 dark:text-gray-600 mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">Nenhuma avaliação registrada</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+            <p className="text-sm text-muted-foreground">Nenhuma avaliação registrada</p>
+            <p className="text-xs text-muted-foreground mt-1">
               Aplique GAD-7, PHQ-9, AUDIT-C ou Morisky-4 clicando em "Nova aplicação"
             </p>
           </div>
@@ -618,8 +618,8 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
                     onClick={() => setActiveTab(activeTab === s.type ? 'all' : s.type)}
                     className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
                       activeTab === s.type
-                        ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white'
-                        : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300'
+                        ? 'border-brand-800 bg-brand-800 text-white'
+                        : 'border-border bg-card text-foreground hover:border-muted-foreground/40'
                     }`}
                   >
                     <ScaleIcon type={s.type} size="sm" />
@@ -636,7 +636,7 @@ export function ClinicalScales({ patientId, initialAssessments }: Props) {
               {activeTab !== 'all' && (
                 <button
                   onClick={() => setActiveTab('all')}
-                  className="rounded-full border border-gray-200 dark:border-gray-700 px-3 py-1.5 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted"
                 >
                   Ver todas
                 </button>

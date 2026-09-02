@@ -8,6 +8,7 @@ import React from 'react'
 import {
   Document, Page, Text, View, StyleSheet, renderToBuffer,
 } from '@react-pdf/renderer'
+import { DDI_ATTRIBUTION_SHORT } from '@/lib/ddi-attribution'
 
 // ─── Tipos de entrada ─────────────────────────────────────────────────────────
 
@@ -523,7 +524,8 @@ function Disclaimer() {
       'AVISO LEGAL: Este relatório foi gerado com suporte de sistema de análise farmacêutica e deve ser interpretado ' +
       'por profissional habilitado. Os achados representam potenciais problemas relacionados a medicamentos (PRMs) e não ' +
       'substituem a avaliação clínica individualizada. A conduta final é responsabilidade exclusiva do farmacêutico e/ou ' +
-      'equipe de saúde. Documento confidencial — uso restrito à equipe de saúde. Resolução CFF vigente.'
+      'equipe de saúde. Documento confidencial — uso restrito à equipe de saúde. Resolução CFF vigente. ' +
+      DDI_ATTRIBUTION_SHORT
     ),
   )
 }

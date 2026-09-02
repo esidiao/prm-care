@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation'
 import {
   Pill, LayoutDashboard, Users, FlaskConical, FileText,
   Coins, Settings, BookOpen, BarChart3, LogOut, ChevronRight,
-  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna,
-} from 'lucide-react'
+  Calculator, X, Menu, UserCircle, Globe, TrendingUp, Link2, Dna, ShieldCheck, ShieldAlert } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import type { UserRole } from '@prisma/client'
@@ -26,9 +25,12 @@ const navItems = [
   { href: '/dashboard', label: 'Painel', icon: LayoutDashboard },
   { href: '/patients', label: 'Pacientes', icon: Users },
   { href: '/analysis/new', label: 'Nova Análise', icon: FlaskConical, highlight: true },
+  { href: '/medicamentos', label: 'Medicamentos', icon: Pill },
   { href: '/interactions', label: 'Interações', icon: Link2 },
   { href: '/pharmacogenomics', label: 'Farmacogenômica', icon: Dna },
   { href: '/reports', label: 'Relatórios', icon: FileText },
+  { href: '/eventos-adversos', label: 'Reações Adversas', icon: ShieldAlert },
+  { href: '/impacto', label: 'Impacto', icon: TrendingUp },
   { href: '/analyses', label: 'Histórico', icon: BarChart3 },
   { href: '/knowledge', label: 'Base Clínica', icon: BookOpen },
   { href: '/resources', label: 'Bases de Dados', icon: Globe },
@@ -42,6 +44,7 @@ const adminItems = [
   { href: '/admin/financeiro', label: 'Financeiro', icon: TrendingUp },
   { href: '/admin/users', label: 'Usuários', icon: Users },
   { href: '/admin/knowledge', label: 'Base Clínica', icon: BookOpen },
+  { href: '/admin/curadoria', label: 'Curadoria', icon: ShieldCheck },
   { href: '/admin/tokens', label: 'Pacotes', icon: Coins },
 ]
 
@@ -243,7 +246,7 @@ export function MobileNav({ user }: SidebarProps) {
       {/* Hamburger button (only on mobile) */}
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300"
+        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted"
         aria-label="Menu"
       >
         <Menu className="h-4 w-4" />
@@ -260,7 +263,7 @@ export function MobileNav({ user }: SidebarProps) {
       {/* Drawer */}
       <div
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-72 bg-[#0f2744] text-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden',
+          'fixed inset-y-0 left-0 z-50 w-72 bg-brand-900 text-white shadow-2xl transition-transform duration-300 ease-in-out lg:hidden',
           open ? 'translate-x-0' : '-translate-x-full',
         )}
       >

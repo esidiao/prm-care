@@ -9,7 +9,7 @@ import {
 type Variant = 'default' | 'destructive' | 'success' | 'warning' | 'info'
 
 const ICON: Record<Variant, React.ReactNode> = {
-  default: <Info className="h-4 w-4 text-[#1e3a5f] flex-shrink-0 mt-0.5" />,
+  default: <Info className="h-4 w-4 text-brand-800 flex-shrink-0 mt-0.5" />,
   destructive: <XCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />,
   success: <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />,
   warning: <AlertTriangle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />,
@@ -27,18 +27,18 @@ export function Toaster() {
             {ICON[v]}
             <div className="flex-1 min-w-0">
               {title && (
-                <ToastTitle className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                <ToastTitle className="text-sm font-semibold text-foreground">
                   {title}
                 </ToastTitle>
               )}
               {description && (
-                <ToastDescription className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <ToastDescription className="text-xs text-muted-foreground mt-0.5">
                   {description}
                 </ToastDescription>
               )}
             </div>
             {action}
-            <ToastClose className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+            <ToastClose className="text-muted-foreground hover:text-foreground" />
           </Toast>
         )
       })}

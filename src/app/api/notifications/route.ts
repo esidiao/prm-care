@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma'
 
 export async function GET() {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const userId = session.user.id
   const now = new Date()

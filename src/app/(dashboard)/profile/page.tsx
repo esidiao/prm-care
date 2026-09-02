@@ -5,6 +5,7 @@ import {
   Save, Loader2, CheckCircle2, AlertCircle, Camera,
   FlaskConical, Users, Calendar,
 } from 'lucide-react'
+import { apiErrorMessage } from '@/lib/utils'
 
 const SPECIALIZATIONS = [
   'Farmácia Clínica',
@@ -84,8 +85,11 @@ export default function ProfilePage() {
   const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-    if (file.size > 2 * 1024 * 1024) {
-      setError('Imagem deve ter no máximo 2 MB.')
+    // O servidor recusa data URLs acima de 200 KB em base64 — o avatar vai para
+    // o JWT do NextAuth, que trafega no cookie de sessão (limite de ~4 KB no
+    // browser). 140 KB de arquivo ficam abaixo do teto depois do base64.
+    if (file.size > 140 * 1024) {
+      setError('Imagem deve ter no máximo 140 KB.')
       return
     }
     const reader = new FileReader()
@@ -105,13 +109,13 @@ export default function ProfilePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, institution, crfNumber, specialization, image }),
       })
-      if (!res.ok) throw new Error('Erro ao salvar')
-      const updated = await res.json()
+      const updated = await res.json().catch(() => null)
+      if (!res.ok) throw new Error(apiErrorMessage(updated, 'Erro ao salvar'))
       setProfile(prev => prev ? { ...prev, ...updated } : prev)
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)
-    } catch {
-      setError('Não foi possível salvar as alterações.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Não foi possível salvar as alterações.')
     } finally {
       setSaving(false)
     }
@@ -120,7 +124,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-300" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-300 dark:text-gray-600" />
       </div>
     )
   }
@@ -132,8 +136,8 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Meu Perfil</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+        <h1 className="text-2xl font-bold text-foreground">Meu Perfil</h1>
+        <p className="text-sm text-muted-foreground mt-1">
           Dados profissionais usados em relatórios, cartas e assinaturas
         </p>
       </div>
@@ -146,21 +150,21 @@ export default function ProfilePage() {
             { label: 'Análises', value: profile._count.analyses, icon: FlaskConical, color: 'text-purple-600 bg-purple-50 dark:bg-purple-950' },
             { label: 'Membro desde', value: new Date(profile.createdAt).toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }), icon: Calendar, color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950' },
           ].map(({ label, value, icon: Icon, color }) => (
-            <div key={label} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-center shadow-sm">
+            <div key={label} className="rounded-xl border border-border bg-card p-4 text-center shadow-sm">
               <div className={`mx-auto mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${color}`}>
                 <Icon className="h-4 w-4" />
               </div>
-              <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{value}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
+              <p className="text-lg font-bold text-foreground">{value}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
             </div>
           ))}
         </div>
       )}
 
       {/* Main form card */}
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
+      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
         {/* Avatar section */}
-        <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a5298] px-6 py-8 flex items-center gap-6">
+        <div className="bg-gradient-to-r from-brand-800 to-[#2a5298] px-6 py-8 flex items-center gap-6">
           <div className="relative flex-shrink-0">
             <div className="h-20 w-20 rounded-2xl overflow-hidden ring-4 ring-white/20 bg-white/10 flex items-center justify-center">
               {avatarSrc ? (
@@ -172,7 +176,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-white shadow-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
+              className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-card shadow-lg border border-border text-muted-foreground hover:bg-muted transition-colors"
               title="Alterar foto"
             >
               <Camera className="h-3.5 w-3.5" />
@@ -205,62 +209,62 @@ export default function ProfilePage() {
         <form onSubmit={handleSave} className="p-6 space-y-5">
           {/* Email (read-only) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               E-mail
             </label>
-            <div className="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 px-3 py-2.5">
-              <Mail className="h-4 w-4 text-gray-400 flex-shrink-0" />
-              <span className="text-sm text-gray-500 dark:text-gray-400">{profile?.email}</span>
+            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2.5">
+              <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <span className="text-sm text-muted-foreground">{profile?.email}</span>
             </div>
-            <p className="text-[10px] text-gray-400 mt-1">O e-mail não pode ser alterado</p>
+            <p className="text-[10px] text-muted-foreground mt-1">O e-mail não pode ser alterado</p>
           </div>
 
           {/* Name */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Nome completo
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 placeholder="Dr. João Silva"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           </div>
 
           {/* CRF */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               CRF (Conselho Regional de Farmácia)
             </label>
             <div className="relative">
-              <BadgeCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <BadgeCheck className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={crfNumber}
                 onChange={e => setCrfNumber(e.target.value)}
                 placeholder="Ex: CRF-SP 12345"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
-            <p className="text-[10px] text-gray-400 mt-1">Aparece nos relatórios e cartas de encaminhamento</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Aparece nos relatórios e cartas de encaminhamento</p>
           </div>
 
           {/* Specialization */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Especialização
             </label>
             <div className="relative">
-              <Award className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+              <Award className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <select
                 value={specialization}
                 onChange={e => setSpecialization(e.target.value)}
-                className="w-full appearance-none rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full appearance-none rounded-lg border border-border bg-card pl-9 pr-4 py-2.5 text-sm text-foreground focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               >
                 <option value="">Selecione…</option>
                 {SPECIALIZATIONS.map(s => (
@@ -272,17 +276,17 @@ export default function ProfilePage() {
 
           {/* Institution */}
           <div>
-            <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+            <label className="block text-xs font-semibold text-foreground mb-1.5">
               Instituição / Local de trabalho
             </label>
             <div className="relative">
-              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={institution}
                 onChange={e => setInstitution(e.target.value)}
                 placeholder="Ex: Hospital das Clínicas - USP"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-border bg-card pl-9 pr-4 py-2.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           </div>
@@ -290,15 +294,15 @@ export default function ProfilePage() {
           {/* Photo URL (optional manual entry) */}
           {image && image.startsWith('http') && (
             <div>
-              <label className="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+              <label className="block text-xs font-semibold text-foreground mb-1.5" htmlFor="image">
                 URL da foto de perfil
               </label>
-              <input
+              <input id="image"
                 type="url"
                 value={image}
                 onChange={e => setImage(e.target.value)}
                 placeholder="https://…"
-                className="w-full rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none focus:ring-1 focus:ring-[#1e3a5f]"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none focus:ring-1 focus:ring-brand-800"
               />
             </div>
           )}
@@ -322,7 +326,7 @@ export default function ProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[#16304f] disabled:opacity-60 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-brand-800 px-6 py-2.5 text-sm font-semibold text-white hover:bg-brand-900 disabled:opacity-60 transition-colors"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               {saving ? 'Salvando…' : 'Salvar alterações'}

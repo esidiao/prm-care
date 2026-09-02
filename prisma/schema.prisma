@@ -155,6 +155,8 @@ model User {
   auditLogs         AuditLog[]
   knowledgeEntries  KnowledgeBase[]
   payments          Payment[]
+  soapAttestations  SOAPRecord[]       @relation("SoapAttestedBy")
+  adverseEvents     AdverseEventReport[]
 
   @@map("users")
 }
@@ -265,6 +267,7 @@ model Patient {
 
   @@unique([userId, code])
   @@map("patients")
+  adverseEvents     AdverseEventReport[]
 }
 
 model Comorbidity {
@@ -428,9 +431,17 @@ model SOAPRecord {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
+  // Atesto do farmacêutico — quem assumiu o registro como seu e quando.
+  // Nulo enquanto o texto for apenas a sugestão do motor de análise.
+  // Ver prisma/sql/soap_attestation.sql (aplicado em 31/08/2026).
+  attestedById String?
+  attestedAt   DateTime?
+
   analysis     PRMAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
   patient      Patient     @relation(fields: [patientId], references: [id])
+  attestedBy   User?       @relation("SoapAttestedBy", fields: [attestedById], references: [id], onDelete: SetNull)
 
+  @@index([attestedAt])
   @@map("soap_records")
 }
 
@@ -610,6 +621,14 @@ model AuditLog {
   details     Json?
   createdAt   DateTime @default(now())
 
+  /// Encadeamento por hash — ver prisma/sql/audit_logs_encadeamento.sql.
+  /// Preenchidos por TRIGGER no banco, nunca pela aplicação: há chamadas diretas
+  /// a `auditLog.create` que não passam pelo helper `logAudit()`, e encadear no
+  /// código deixaria essas de fora em silêncio.
+  sequencia    BigInt? @unique
+  hash         String?
+  hashAnterior String?
+
   user User? @relation(fields: [userId], references: [id])
 
   @@map("audit_logs")
@@ -628,6 +647,17 @@ model ConsentRecord {
   user User @relation(fields: [userId], references: [id])
 
   @@map("consent_records")
+}
+
+// Standalone (sem @relation) — tabela aditiva via prisma/sql, segue o padrão de ddi_*/reconciliations.
+model PasswordHistory {
+  id           String   @id @default(cuid())
+  userId       String
+  passwordHash String
+  createdAt    DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("password_history")
 }
 
 // ─── ESCALAS CLÍNICAS ─────────────────────────────────────────────────────────
@@ -658,6 +688,7 @@ model PatientReview {
   patientId     String
   userId        String
   scheduledDate DateTime
+  // Valores restringidos no banco por CHECK constraint — ver prisma/sql/patient_reviews_constraints.sql
   type          String    // "MEDICATION_REVIEW" | "FOLLOW_UP" | "LAB_CHECK" | "ADHERENCE" | "CUSTOM"
   title         String
   notes         String?   @db.Text
@@ -811,4 +842,88 @@ model DdiRagChunk {
   createdAt DateTime @default(now()) @db.Timestamptz(6)
   @@index([sourceId])
   @@map("ddi_rag_chunks")
+}
+
+/// Camada de referência brasileira — ANVISA (registro) e CMED (preço).
+/// Dado público reconstruível por `node scripts/etl/anvisa-cmed.mjs`;
+/// não contém registro clínico. Ver prisma/sql/ref_medicamentos_anvisa_cmed.sql.
+model RefMedicamento {
+  id                   String   @id
+  registro             String?
+  produto              String
+  principioAtivo       String?
+  /// minúsculo e sem acento — chave de cruzamento com a base clínica própria
+  principioAtivoNorm   String?
+  classeTerapeutica    String?
+  categoriaRegulatoria String?
+  empresa              String?
+  atualizadoEm         DateTime @default(now())
+
+  @@index([principioAtivoNorm])
+  @@index([produto])
+  @@map("ref_medicamentos")
+}
+
+model RefApresentacao {
+  /// GGREM — identificador da apresentação na CMED
+  ggrem               String   @id
+  registro            String?
+  ean                 String?
+  substancia          String?
+  substanciaNorm      String?
+  produto             String
+  apresentacao        String?
+  laboratorio         String?
+  classeTerapeutica   String?
+  /// Genérico / Similar / Referência — sustenta a troca por equivalente
+  tipoProduto         String?
+  tarja               String?
+  restricaoHospitalar Boolean  @default(false)
+  /// Em centavos: float acumula erro ao somar e ordenar preço
+  pfSemImpostosCents  Int?
+  pmcSemImpostosCents Int?
+  atualizadoEm        DateTime @default(now())
+
+  @@index([substanciaNorm, pmcSemImpostosCents])
+  @@index([produto])
+  @@index([registro])
+  @@map("ref_apresentacoes")
+}
+
+/// Suspeita de reação adversa a medicamento — registro clínico + ficha VigiMed.
+/// O sistema NÃO submete ao VigiMed (não há API pública para profissional);
+/// registra a suspeita, monta a ficha e guarda o protocolo do envio manual.
+/// Ver prisma/sql/eventos_adversos.sql e docs do campo em lib/evento-adverso.ts.
+model AdverseEventReport {
+  id           String    @id @default(cuid())
+  patientId    String
+  userId       String
+
+  medicamentos String    @db.Text
+  reacao       String    @db.Text
+  dataInicio   DateTime
+  dataFim      DateTime?
+
+  /// Valores restringidos por CHECK no banco — ver o SQL
+  gravidade    String
+  desfecho     String
+  acaoTomada   String
+  reexposicao  String    @default("NAO_APLICA")
+
+  historicoRelevante String? @db.Text
+  observacoes        String? @db.Text
+
+  /// Nulo enquanto não foi notificado à ANVISA. O envio é manual, pelo portal.
+  notificadoEm     DateTime?
+  protocoloVigimed String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id])
+
+  @@index([userId, notificadoEm])
+  @@index([patientId, dataInicio(sort: Desc)])
+  @@map("adverse_event_reports")
 }

@@ -3,11 +3,15 @@
  */
 
 import prisma from '@/lib/prisma'
-import { TransactionType, PlanType } from '@prisma/client'
+import { TransactionType, PlanType, Prisma } from '@prisma/client'
+
+/** Cliente Prisma dentro de uma transação (para compor operações atômicas). */
+type TxClient = Prisma.TransactionClient
 
 export interface TokenOperation {
   success: boolean
   newBalance: number
+  txId?: string
   error?: string
 }
 
@@ -48,7 +52,7 @@ export async function consumeTokens(
 
     // Planos ilimitados: registra log mas não desconta saldo
     if (UNLIMITED_PLANS.includes(user.plan)) {
-      await tx.tokenTransaction.create({
+      const tx_ = await tx.tokenTransaction.create({
         data: {
           userId,
           type: TransactionType.CONSUMPTION,
@@ -59,7 +63,7 @@ export async function consumeTokens(
           referenceId,
         },
       })
-      return { success: true, newBalance: user.tokenBalance }
+      return { success: true, newBalance: user.tokenBalance, txId: tx_.id }
     }
 
     if (user.tokenBalance < amount) {
@@ -76,7 +80,7 @@ export async function consumeTokens(
       data: { tokenBalance: newBalance },
     })
 
-    await tx.tokenTransaction.create({
+    const tx_ = await tx.tokenTransaction.create({
       data: {
         userId,
         type: TransactionType.CONSUMPTION,
@@ -88,8 +92,53 @@ export async function consumeTokens(
       },
     })
 
-    return { success: true, newBalance }
+    return { success: true, newBalance, txId: tx_.id }
   })
+}
+
+/**
+ * Núcleo do crédito de tokens que opera sobre um cliente de transação já aberto.
+ * Permite compor o crédito atomicamente com outras escritas (ex.: registro de
+ * pagamento no webhook), evitando o cenário "pagou mas não recebeu tokens".
+ */
+export async function addTokensTx(
+  tx: TxClient,
+  userId: string,
+  amount: number,
+  type: TransactionType,
+  description: string,
+  packageId?: string,
+  paymentId?: string,
+  referenceId?: string
+): Promise<TokenOperation> {
+  const user = await tx.user.findUnique({
+    where: { id: userId },
+    select: { tokenBalance: true },
+  })
+
+  if (!user) throw new Error('Usuário não encontrado ao creditar tokens.')
+
+  const newBalance = user.tokenBalance + amount
+  await tx.user.update({
+    where: { id: userId },
+    data: { tokenBalance: newBalance },
+  })
+
+  await tx.tokenTransaction.create({
+    data: {
+      userId,
+      packageId,
+      type,
+      amount,
+      balanceBefore: user.tokenBalance,
+      balanceAfter: newBalance,
+      description,
+      paymentId,
+      referenceId,
+    },
+  })
+
+  return { success: true, newBalance }
 }
 
 export async function addTokens(
@@ -101,36 +150,13 @@ export async function addTokens(
   paymentId?: string,
   referenceId?: string
 ): Promise<TokenOperation> {
-  return prisma.$transaction(async (tx) => {
-    const user = await tx.user.findUnique({
-      where: { id: userId },
-      select: { tokenBalance: true },
-    })
-
-    if (!user) return { success: false, newBalance: 0, error: 'Usuário não encontrado.' }
-
-    const newBalance = user.tokenBalance + amount
-    await tx.user.update({
-      where: { id: userId },
-      data: { tokenBalance: newBalance },
-    })
-
-    await tx.tokenTransaction.create({
-      data: {
-        userId,
-        packageId,
-        type,
-        amount,
-        balanceBefore: user.tokenBalance,
-        balanceAfter: newBalance,
-        description,
-        paymentId,
-        referenceId,
-      },
-    })
-
-    return { success: true, newBalance }
-  })
+  try {
+    return await prisma.$transaction((tx) =>
+      addTokensTx(tx, userId, amount, type, description, packageId, paymentId, referenceId)
+    )
+  } catch (err) {
+    return { success: false, newBalance: 0, error: err instanceof Error ? err.message : 'Erro ao creditar tokens.' }
+  }
 }
 
 export async function getTransactionHistory(

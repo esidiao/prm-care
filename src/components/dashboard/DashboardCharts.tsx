@@ -32,8 +32,8 @@ interface Props {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg text-xs">
-      {label && <p className="mb-1 font-semibold text-gray-700">{label}</p>}
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
+      {label && <p className="mb-1 font-semibold text-foreground">{label}</p>}
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.stroke ?? p.fill ?? p.color }} className="font-medium">
           {p.name}: <span className="tabular-nums">{p.value}</span>
@@ -48,9 +48,9 @@ function PieTooltip({ active, payload }: any) {
   const item = payload[0]
   const pct = item.payload.percent !== undefined ? ` (${Math.round(item.payload.percent * 100)}%)` : ''
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg text-xs">
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold" style={{ color: item.payload.color }}>{item.name}</p>
-      <p className="text-gray-600">{item.value} PRMs{pct}</p>
+      <p className="text-muted-foreground">{item.value} PRMs{pct}</p>
     </div>
   )
 }
@@ -69,7 +69,7 @@ function ResolutionWidget({
     <div className="card p-5 flex flex-col">
       <div className="flex items-center gap-2 mb-4">
         <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-        <h3 className="text-sm font-semibold text-gray-900">Resolução de PRMs</h3>
+        <h3 className="text-sm font-semibold text-foreground">Resolução de PRMs</h3>
       </div>
 
       {/* Ring */}
@@ -137,10 +137,10 @@ export function DashboardCharts({
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <ShieldAlert className="h-4 w-4 text-red-500" />
-            <h3 className="text-sm font-semibold text-gray-900">PRMs por gravidade</h3>
+            <h3 className="text-sm font-semibold text-foreground">PRMs por gravidade</h3>
           </div>
           {riskChartData.length === 0 ? (
-            <p className="py-10 text-center text-xs text-gray-400">Sem dados</p>
+            <p className="py-10 text-center text-xs text-muted-foreground">Sem dados</p>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={160}>
@@ -159,14 +159,14 @@ export function DashboardCharts({
                 {riskChartData.map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                    <span className="flex-1 text-xs text-gray-600">{item.name}</span>
-                    <div className="h-1.5 w-16 rounded-full bg-gray-100 overflow-hidden">
+                    <span className="flex-1 text-xs text-muted-foreground">{item.name}</span>
+                    <div className="h-1.5 w-16 rounded-full bg-muted overflow-hidden">
                       <div className="h-full rounded-full" style={{
                         width: `${Math.round((item.value / totalFindingsCount) * 100)}%`,
                         backgroundColor: item.color,
                       }} />
                     </div>
-                    <span className="w-5 text-right text-xs font-semibold text-gray-800 tabular-nums">{item.value}</span>
+                    <span className="w-5 text-right text-xs font-semibold text-foreground tabular-nums">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -177,11 +177,11 @@ export function DashboardCharts({
         {/* Category bar */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 className="h-4 w-4 text-[#1e3a5f]" />
-            <h3 className="text-sm font-semibold text-gray-900">PRMs por categoria</h3>
+            <BarChart3 className="h-4 w-4 text-brand-800" />
+            <h3 className="text-sm font-semibold text-foreground">PRMs por categoria</h3>
           </div>
           {categoryChartData.length === 0 ? (
-            <p className="py-10 text-center text-xs text-gray-400">Sem dados</p>
+            <p className="py-10 text-center text-xs text-muted-foreground">Sem dados</p>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={160}>
@@ -203,8 +203,8 @@ export function DashboardCharts({
                 {categoryChartData.map((item, i) => (
                   <div key={i} className="flex items-center gap-1">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.color }} />
-                    <span className="truncate text-[11px] text-gray-500">{item.name}</span>
-                    <span className="ml-auto text-[11px] font-semibold text-gray-700 tabular-nums">
+                    <span className="truncate text-[11px] text-muted-foreground">{item.name}</span>
+                    <span className="ml-auto text-[11px] font-semibold text-foreground tabular-nums">
                       {Math.round((item.value / totalFindingsCount) * 100)}%
                     </span>
                   </div>
@@ -222,8 +222,8 @@ export function DashboardCharts({
       {timelineData.length > 1 && (
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-4 w-4 text-[#1e3a5f]" />
-            <h3 className="text-sm font-semibold text-gray-900">Evolução nos últimos 90 dias</h3>
+            <TrendingUp className="h-4 w-4 text-brand-800" />
+            <h3 className="text-sm font-semibold text-foreground">Evolução nos últimos 90 dias</h3>
           </div>
           <ResponsiveContainer width="100%" height={200}>
             <AreaChart data={timelineData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>

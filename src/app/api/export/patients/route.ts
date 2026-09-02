@@ -2,31 +2,9 @@ import { NextResponse, NextRequest } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { logAudit, getClientIp } from '@/lib/audit'
-
-// ── Helpers ────────────────────────────────────────────────────────────────────
-
-function esc(val: string | number | null | undefined): string {
-  if (val === null || val === undefined) return ''
-  const str = String(val)
-  // Wrap in quotes if contains comma, newline or quote; escape internal quotes
-  if (str.includes(',') || str.includes('\n') || str.includes('"')) {
-    return `"${str.replace(/"/g, '""')}"`
-  }
-  return str
-}
-
-function row(cells: (string | number | null | undefined)[]): string {
-  return cells.map(esc).join(',')
-}
-
-function calculateAge(dateOfBirth: Date | null): number | null {
-  if (!dateOfBirth) return null
-  const today = new Date()
-  let age = today.getFullYear() - dateOfBirth.getFullYear()
-  const m = today.getMonth() - dateOfBirth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < dateOfBirth.getDate())) age--
-  return age
-}
+import { escCsv, csvRow } from '@/lib/csv-export'
+import { calculateAge } from '@/lib/utils'
+import { exportLimiter } from '@/lib/rate-limit'
 
 // ── GET /api/export/patients ──────────────────────────────────────────────────
 
@@ -34,6 +12,15 @@ export async function GET(req: NextRequest) {
   const session = await getSession()
   if (!session) {
     return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+  }
+
+  // Exportação em massa de dados clínicos — limita exfiltração por conta comprometida
+  const rl = await exportLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas exportações em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
   }
 
   // Audit: record who downloaded patient data and when
@@ -86,12 +73,12 @@ export async function GET(req: NextRequest) {
     'PRMs moderados',
   ]
 
-  const lines: string[] = [headers.map(esc).join(',')]
+  const lines: string[] = [headers.map(escCsv).join(',')]
 
   for (const p of patients) {
     const age = p.dateOfBirth ? calculateAge(p.dateOfBirth) : p.age
     const last = p.analyses[0]
-    lines.push(row([
+    lines.push(csvRow([
       p.code,
       p.name ?? '',
       p.sex === 'MALE' ? 'Masculino' : p.sex === 'FEMALE' ? 'Feminino' : p.sex ?? '',

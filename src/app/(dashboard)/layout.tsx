@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <ConsentGate>
-      <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      <div className="flex h-screen overflow-hidden bg-muted">
         {/* Desktop sidebar */}
         <Sidebar user={userWithImage} />
 

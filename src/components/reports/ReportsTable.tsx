@@ -56,7 +56,7 @@ const TYPE_LABELS: Record<string, string> = {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  SIMPLE: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  SIMPLE: 'bg-muted text-foreground',
   COMPLETE: 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
   SOAP: 'bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
   INSTITUTIONAL: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
@@ -97,9 +97,9 @@ function StatCard({
     <div className="stat-card">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{label}</p>
-          <p className="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{value}</p>
-          {sub && <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{sub}</p>}
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</p>
+          <p className="mt-2 text-3xl font-bold text-foreground tabular-nums">{value}</p>
+          {sub && <p className="mt-1 text-xs text-muted-foreground">{sub}</p>}
         </div>
         <div className={`rounded-xl p-2.5 ${color}`}>
           <Icon className="h-5 w-5" />
@@ -165,12 +165,12 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
           <div className="space-y-2">
             {pendingAnalyses.map(a => (
               <div key={a.id}
-                className="flex items-center justify-between rounded-lg border border-blue-100 bg-white px-4 py-3 dark:border-blue-800 dark:bg-gray-800">
+                className="flex items-center justify-between rounded-lg border border-blue-100 bg-card px-4 py-3 dark:border-blue-800">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-sm font-semibold text-foreground">
                     {a.patient.name || a.patient.code}
                   </p>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {formatDateTime(a.createdAt)} · {a.totalPRMs} PRM(s)
                     {a.urgentPRMs > 0 && (
                       <span className="ml-1.5 inline-flex items-center rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700 dark:bg-red-900/30 dark:text-red-300">
@@ -195,17 +195,17 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
           <div className="flex flex-wrap items-center gap-2">
             {/* Search */}
             <div className="relative flex-1 min-w-48">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Filtrar por paciente…"
-                className="h-9 w-full rounded-lg border border-gray-200 bg-white pl-9 pr-8 text-sm text-gray-700 placeholder:text-gray-400 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200 dark:placeholder:text-gray-500"
+                className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-8 text-sm text-foreground placeholder:text-muted-foreground focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
               />
               {search && (
                 <button onClick={() => setSearch('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-400">
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 flex h-4 w-4 items-center justify-center rounded-full bg-muted text-muted-foreground hover:bg-muted-foreground/20">
                   <X className="h-2.5 w-2.5" />
                 </button>
               )}
@@ -217,7 +217,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
               className={`flex items-center gap-1.5 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors ${
                 hasFilters
                   ? 'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                  : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300'
+                  : 'border-border bg-card text-muted-foreground hover:border-muted-foreground/40'
               }`}
             >
               <SlidersHorizontal className="h-3.5 w-3.5" />
@@ -231,16 +231,16 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
 
             <ExportMenu mode="prms-only" variant="icon" />
 
-            <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
+            <span className="ml-auto text-xs text-muted-foreground">
               {filtered.length} de {reports.length} relatório{reports.length !== 1 ? 's' : ''}
             </span>
           </div>
 
           {/* Filter panel */}
           {showFilters && (
-            <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-3 dark:border-gray-700 dark:bg-gray-800/50">
+            <div className="rounded-xl border border-border bg-muted p-4 space-y-3 dark:bg-gray-800/50">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                   <Filter className="h-3 w-3" /> Filtros
                 </p>
                 {hasFilters && (
@@ -253,14 +253,14 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
               <div className="grid gap-4 sm:grid-cols-2">
                 {/* Type */}
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">Tipo de relatório</p>
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">Tipo de relatório</p>
                   <div className="flex flex-wrap gap-1.5">
                     {(['all', ...types] as string[]).map(t => (
                       <button key={t} onClick={() => setTypeFilter(t)}
                         className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                           typeFilter === t
                             ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300 dark:bg-blue-900/40 dark:text-blue-300'
-                            : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                            : 'bg-card border border-border text-muted-foreground hover:border-muted-foreground/40'
                         }`}>
                         {t === 'all' ? 'Todos' : (TYPE_LABELS[t] ?? t)}
                       </button>
@@ -269,14 +269,14 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                 </div>
                 {/* Date */}
                 <div>
-                  <p className="mb-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">Período</p>
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">Período</p>
                   <div className="flex flex-wrap gap-1.5">
                     {(Object.keys(DATE_LABELS) as DateFilter[]).map(d => (
                       <button key={d} onClick={() => setDateFilter(d)}
                         className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                           dateFilter === d
                             ? 'bg-blue-100 text-blue-700 ring-1 ring-blue-300 dark:bg-blue-900/40 dark:text-blue-300'
-                            : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                            : 'bg-card border border-border text-muted-foreground hover:border-muted-foreground/40'
                         }`}>
                         {DATE_LABELS[d]}
                       </button>
@@ -292,11 +292,11 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
       {/* Table */}
       {reports.length === 0 ? (
         <div className="card flex flex-col items-center justify-center py-20 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-100 dark:bg-gray-700 mb-4">
-            <FileText className="h-8 w-8 text-gray-400" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted mb-4">
+            <FileText className="h-8 w-8 text-muted-foreground" />
           </div>
-          <h3 className="text-base font-semibold text-gray-700 dark:text-gray-200">Nenhum relatório gerado</h3>
-          <p className="mt-1 text-sm text-gray-400 dark:text-gray-500 max-w-xs">
+          <h3 className="text-base font-semibold text-foreground">Nenhum relatório gerado</h3>
+          <p className="mt-1 text-sm text-muted-foreground max-w-xs">
             Realize uma análise e gere o relatório em PDF para download
           </p>
           <Link href="/analysis/new" className="btn-primary mt-6">
@@ -305,7 +305,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
         </div>
       ) : filtered.length === 0 ? (
         <div className="card py-12 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-sm text-muted-foreground">
             Nenhum relatório corresponde aos filtros.
           </p>
           <button onClick={() => { setSearch(''); setTypeFilter('all'); setDateFilter('all') }}
@@ -317,7 +317,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
         <div className="card overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100 dark:border-gray-700">
+              <tr className="border-b border-border">
                 <th className="table-header-cell">Paciente</th>
                 <th className="table-header-cell">Tipo</th>
                 <th className="table-header-cell">PRMs</th>
@@ -326,7 +326,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                 <th className="table-header-cell w-36"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+            <tbody className="divide-y divide-border/50">
               {filtered.map(r => {
                 const label = r.analysis.patient.name || r.analysis.patient.code
                 const initials = label.slice(0, 2).toUpperCase()
@@ -338,16 +338,16 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                           {initials}
                         </div>
                         <div>
-                          <p className="font-semibold text-gray-900 dark:text-gray-100">{label}</p>
-                          <p className="text-xs text-gray-400 dark:text-gray-500">{r.analysis.patient.code}</p>
+                          <p className="font-semibold text-foreground">{label}</p>
+                          <p className="text-xs text-muted-foreground">{r.analysis.patient.code}</p>
                           {r.isAnonymized && (
-                            <span className="text-[10px] text-gray-400 dark:text-gray-500">Anonimizado</span>
+                            <span className="text-[10px] text-muted-foreground">Anonimizado</span>
                           )}
                         </div>
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border border-transparent ${TYPE_COLORS[r.type] ?? 'bg-gray-100 text-gray-700'}`}>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border border-transparent ${TYPE_COLORS[r.type] ?? 'bg-muted text-foreground'}`}>
                         {TYPE_LABELS[r.type] ?? r.type}
                       </span>
                     </td>
@@ -369,14 +369,14 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                         )}
                       </div>
                     </td>
-                    <td className="table-cell text-gray-500 dark:text-gray-400">
+                    <td className="table-cell text-muted-foreground">
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                        <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                         {formatDateTime(r.generatedAt)}
                       </div>
                     </td>
                     <td className="table-cell">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 dark:bg-gray-700 px-2 py-0.5 text-xs font-medium text-gray-600 dark:text-gray-300">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
                         <Coins className="h-2.5 w-2.5" />
                         {r.tokensConsumed}
                       </span>
@@ -384,7 +384,7 @@ export function ReportsTable({ reports, pendingAnalyses, stats }: Props) {
                     <td className="table-cell">
                       <div className="flex items-center gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link href={`/analysis/${r.analysisId}`}
-                          className="flex items-center gap-1 text-xs font-medium text-[#1e3a5f] hover:underline dark:text-blue-400">
+                          className="flex items-center gap-1 text-xs font-medium text-brand-800 hover:underline dark:text-blue-400">
                           Análise <ArrowRight className="h-3 w-3" />
                         </Link>
                         <a href={`/api/reports/${r.id}/download`}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
+import { calculateAge } from '@/lib/utils'
 
 export async function GET(req: NextRequest) {
   const session = await getSession()
@@ -88,24 +89,12 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  // Calculate age server-side
-  function calcAge(dob: Date | null, age: number | null): number | null {
-    if (dob) {
-      const today = new Date()
-      let a = today.getFullYear() - dob.getFullYear()
-      const m = today.getMonth() - dob.getMonth()
-      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) a--
-      return a
-    }
-    return age
-  }
-
   return NextResponse.json({
     patients: patients.map(p => ({
       id: p.id,
       name: p.name,
       code: p.code,
-      age: calcAge(p.dateOfBirth, p.age),
+      age: p.dateOfBirth ? calculateAge(p.dateOfBirth) : p.age,
       sex: p.sex,
       lastAnalysis: p.analyses[0] ?? null,
     })),

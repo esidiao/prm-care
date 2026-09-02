@@ -61,7 +61,7 @@ function ComorbidadeRow({ idx, control, setValue, errors, onRemove }: {
   const name = useWatch({ control, name: `comorbidities.${idx}.name` }) ?? ''
   const code = useWatch({ control, name: `comorbidities.${idx}.icd10Code` }) ?? ''
   return (
-    <div className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+    <div className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
       <div className="flex-1 pb-1">
         <ICD10Combobox
           nameValue={name}
@@ -92,9 +92,9 @@ function DiagnosticoRow({ idx, control, register, setValue, errors, onRemove }: 
   const desc = useWatch({ control, name: `diagnoses.${idx}.description` }) ?? ''
   const code = useWatch({ control, name: `diagnoses.${idx}.icd10Code` }) ?? ''
   return (
-    <div className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+    <div className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
       <div className="flex-1 pb-1">
-        <label className="block text-xs text-gray-500 mb-1.5">Descrição e CID-10</label>
+        <label className="block text-xs text-muted-foreground mb-1.5">Descrição e CID-10</label>
         <ICD10Combobox
           nameValue={desc}
           codeValue={code}
@@ -105,9 +105,9 @@ function DiagnosticoRow({ idx, control, register, setValue, errors, onRemove }: 
         />
       </div>
       <div className="flex flex-col items-center gap-2 pt-6 shrink-0">
-        <label className="flex items-center gap-1 text-xs text-gray-600 cursor-pointer whitespace-nowrap">
+        <label className="flex items-center gap-1 text-xs text-muted-foreground cursor-pointer whitespace-nowrap">
           <input type="checkbox" {...register(`diagnoses.${idx}.isPrimary`)}
-            className="rounded border-gray-300 text-blue-600" />
+            className="rounded border-border text-blue-600" />
           Principal
         </label>
         <button type="button" onClick={onRemove}
@@ -187,12 +187,12 @@ export default function NewPatientPage() {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-6">
-        <Link href="/patients" className="text-gray-500 hover:text-gray-700 transition-colors">
+        <Link href="/patients" className="text-muted-foreground hover:text-foreground transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Novo Paciente</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Cadastre os dados do paciente para análise farmacoterapêutica</p>
+          <h1 className="text-2xl font-bold text-foreground">Novo Paciente</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Cadastre os dados do paciente para análise farmacoterapêutica</p>
         </div>
       </div>
 
@@ -205,8 +205,8 @@ export default function NewPatientPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="flex overflow-x-auto border-b border-gray-200">
+        <div className="bg-card rounded-xl shadow-sm border border-border">
+          <div className="flex overflow-x-auto border-b border-border">
             {tabs.map(tab => (
               <button
                 key={tab.id}
@@ -215,7 +215,7 @@ export default function NewPatientPage() {
                 className={`flex items-center gap-2 px-5 py-3.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${
                   activeTab === tab.id
                     ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <tab.icon className="w-4 h-4" />
@@ -235,34 +235,34 @@ export default function NewPatientPage() {
               <div className="space-y-5">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="name">
                       Nome completo <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="name"
                       {...register('name')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Nome do paciente"
                     />
                     {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="birthDate">
                       Data de nascimento <span className="text-red-500">*</span>
                     </label>
-                    <input
+                    <input id="birthDate"
                       type="date"
                       {...register('birthDate')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                     />
                     {errors.birthDate && <p className="mt-1 text-xs text-red-600">{errors.birthDate.message}</p>}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sexo</label>
-                    <select
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="sex">Sexo</label>
+                    <select id="sex"
                       {...register('sex')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                     >
                       <option value="MALE">Masculino</option>
                       <option value="FEMALE">Feminino</option>
@@ -271,37 +271,37 @@ export default function NewPatientPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Peso (kg)</label>
-                    <input
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="weight">Peso (kg)</label>
+                    <input id="weight"
                       type="number"
                       step="0.1"
                       {...register('weight')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Ex: 70.5"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Altura (cm)</label>
-                    <input
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="height">Altura (cm)</label>
+                    <input id="height"
                       type="number"
                       step="0.1"
                       {...register('height')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Ex: 170"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="block text-sm font-medium text-foreground mb-1" htmlFor="creatinine">
                       Creatinina sérica (mg/dL)
-                      <span className="ml-1 text-xs text-gray-400">(para cálculo de TFG)</span>
+                      <span className="ml-1 text-xs text-muted-foreground">(para cálculo de TFG)</span>
                     </label>
-                    <input
+                    <input id="creatinine"
                       type="number"
                       step="0.01"
                       {...register('creatinine')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="Ex: 1.1"
                     />
                   </div>
@@ -309,23 +309,23 @@ export default function NewPatientPage() {
 
                 {watch('sex') === 'FEMALE' && (
                   <div className="flex gap-6">
-                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                      <input type="checkbox" {...register('isPregnant')} className="rounded border-gray-300 text-blue-600" />
+                    <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                      <input type="checkbox" {...register('isPregnant')} className="rounded border-border text-blue-600" />
                       Gestante
                     </label>
-                    <label className="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
-                      <input type="checkbox" {...register('isLactating')} className="rounded border-gray-300 text-blue-600" />
+                    <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+                      <input type="checkbox" {...register('isLactating')} className="rounded border-border text-blue-600" />
                       Lactante
                     </label>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Observações clínicas</label>
-                  <textarea
+                  <label className="block text-sm font-medium text-foreground mb-1" htmlFor="observations">Observações clínicas</label>
+                  <textarea id="observations"
                     {...register('observations')}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm resize-none"
                     placeholder="Informações adicionais relevantes..."
                   />
                 </div>
@@ -336,7 +336,7 @@ export default function NewPatientPage() {
             {activeTab === 'comorbidities' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Adicione as condições de saúde do paciente</p>
+                  <p className="text-sm text-muted-foreground">Adicione as condições de saúde do paciente</p>
                   <button
                     type="button"
                     onClick={() => comorbidities.append({ name: '', icd10Code: '', isActive: true })}
@@ -347,7 +347,7 @@ export default function NewPatientPage() {
                 </div>
 
                 {comorbidities.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <Heart className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhuma comorbidade adicionada</p>
                   </div>
@@ -372,7 +372,7 @@ export default function NewPatientPage() {
             {activeTab === 'allergies' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Registre alergias e intolerâncias a medicamentos ou substâncias</p>
+                  <p className="text-sm text-muted-foreground">Registre alergias e intolerâncias a medicamentos ou substâncias</p>
                   <button
                     type="button"
                     onClick={() => allergies.append({ substance: '', severity: 'MODERATE', reaction: '' })}
@@ -383,28 +383,28 @@ export default function NewPatientPage() {
                 </div>
 
                 {allergies.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <AlertTriangle className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhuma alergia registrada</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {allergies.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Substância</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.substance`}>Substância</label>
+                            <input id={`allergies.${idx}.substance`}
                               {...register(`allergies.${idx}.substance`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Penicilina"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Gravidade</label>
-                            <select
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.severity`}>Gravidade</label>
+                            <select id={`allergies.${idx}.severity`}
                               {...register(`allergies.${idx}.severity`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             >
                               {Object.entries(severityLabels).map(([v, l]) => (
                                 <option key={v} value={v}>{l}</option>
@@ -412,10 +412,10 @@ export default function NewPatientPage() {
                             </select>
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Reação</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`allergies.${idx}.reaction`}>Reação</label>
+                            <input id={`allergies.${idx}.reaction`}
                               {...register(`allergies.${idx}.reaction`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Urticária"
                             />
                           </div>
@@ -438,7 +438,7 @@ export default function NewPatientPage() {
             {activeTab === 'diagnoses' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Diagnósticos atuais do paciente</p>
+                  <p className="text-sm text-muted-foreground">Diagnósticos atuais do paciente</p>
                   <button
                     type="button"
                     onClick={() => diagnoses.append({ description: '', icd10Code: '', isPrimary: false })}
@@ -449,7 +449,7 @@ export default function NewPatientPage() {
                 </div>
 
                 {diagnoses.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <Stethoscope className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhum diagnóstico registrado</p>
                   </div>
@@ -475,7 +475,7 @@ export default function NewPatientPage() {
             {activeTab === 'labs' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">Resultados de exames laboratoriais recentes</p>
+                  <p className="text-sm text-muted-foreground">Resultados de exames laboratoriais recentes</p>
                   <button
                     type="button"
                     onClick={() => labResults.append({ name: '', value: '', unit: '', referenceRange: '', collectedAt: '' })}
@@ -486,52 +486,52 @@ export default function NewPatientPage() {
                 </div>
 
                 {labResults.fields.length === 0 ? (
-                  <div className="text-center py-10 text-gray-400">
+                  <div className="text-center py-10 text-muted-foreground">
                     <FlaskConical className="w-10 h-10 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Nenhum exame registrado</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {labResults.fields.map((field, idx) => (
-                      <div key={field.id} className="flex gap-3 items-start p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div key={field.id} className="flex gap-3 items-start p-3 bg-muted rounded-lg border border-border">
                         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Exame</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.name`}>Exame</label>
+                            <input id={`labResults.${idx}.name`}
                               {...register(`labResults.${idx}.name`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: Creatinina"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Resultado</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.value`}>Resultado</label>
+                            <input id={`labResults.${idx}.value`}
                               {...register(`labResults.${idx}.value`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: 1.2"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Unidade</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.unit`}>Unidade</label>
+                            <input id={`labResults.${idx}.unit`}
                               {...register(`labResults.${idx}.unit`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: mg/dL"
                             />
                           </div>
                           <div>
-                            <label className="block text-xs text-gray-500 mb-1">Data coleta</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.collectedAt`}>Data coleta</label>
+                            <input id={`labResults.${idx}.collectedAt`}
                               type="date"
                               {...register(`labResults.${idx}.collectedAt`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                             />
                           </div>
                           <div className="md:col-span-4">
-                            <label className="block text-xs text-gray-500 mb-1">Valor de referência</label>
-                            <input
+                            <label className="block text-xs text-muted-foreground mb-1" htmlFor={`labResults.${idx}.referenceRange`}>Valor de referência</label>
+                            <input id={`labResults.${idx}.referenceRange`}
                               {...register(`labResults.${idx}.referenceRange`)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                               placeholder="Ex: 0.7–1.3 mg/dL"
                             />
                           </div>
@@ -556,7 +556,7 @@ export default function NewPatientPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/patients"
-            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-foreground bg-card border border-border rounded-lg hover:bg-muted transition-colors"
           >
             Cancelar
           </Link>
@@ -568,7 +568,7 @@ export default function NewPatientPage() {
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-2 h-2 rounded-full transition-colors ${activeTab === tab.id ? 'bg-blue-600' : 'bg-gray-300'}`}
+                  className={`w-2 h-2 rounded-full transition-colors ${activeTab === tab.id ? 'bg-blue-600' : 'bg-muted'}`}
                   title={tab.label}
                 />
               ))}

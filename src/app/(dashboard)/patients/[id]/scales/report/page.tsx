@@ -56,7 +56,7 @@ export default async function ScaleReportPage({ params }: { params: { id: string
       <div className="fixed top-4 right-4 print:hidden z-10">
         <button
           onClick={() => window.print()}
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-[#162d4a]"
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-brand-900"
         >
           🖨️ Imprimir / Salvar PDF
         </button>
@@ -64,10 +64,10 @@ export default async function ScaleReportPage({ params }: { params: { id: string
 
       <div className="mx-auto max-w-3xl px-8 py-10 print:px-6 print:py-8">
         {/* Report Header */}
-        <div className="mb-8 border-b-2 border-[#1e3a5f] pb-6">
+        <div className="mb-8 border-b-2 border-brand-800 pb-6">
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-[#1e3a5f]">
+              <h1 className="text-2xl font-bold text-brand-800">
                 Relatório de Escalas Clínicas Validadas
               </h1>
               <p className="mt-1 text-sm text-gray-500">Emitido em {today}</p>
@@ -159,7 +159,7 @@ export default async function ScaleReportPage({ params }: { params: { id: string
           if (!scale) return null
           return (
             <div key={type} className="mb-8 page-break-inside-avoid">
-              <h2 className="mb-1 text-base font-bold text-[#1e3a5f] border-b border-[#1e3a5f]/30 pb-1">
+              <h2 className="mb-1 text-base font-bold text-brand-800 border-b border-brand-800/30 pb-1">
                 {scale.name} — {scale.fullName}
               </h2>
               <p className="mb-4 text-xs text-gray-500 italic">{scale.reference}</p>

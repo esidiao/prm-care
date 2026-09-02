@@ -60,39 +60,39 @@ export default async function PatientHistoryPage({ params }: { params: { id: str
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-gray-500">
-        <Link href="/patients" className="hover:text-gray-700">Pacientes</Link>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/patients" className="hover:text-foreground">Pacientes</Link>
         <span>/</span>
-        <Link href={`/patients/${patient.id}`} className="hover:text-gray-700">{patientLabel}</Link>
+        <Link href={`/patients/${patient.id}`} className="hover:text-foreground">{patientLabel}</Link>
         <span>/</span>
-        <span className="text-gray-800 font-medium">Histórico</span>
+        <span className="text-foreground font-medium">Histórico</span>
       </div>
 
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1e3a5f]/10">
-            <History className="h-5 w-5 text-[#1e3a5f]" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-800/10">
+            <History className="h-5 w-5 text-brand-800" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">Histórico de análises</h1>
-            <p className="text-sm text-gray-500">{patientLabel}</p>
+            <h1 className="text-xl font-bold text-foreground">Histórico de análises</h1>
+            <p className="text-sm text-muted-foreground">{patientLabel}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Link href={`/patients/${patient.id}`}
-            className="flex items-center gap-1.5 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
             <ArrowLeft className="h-4 w-4" /> Voltar
           </Link>
           <Link href={`/analysis/new?patientId=${patient.id}`}
-            className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+            className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
             <FlaskConical className="h-4 w-4" /> Nova análise
           </Link>
         </div>
       </div>
 
       {/* Timeline */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
         <PatientTimeline analyses={analyses} patientId={patient.id} />
       </div>
     </div>

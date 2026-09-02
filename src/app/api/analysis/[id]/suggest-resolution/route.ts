@@ -2,17 +2,29 @@ import { NextResponse } from 'next/server'
 import { getSession } from '@/lib/auth'
 import prisma from '@/lib/prisma'
 import { callGroqWithRetry } from '@/lib/gemini-service'
+import { aiSuggestLimiter } from '@/lib/rate-limit'
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   const session = await getSession()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const groqKey = process.env.GROQ_API_KEY
   if (!groqKey) {
     return NextResponse.json({ error: 'IA não configurada. Defina GROQ_API_KEY.' }, { status: 503 })
   }
 
-  const body = await req.json()
+  const rl = await aiSuggestLimiter(session.user.id)
+  if (!rl.success) {
+    return NextResponse.json(
+      { error: 'Muitas sugestões de IA em pouco tempo. Aguarde alguns minutos.' },
+      { status: 429, headers: { 'Retry-After': String(Math.ceil((rl.resetAt - Date.now()) / 1000)) } }
+    )
+  }
+
+  const body = await req.json().catch(() => null)
+  if (!body || typeof body !== 'object') {
+    return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 })
+  }
   const { findingId } = body as { findingId: string }
 
   const analysis = await prisma.pRMAnalysis.findFirst({
@@ -21,13 +33,13 @@ export async function POST(req: Request, { params }: { params: { id: string } })
       patient: { select: { name: true, code: true, age: true, sex: true } },
     },
   })
-  if (!analysis) return NextResponse.json({ error: 'Analysis not found' }, { status: 404 })
+  if (!analysis) return NextResponse.json({ error: 'Análise não encontrada' }, { status: 404 })
 
   const finding = await prisma.pRMFinding.findFirst({
     where: { id: findingId, analysisId: params.id },
     include: { medication: { select: { activeIngredient: true, dose: true, doseUnit: true, frequency: true } } },
   })
-  if (!finding) return NextResponse.json({ error: 'Finding not found' }, { status: 404 })
+  if (!finding) return NextResponse.json({ error: 'Achado não encontrado' }, { status: 404 })
 
   const patientDesc = [
     analysis.patient.age ? `${analysis.patient.age} anos` : '',

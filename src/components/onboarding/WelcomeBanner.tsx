@@ -12,7 +12,7 @@ export function WelcomeBanner({ firstName, tokenBalance }: Props) {
   return (
     <div className="rounded-2xl overflow-hidden shadow-sm border border-blue-100">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-[#0f2744] via-[#1e3a5f] to-[#1a4a7a] px-6 pt-8 pb-6 text-white">
+      <div className="bg-gradient-to-br from-brand-900 via-brand-800 to-[#1a4a7a] px-6 pt-8 pb-6 text-white">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/20">
             <Pill className="h-6 w-6 text-white" />
@@ -44,46 +44,44 @@ export function WelcomeBanner({ firstName, tokenBalance }: Props) {
       </div>
 
       {/* Ações rápidas */}
-      <div className="bg-white px-6 py-5">
-        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-          Por onde começar?
-        </p>
+      <div className="bg-card px-6 py-5">
+        <p className="section-label mb-3">Por onde começar?</p>
         <div className="grid gap-2.5 sm:grid-cols-3">
           <Link
             href="/patients/new"
-            className="group flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 hover:border-[#1e3a5f] hover:bg-blue-50/30 transition-all"
+            className="group flex items-center gap-3 rounded-xl border border-border px-4 py-3 transition-all hover:border-brand-800/50 hover:bg-brand-50/30 dark:hover:bg-brand-900/20"
           >
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 group-hover:bg-blue-200 transition-colors">
-              <Users className="h-4 w-4 text-blue-700" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 transition-colors group-hover:bg-blue-200 dark:bg-blue-900/30 dark:group-hover:bg-blue-800/40">
+              <Users className="h-4 w-4 text-blue-700 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-800">1. Cadastrar paciente</p>
-              <p className="text-[11px] text-gray-500">Adicione dados clínicos</p>
+              <p className="text-sm font-semibold text-foreground">1. Cadastrar paciente</p>
+              <p className="text-[11px] text-muted-foreground">Adicione dados clínicos</p>
             </div>
           </Link>
 
           <Link
             href="/analysis/new"
-            className="group flex items-center gap-3 rounded-xl border border-gray-200 px-4 py-3 hover:border-purple-400 hover:bg-purple-50/30 transition-all"
+            className="group flex items-center gap-3 rounded-xl border border-border px-4 py-3 transition-all hover:border-purple-400 hover:bg-purple-50/30 dark:hover:bg-purple-900/20"
           >
-            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 group-hover:bg-purple-200 transition-colors">
-              <FlaskConical className="h-4 w-4 text-purple-700" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-purple-100 transition-colors group-hover:bg-purple-200 dark:bg-purple-900/30 dark:group-hover:bg-purple-800/40">
+              <FlaskConical className="h-4 w-4 text-purple-700 dark:text-purple-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-800">2. Analisar PRMs</p>
-              <p className="text-[11px] text-gray-500">IA + regras clínicas</p>
+              <p className="text-sm font-semibold text-foreground">2. Analisar PRMs</p>
+              <p className="text-[11px] text-muted-foreground">IA + regras clínicas</p>
             </div>
           </Link>
 
           <GuidedTour
             trigger={
-              <div className="group flex items-center gap-3 rounded-xl border border-dashed border-blue-300 bg-blue-50/50 px-4 py-3 hover:bg-blue-50 hover:border-blue-400 transition-all cursor-pointer">
-                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-blue-100 group-hover:bg-blue-200 transition-colors">
-                  <Sparkles className="h-4 w-4 text-blue-700" />
+              <div className="group flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-brand-800/30 bg-brand-50/50 px-4 py-3 transition-all hover:border-brand-800/60 hover:bg-brand-50 dark:bg-brand-900/20 dark:border-brand-700/30 dark:hover:bg-brand-900/30">
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-brand-50 transition-colors group-hover:bg-brand-100 dark:bg-brand-900/40">
+                  <Sparkles className="h-4 w-4 text-brand-800 dark:text-brand-400" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-blue-800">Tour do sistema</p>
-                  <p className="text-[11px] text-blue-600">Conheça todas as funções</p>
+                  <p className="text-sm font-semibold text-brand-800 dark:text-brand-400">Tour do sistema</p>
+                  <p className="text-[11px] text-brand-700/70 dark:text-brand-500">Conheça todas as funções</p>
                 </div>
               </div>
             }

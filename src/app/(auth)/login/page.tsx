@@ -9,7 +9,10 @@ import { z } from 'zod'
 import { Pill, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2, Shield, Users, FileText, Activity } from 'lucide-react'
 
 const loginSchema = z.object({
-  email: z.string().min(1, 'CPF ou e-mail obrigatório'),
+  // O login é por E-MAIL. O modelo `User` não tem campo CPF e o `authorize()`
+  // busca só por `email` — anunciar CPF fazia o usuário culpar a própria senha
+  // por uma falha que era do identificador.
+  email: z.string().min(1, 'E-mail obrigatório'),
   password: z.string().min(1, 'Senha obrigatória'),
 })
 type LoginForm = z.infer<typeof loginSchema>
@@ -43,7 +46,7 @@ function LoginForm() {
     })
     setIsLoading(false)
     if (result?.error) {
-      setError('E-mail/CPF ou senha incorretos. Verifique seus dados e tente novamente.')
+      setError('E-mail ou senha incorretos. Verifique seus dados e tente novamente.')
       return
     }
     router.push(callbackUrl)
@@ -51,24 +54,24 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex flex-1 items-center justify-center px-6 py-12 bg-gray-50">
+    <div className="flex flex-1 items-center justify-center px-6 py-12 bg-muted">
       <div className="w-full max-w-sm">
 
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center gap-3 mb-10">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1e3a5f] shadow-lg">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-800 shadow-lg">
             <Pill className="h-6 w-6 text-white" />
           </div>
-          <span className="text-2xl font-bold text-[#1e3a5f]">PRM Care</span>
+          <span className="text-2xl font-bold text-brand-800">PRM Care</span>
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Bem-vindo de volta</h1>
-            <p className="mt-1.5 text-sm text-gray-500">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">Bem-vindo de volta</h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
               Não tem conta?{' '}
-              <Link href="/register" className="font-semibold text-[#1e3a5f] hover:text-[#162d4a] transition-colors">
+              <Link href="/register" className="font-semibold text-brand-800 hover:text-brand-900 transition-colors">
                 Criar conta gratuita
               </Link>
             </p>
@@ -90,38 +93,44 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">CPF ou E-mail</label>
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">E-mail</label>
               <input
+                id="email"
                 {...register('email')}
+                // type="text", NÃO "email": a conta 90919912168 tem um CPF gravado no
+                // campo de e-mail (contorno feito antes de existir suporte a CPF).
+                // A validação nativa de type="email" bloquearia justamente a conta
+                // que mais entra no sistema.
                 type="text"
                 autoComplete="username"
-                className={`w-full rounded-xl border px-4 py-3 text-sm bg-gray-50 focus:bg-white transition-colors focus:border-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/15 ${
-                  errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                className={`w-full rounded-xl border px-4 py-3 text-sm bg-muted focus:bg-card transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
+                  errors.email ? 'border-red-300 bg-red-50' : 'border-border'
                 }`}
-                placeholder="CPF (apenas números) ou e-mail"
+                placeholder="seu@email.com"
               />
               {errors.email && <p className="mt-1.5 text-xs text-red-600 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors.email.message}</p>}
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-sm font-medium text-gray-700">Senha</label>
-                <Link href="/forgot-password" className="text-xs text-[#1e3a5f] hover:text-[#162d4a] font-medium transition-colors">
+                <label htmlFor="password" className="block text-sm font-medium text-foreground">Senha</label>
+                <Link href="/forgot-password" className="text-xs text-brand-800 hover:text-brand-900 font-medium transition-colors">
                   Esqueci minha senha
                 </Link>
               </div>
               <div className="relative">
                 <input
+                  id="password"
                   {...register('password')}
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
-                  className={`w-full rounded-xl border px-4 py-3 pr-11 text-sm bg-gray-50 focus:bg-white transition-colors focus:border-[#1e3a5f] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/15 ${
-                    errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200'
+                  className={`w-full rounded-xl border px-4 py-3 pr-11 text-sm bg-muted focus:bg-card transition-colors focus:border-brand-800 focus:outline-none focus:ring-2 focus:ring-brand-800/15 ${
+                    errors.password ? 'border-red-300 bg-red-50' : 'border-border'
                   }`}
                   placeholder="••••••••"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                   {showPassword ? <EyeOff className="h-4.5 w-4.5" /> : <Eye className="h-4.5 w-4.5" />}
                 </button>
               </div>
@@ -131,7 +140,7 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1e3a5f] py-3.5 text-sm font-semibold text-white hover:bg-[#162d4a] disabled:opacity-60 transition-all duration-200 shadow-sm hover:shadow-md mt-2"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand-800 py-3.5 text-sm font-semibold text-white hover:bg-brand-900 disabled:opacity-60 transition-all duration-200 shadow-sm hover:shadow-md mt-2"
             >
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
               {isLoading ? 'Entrando...' : 'Entrar'}
@@ -139,11 +148,11 @@ function LoginForm() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           Ao entrar, você concorda com nossos{' '}
-          <Link href="/terms" className="underline underline-offset-2 hover:text-gray-600 transition-colors">Termos de Uso</Link>
+          <Link href="/terms" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Termos de Uso</Link>
           {' '}e{' '}
-          <Link href="/privacy" className="underline underline-offset-2 hover:text-gray-600 transition-colors">Política de Privacidade</Link>.
+          <Link href="/privacy" className="underline underline-offset-2 hover:text-muted-foreground transition-colors">Política de Privacidade</Link>.
         </p>
       </div>
     </div>
@@ -242,8 +251,8 @@ export default function LoginPage() {
 
       {/* ── Right panel ─────────────────────────────────────────────────────── */}
       <Suspense fallback={
-        <div className="flex flex-1 items-center justify-center bg-gray-50">
-          <Loader2 className="h-8 w-8 animate-spin text-[#1e3a5f]" />
+        <div className="flex flex-1 items-center justify-center bg-muted">
+          <Loader2 className="h-8 w-8 animate-spin text-brand-800" />
         </div>
       }>
         <LoginForm />

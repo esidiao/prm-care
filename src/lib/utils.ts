@@ -144,6 +144,39 @@ export const ROUTE_LABELS: Record<string, string> = {
   OTHER: 'Outra',
 }
 
+/**
+ * Escapa os cinco caracteres com significado sintático em HTML.
+ * Obrigatório antes de interpolar conteúdo de usuário em qualquer string
+ * que vá para dangerouslySetInnerHTML ou template HTML.
+ */
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+/**
+ * Extrai a mensagem de erro devolvida pela API (`{ error, details }`) para
+ * exibir ao usuário, com fallback legível em português.
+ *
+ * As rotas validam com Zod e devolvem `details[].message`; sem isso o cliente
+ * mostraria só uma mensagem genérica — e em alguns pontos, nada.
+ */
+export function apiErrorMessage(json: unknown, fallback: string): string {
+  if (json && typeof json === 'object') {
+    const j = json as { error?: unknown; details?: unknown }
+    const first = Array.isArray(j.details)
+      ? (j.details[0] as { message?: unknown } | undefined)?.message
+      : undefined
+    if (typeof first === 'string' && first.trim()) return first
+    if (typeof j.error === 'string' && j.error.trim()) return j.error
+  }
+  return fallback
+}
+
 export function truncate(str: string, maxLength: number): string {
   if (str.length <= maxLength) return str
   return str.slice(0, maxLength - 3) + '...'

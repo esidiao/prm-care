@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import {
   ArrowLeft, AlertTriangle, CheckCircle, FileText,
-  User, Pill, Activity, BookOpen, Printer, Send, ChevronDown, ChevronUp
+  User, Pill, Activity, Printer, Send, ChevronDown, ChevronUp
 } from 'lucide-react'
 import { formatDateTime, RISK_LEVEL_CONFIG, PRM_CATEGORY_LABELS } from '@/lib/utils'
 import { RiskLevel, PRMCategory } from '@prisma/client'
@@ -12,6 +12,9 @@ import { FindingsPanel } from '@/components/analysis/FindingsPanel'
 import { AnalysisComparison } from '@/components/analysis/AnalysisComparison'
 import { PgxAlerts } from '@/components/pgx/PgxAlerts'
 import { LabTrends } from '@/components/analysis/LabTrends'
+import { SoapRecord } from '@/components/analysis/SoapRecord'
+import { OportunidadePreco } from '@/components/analysis/OportunidadePreco'
+import { buscarOportunidades } from '@/lib/oportunidade-preco'
 
 export default async function AnalysisResultPage({ params }: { params: { id: string } }) {
   const session = await getSession()
@@ -32,12 +35,20 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
       findings: {
         orderBy: [{ riskLevel: 'asc' }, { category: 'asc' }],
       },
-      soapRecord: true,
+      soapRecord: { include: { attestedBy: { select: { name: true, crfNumber: true } } } },
       report: true,
     },
   })
 
   if (!analysis) notFound()
+
+  // Oportunidade de economia nos medicamentos ativos do paciente (dado CMED).
+  // Consulta separada de propósito: falhar aqui não pode derrubar a análise.
+  const oportunidades = await buscarOportunidades(
+    analysis.patient.medications.map(m => ({
+      activeIngredient: m.activeIngredient, dose: m.dose, doseUnit: m.doseUnit,
+    })),
+  ).catch(() => [])
 
   // Fetch previous analysis for same patient (for comparison)
   const previousAnalysis = await prisma.pRMAnalysis.findFirst({
@@ -67,15 +78,15 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Link href={`/patients/${analysis.patientId}`} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700">
+        <Link href={`/patients/${analysis.patientId}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" /> Paciente
         </Link>
       </div>
 
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Resultado da Análise PRM</h1>
-          <p className="text-gray-500 text-sm">{formatDateTime(analysis.createdAt)} · Paciente: {analysis.patient.name || analysis.patient.code}</p>
+          <h1 className="text-2xl font-bold text-foreground">Resultado da Análise PRM</h1>
+          <p className="text-muted-foreground text-sm">{formatDateTime(analysis.createdAt)} · Paciente: {analysis.patient.name || analysis.patient.code}</p>
         </div>
         <div className="flex flex-wrap gap-2">
           {/* Carta para o médico — acesso rápido e visível */}
@@ -85,7 +96,7 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
           </Link>
           {!analysis.report ? (
             <Link href={`/reports/new?analysisId=${analysis.id}`}
-              className="flex items-center gap-2 rounded-lg border border-[#1e3a5f] px-4 py-2 text-sm font-medium text-[#1e3a5f] hover:bg-[#eff6ff] transition-colors">
+              className="flex items-center gap-2 rounded-lg border border-brand-800 px-4 py-2 text-sm font-medium text-brand-800 hover:bg-[#eff6ff] transition-colors">
               <FileText className="h-4 w-4" /> Gerar Relatório
             </Link>
           ) : (
@@ -116,29 +127,29 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
       {/* Summary cards */}
       <div className="grid gap-4 grid-cols-2 md:grid-cols-4">
         {[
-          { label: 'Total de PRMs', value: analysis.totalPRMs, color: 'text-gray-900' },
-          { label: 'Urgentes', value: analysis.urgentPRMs, color: analysis.urgentPRMs > 0 ? 'text-red-600' : 'text-gray-400' },
-          { label: 'Alto risco', value: analysis.highRiskPRMs, color: analysis.highRiskPRMs > 0 ? 'text-orange-600' : 'text-gray-400' },
-          { label: 'Moderados', value: analysis.moderatePRMs, color: analysis.moderatePRMs > 0 ? 'text-yellow-600' : 'text-gray-400' },
+          { label: 'Total de PRMs', value: analysis.totalPRMs, color: 'text-foreground' },
+          { label: 'Urgentes', value: analysis.urgentPRMs, color: analysis.urgentPRMs > 0 ? 'text-red-600' : 'text-muted-foreground' },
+          { label: 'Alto risco', value: analysis.highRiskPRMs, color: analysis.highRiskPRMs > 0 ? 'text-orange-600' : 'text-muted-foreground' },
+          { label: 'Moderados', value: analysis.moderatePRMs, color: analysis.moderatePRMs > 0 ? 'text-yellow-600' : 'text-muted-foreground' },
         ].map((s, i) => (
-          <div key={i} className="rounded-xl border bg-white p-5 shadow-sm text-center">
+          <div key={i} className="rounded-xl border bg-card p-5 shadow-sm text-center">
             <p className={`text-3xl font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-xs text-gray-500 mt-1">{s.label}</p>
+            <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Summary */}
-      <div className="rounded-xl border bg-white p-5 shadow-sm">
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
         <div className="flex items-center gap-2 mb-3">
-          <Activity className="h-4 w-4 text-[#1e3a5f]" />
-          <h2 className="font-semibold text-gray-900">Resumo clínico</h2>
+          <Activity className="h-4 w-4 text-brand-800" />
+          <h2 className="font-semibold text-foreground">Resumo clínico</h2>
         </div>
         {/* Split summary into sentences for readability */}
         <div className="space-y-1.5">
           {(analysis.summary ?? '').split(/(?<=[.!?])\s+/).filter(Boolean).map((sentence, i) => (
-            <p key={i} className="text-sm text-gray-700 leading-relaxed flex gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-[#1e3a5f]/30 flex-shrink-0" />
+            <p key={i} className="text-sm text-foreground leading-relaxed flex gap-2">
+              <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-brand-800/30 flex-shrink-0" />
               {sentence}
             </p>
           ))}
@@ -193,33 +204,30 @@ export default async function AnalysisResultPage({ params }: { params: { id: str
       {/* Farmacogenômica (CPIC) — derivada automaticamente dos medicamentos */}
       <PgxAlerts drugs={analysis.patient.medications.map(m => m.activeIngredient)} />
 
-      {/* SOAP — compact 2-column grid */}
+      {/* Alternativa mais econômica na mesma dose — dado CMED */}
+      <OportunidadePreco oportunidades={oportunidades} />
+
+      {/* SOAP — registro clínico revisável pelo farmacêutico */}
       {analysis.soapRecord && (
-        <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 border-b bg-gray-50 px-5 py-3.5">
-            <BookOpen className="h-4 w-4 text-[#1e3a5f]" />
-            <h2 className="font-semibold text-gray-800 text-sm">Registro SOAP</h2>
-            <span className="ml-auto text-[10px] text-gray-400 uppercase tracking-wide">Documentação clínica</span>
-          </div>
-          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x">
-            {[
-              { label: 'S — Subjetivo', hint: 'Queixas relatadas', content: analysis.soapRecord.subjective, accent: 'border-l-blue-400' },
-              { label: 'O — Objetivo', hint: 'Dados clínicos', content: analysis.soapRecord.objective, accent: 'border-l-gray-400' },
-              { label: 'A — Avaliação', hint: 'Impressão farmacêutica', content: analysis.soapRecord.assessment, accent: 'border-l-yellow-400' },
-              { label: 'P — Plano', hint: 'Intervenções propostas', content: analysis.soapRecord.plan, accent: 'border-l-green-400' },
-            ].map(({ label, hint, content, accent }) => (
-              <div key={label} className={`p-4 border-l-4 ${accent}`}>
-                <p className="text-xs font-bold text-gray-700 mb-0.5">{label}</p>
-                <p className="text-[10px] text-gray-400 mb-2">{hint}</p>
-                <p className="text-sm text-gray-700 whitespace-pre-line leading-relaxed">{content || '—'}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <SoapRecord
+          analysisId={analysis.id}
+          soap={{
+            subjective: analysis.soapRecord.subjective,
+            objective: analysis.soapRecord.objective,
+            assessment: analysis.soapRecord.assessment,
+            plan: analysis.soapRecord.plan,
+            createdAt: analysis.soapRecord.createdAt.toISOString(),
+            updatedAt: analysis.soapRecord.updatedAt.toISOString(),
+            attestedAt: analysis.soapRecord.attestedAt?.toISOString() ?? null,
+            attestedBy: analysis.soapRecord.attestedBy
+              ? { name: analysis.soapRecord.attestedBy.name, crfNumber: analysis.soapRecord.attestedBy.crfNumber }
+              : null,
+          }}
+        />
       )}
 
       {/* Footer disclaimer */}
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-xs text-gray-500 space-y-1">
+      <div className="rounded-xl border border-border bg-muted p-5 text-xs text-muted-foreground space-y-1">
         <p><strong>Limitações desta análise:</strong></p>
         <ul className="list-disc list-inside space-y-0.5">
           <li>As análises são baseadas exclusivamente nos dados informados.</li>

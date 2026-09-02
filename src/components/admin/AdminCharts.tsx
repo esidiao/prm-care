@@ -54,8 +54,8 @@ const CATEGORY_LABELS: Record<string, string> = {
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg text-xs dark:border-gray-700 dark:bg-gray-800">
-      {label && <p className="mb-1 font-semibold text-gray-700 dark:text-gray-200">{label}</p>}
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
+      {label && <p className="mb-1 font-semibold text-foreground">{label}</p>}
       {payload.map((p: any, i: number) => (
         <p key={i} style={{ color: p.stroke ?? p.fill }} className="font-medium">
           {p.name}: <span className="tabular-nums">{p.value}</span>
@@ -69,9 +69,9 @@ function PieTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null
   const item = payload[0]
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-lg text-xs dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-lg border border-border bg-card px-3 py-2 shadow-lg text-xs">
       <p className="font-semibold" style={{ color: item.payload.fill }}>{item.name}</p>
-      <p className="text-gray-600 dark:text-gray-400">{item.value} usuários ({Math.round(item.payload.percent * 100)}%)</p>
+      <p className="text-muted-foreground">{item.value} usuários ({Math.round(item.payload.percent * 100)}%)</p>
     </div>
   )
 }
@@ -81,14 +81,14 @@ function MetricTile({ label, value, sub, icon: Icon, color }: {
   icon: React.ElementType; color: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
       <div className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl ${color}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
-        <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
-        <p className="text-xl font-bold text-gray-900 dark:text-gray-100 tabular-nums">{value}</p>
-        {sub && <p className="text-[11px] text-gray-400 dark:text-gray-500">{sub}</p>}
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <p className="text-xl font-bold text-foreground tabular-nums">{value}</p>
+        {sub && <p className="text-[11px] text-muted-foreground">{sub}</p>}
       </div>
     </div>
   )
@@ -147,13 +147,13 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
         {/* Weekly growth area chart */}
         <div className="card p-5 lg:col-span-2">
           <div className="flex items-center gap-2 mb-4">
-            <TrendingUp className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <TrendingUp className="h-4 w-4 text-brand-800 dark:text-blue-400" />
+            <h3 className="text-sm font-semibold text-foreground">
               Crescimento semanal (últimas 12 semanas)
             </h3>
           </div>
           {weeklyGrowth.length < 2 ? (
-            <p className="py-10 text-center text-xs text-gray-400">Dados insuficientes</p>
+            <p className="py-10 text-center text-xs text-muted-foreground">Dados insuficientes</p>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={weeklyGrowth} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
@@ -186,11 +186,11 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
         {/* Users by plan pie */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
-            <Users className="h-4 w-4 text-[#1e3a5f] dark:text-blue-400" />
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Usuários por plano</h3>
+            <Users className="h-4 w-4 text-brand-800 dark:text-blue-400" />
+            <h3 className="text-sm font-semibold text-foreground">Usuários por plano</h3>
           </div>
           {planData.length === 0 ? (
-            <p className="py-10 text-center text-xs text-gray-400">Sem dados</p>
+            <p className="py-10 text-center text-xs text-muted-foreground">Sem dados</p>
           ) : (
             <>
               <ResponsiveContainer width="100%" height={150}>
@@ -208,8 +208,8 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
                 {planData.map((item, i) => (
                   <div key={i} className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: item.fill }} />
-                    <span className="flex-1 text-xs text-gray-600 dark:text-gray-400">{item.name}</span>
-                    <span className="text-xs font-semibold text-gray-800 dark:text-gray-200 tabular-nums">{item.value}</span>
+                    <span className="flex-1 text-xs text-muted-foreground">{item.name}</span>
+                    <span className="text-xs font-semibold text-foreground tabular-nums">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -223,7 +223,7 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
         {/* PRMs by category */}
         {categoryData.length > 0 && (
           <div className="card p-5">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4">
               PRMs por categoria (plataforma)
             </h3>
             <ResponsiveContainer width="100%" height={160}>
@@ -243,7 +243,7 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
 
         {/* Resolution health card */}
         <div className="card p-5">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">
             Saúde da plataforma
           </h3>
           <div className="space-y-4">
@@ -271,18 +271,18 @@ export function AdminCharts({ usersByPlan, weeklyGrowth, platformStats, topCateg
             ].map((metric, i) => (
               <div key={i}>
                 <div className="flex items-center justify-between mb-1">
-                  <p className="text-xs text-gray-600 dark:text-gray-400">{metric.label}</p>
+                  <p className="text-xs text-muted-foreground">{metric.label}</p>
                   <p className="text-xs font-bold tabular-nums" style={{ color: metric.color }}>
                     {metric.value}%
                   </p>
                 </div>
-                <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
                     style={{ width: `${Math.min(metric.value, 100)}%`, backgroundColor: metric.color }}
                   />
                 </div>
-                <p className="mt-0.5 text-[10px] text-gray-400 dark:text-gray-500">{metric.sub}</p>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">{metric.sub}</p>
               </div>
             ))}
           </div>

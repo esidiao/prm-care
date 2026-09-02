@@ -34,3 +34,6 @@ supabase-schema.sql
 scripts/
 
 .vercel
+
+.vercel
+.etl-cache/

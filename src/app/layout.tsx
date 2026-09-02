@@ -4,6 +4,7 @@ import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from '@/components/layout/auth-provider'
 import { ThemeProvider } from '@/components/layout/ThemeProvider'
+import { RegistrarServiceWorker } from '@/components/layout/RegistrarServiceWorker'
 
 const sans = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${sans.variable} ${mono.variable} font-sans`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <AuthProvider>
+            <RegistrarServiceWorker />
             {children}
             <Toaster />
           </AuthProvider>

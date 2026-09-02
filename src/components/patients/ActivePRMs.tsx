@@ -135,19 +135,19 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
   if (findings.length === 0) return null
 
   return (
-    <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+    <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-5 py-4 bg-gradient-to-r from-red-50 to-orange-50">
         <div className="flex items-center gap-3">
           <ShieldAlert className="h-5 w-5 text-red-600 flex-shrink-0" />
           <div>
-            <h2 className="font-semibold text-gray-900 text-sm">
+            <h2 className="font-semibold text-foreground text-sm">
               PRMs em aberto
               <span className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">
                 {findings.length}
               </span>
             </h2>
-            <p className="text-[11px] text-gray-500 mt-0.5">
+            <p className="text-[11px] text-muted-foreground mt-0.5">
               Problemas não resolvidos de todas as análises de {patientName}
             </p>
           </div>
@@ -164,7 +164,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                 className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold border transition-all ${
                   filterRisk.includes(r)
                     ? `${cfg.badge} border-current`
-                    : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                    : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
                 }`}
               >
                 <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
@@ -177,9 +177,9 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
 
       {/* Category filter */}
       {(filterRisk.length > 0 || filterCat.length > 0) && (
-        <div className="flex items-center gap-2 px-5 py-2.5 bg-gray-50 border-b text-xs">
-          <Filter className="h-3.5 w-3.5 text-gray-400" />
-          <span className="text-gray-500">Filtros ativos:</span>
+        <div className="flex items-center gap-2 px-5 py-2.5 bg-muted border-b text-xs">
+          <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+          <span className="text-muted-foreground">Filtros ativos:</span>
           {filterRisk.map(r => (
             <button key={r} onClick={() => setFilterRisk(prev => prev.filter(x => x !== r))}
               className={`flex items-center gap-1 rounded-full px-2 py-0.5 ${RISK_CONFIG[r]?.badge ?? ''}`}>
@@ -193,12 +193,12 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
             </button>
           ))}
           <button onClick={() => { setFilterRisk([]); setFilterCat([]) }}
-            className="ml-auto text-gray-400 hover:text-gray-600">Limpar</button>
+            className="ml-auto text-muted-foreground hover:text-foreground">Limpar</button>
         </div>
       )}
 
       {/* Category quick filter */}
-      <div className="flex gap-1.5 px-5 py-2.5 border-b bg-white overflow-x-auto">
+      <div className="flex gap-1.5 px-5 py-2.5 border-b bg-card overflow-x-auto">
         {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
           const count = findings.filter(f => f.category === key).length
           if (!count) return null
@@ -206,7 +206,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
           return (
             <button key={key} onClick={() => toggleFilter(filterCat, setFilterCat, key)}
               className={`flex-shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium border transition-all ${
-                active ? 'bg-[#1e3a5f] text-white border-[#1e3a5f]' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-300'
+                active ? 'bg-brand-800 text-white border-brand-800' : 'bg-card border-border text-muted-foreground hover:border-muted-foreground/40'
               }`}>
               {label} ({count})
             </button>
@@ -223,9 +223,9 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
       )}
 
       {/* Findings list */}
-      <div className="divide-y divide-gray-50">
+      <div className="divide-y divide-border">
         {filtered.length === 0 ? (
-          <p className="py-8 text-center text-sm text-gray-400">Nenhum PRM corresponde aos filtros.</p>
+          <p className="py-8 text-center text-sm text-muted-foreground">Nenhum PRM corresponde aos filtros.</p>
         ) : filtered.map(finding => {
           const cfg     = RISK_CONFIG[finding.riskLevel] ?? RISK_CONFIG.LOW
           const isOpen  = expandedIds.has(finding.id)
@@ -237,7 +237,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
           return (
             <div key={finding.id} className={`border-l-4 ${cfg.border}`}>
               {/* Card header */}
-              <div className="px-5 py-3.5 bg-white">
+              <div className="px-5 py-3.5 bg-card">
                 <div className="flex items-start gap-3">
                   {/* Resolve button */}
                   <button
@@ -247,8 +247,8 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                     title="Marcar como resolvido"
                   >
                     {loading
-                      ? <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
-                      : <Circle className="h-5 w-5 text-gray-300 hover:text-green-400" />
+                      ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+                      : <Circle className="h-5 w-5 text-gray-300 dark:text-gray-600 hover:text-green-400" />
                     }
                   </button>
 
@@ -258,7 +258,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                       <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${cfg.badge}`}>
                         {cfg.icon} {cfg.label}
                       </span>
-                      <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-[11px]">
+                      <span className="rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-[11px]">
                         {CATEGORY_LABELS[finding.category] || finding.category}
                       </span>
                       {isAI && (
@@ -271,23 +271,23 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                         <span className="rounded-full bg-red-50 text-red-700 px-2 py-0.5 text-[11px]">🏥 Encaminhamento</span>
                       )}
                       {finding.interventionDeadline && (
-                        <span className="rounded-full bg-gray-50 text-gray-600 px-2 py-0.5 text-[11px]">⏰ {finding.interventionDeadline}</span>
+                        <span className="rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-[11px]">⏰ {finding.interventionDeadline}</span>
                       )}
                     </div>
 
                     {/* Title */}
-                    <p className="text-sm font-semibold text-gray-900">{cleanTitle}</p>
+                    <p className="text-sm font-semibold text-foreground">{cleanTitle}</p>
 
                     {/* Conduct preview (collapsed) */}
                     {!isOpen && finding.pharmacistConduct && (
-                      <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">
+                      <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
                         💊 {finding.pharmacistConduct}
                       </p>
                     )}
 
                     {/* Source analysis */}
                     <Link href={`/analysis/${finding.analysisId}`}
-                      className="inline-flex items-center gap-1 text-[10px] text-gray-400 hover:text-[#1e3a5f] mt-0.5 transition-colors">
+                      className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-brand-800 mt-0.5 transition-colors">
                       <Calendar className="h-3 w-3" />
                       Análise de {new Date(finding.analysisDate).toLocaleDateString('pt-BR')}
                     </Link>
@@ -298,7 +298,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                     <button
                       onClick={() => setNoteOpen(prev => toggle(finding.id, prev))}
                       className={`rounded-lg p-1.5 border text-xs transition-colors ${
-                        isNote ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-gray-200 text-gray-400 hover:bg-gray-50'
+                        isNote ? 'border-blue-300 bg-blue-50 text-blue-600' : 'border-border text-muted-foreground hover:bg-muted'
                       }`}
                       title="Adicionar nota de resolução"
                     >
@@ -306,7 +306,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                     </button>
                     <button
                       onClick={() => setExpanded(prev => toggle(finding.id, prev))}
-                      className="rounded-lg p-1.5 border border-gray-200 text-gray-400 hover:bg-gray-50 transition-colors"
+                      className="rounded-lg p-1.5 border border-border text-muted-foreground hover:bg-muted transition-colors"
                     >
                       {isOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                     </button>
@@ -321,7 +321,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                       onChange={e => setNotes(prev => ({ ...prev, [finding.id]: e.target.value }))}
                       placeholder="Descreva a conduta tomada…"
                       rows={2}
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs text-gray-700 placeholder-gray-400 focus:border-[#1e3a5f] focus:outline-none resize-none"
+                      className="w-full rounded-lg border border-border px-3 py-2 text-xs text-foreground placeholder-gray-400 focus:border-brand-800 focus:outline-none resize-none"
                     />
                     <div className="flex items-center justify-between gap-2">
                       <button
@@ -338,7 +338,7 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setNoteOpen(prev => { const n = new Set(prev); n.delete(finding.id); return n })}
-                          className="px-3 py-1 text-xs text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50"
+                          className="px-3 py-1 text-xs text-muted-foreground border border-border rounded-lg hover:bg-muted"
                         >
                           Cancelar
                         </button>
@@ -359,11 +359,11 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
               {/* Expanded detail */}
               {isOpen && (
                 <div className={`px-5 py-3 border-t ${cfg.header}/40 space-y-2`}>
-                  <p className="text-xs text-gray-600 leading-relaxed">{finding.description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{finding.description}</p>
                   {finding.pharmacistConduct && (
                     <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2">
                       <p className="text-[10px] font-bold text-green-700 uppercase tracking-wide mb-0.5">💊 Conduta farmacêutica</p>
-                      <p className="text-xs text-gray-700">{finding.pharmacistConduct}</p>
+                      <p className="text-xs text-foreground">{finding.pharmacistConduct}</p>
                     </div>
                   )}
                 </div>
@@ -374,12 +374,12 @@ export function ActivePRMs({ findings: initial, patientName }: Props) {
       </div>
 
       {/* Footer */}
-      <div className="border-t bg-gray-50 px-5 py-3 flex items-center justify-between">
-        <p className="text-xs text-gray-400">
+      <div className="border-t bg-muted px-5 py-3 flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
           {filtered.length} PRM{filtered.length !== 1 ? 's' : ''} em aberto
           {filterRisk.length > 0 || filterCat.length > 0 ? ' (filtrado)' : ''}
         </p>
-        <p className="text-[10px] text-gray-400">
+        <p className="text-[10px] text-muted-foreground">
           Clique em ○ para marcar como resolvido
         </p>
       </div>

@@ -110,12 +110,12 @@ export default function NewMedicationPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link href={`/patients/${patientId}`}
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors">
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted transition-colors">
           <ArrowLeft className="h-4 w-4" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Adicionar Medicamento</h1>
-          <p className="text-sm text-gray-500">Registre um medicamento em uso pelo paciente</p>
+          <h1 className="text-2xl font-bold text-foreground">Adicionar Medicamento</h1>
+          <p className="text-sm text-muted-foreground">Registre um medicamento em uso pelo paciente</p>
         </div>
       </div>
 
@@ -128,18 +128,18 @@ export default function NewMedicationPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
         <div className="card-padded space-y-5">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-4">
-            <Pill className="h-5 w-5 text-[#1e3a5f]" />
-            <h2 className="font-semibold text-gray-900">Identificação do medicamento</h2>
+          <div className="flex items-center gap-2 border-b border-border pb-4">
+            <Pill className="h-5 w-5 text-brand-800" />
+            <h2 className="font-semibold text-foreground">Identificação do medicamento</h2>
           </div>
 
           {/* Princípio ativo + Nome comercial */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">
+              <label className="label" htmlFor="activeIngredient">
                 Princípio ativo <span className="text-red-500">*</span>
               </label>
-              <input
+              <input id="activeIngredient"
                 {...register('activeIngredient')}
                 className="input"
                 placeholder="Ex: Metformina"
@@ -150,11 +150,11 @@ export default function NewMedicationPage() {
             </div>
 
             <div>
-              <label className="label">
+              <label className="label" htmlFor="tradeName">
                 Nome comercial
-                <span className="ml-1 text-xs font-normal text-gray-400">(opcional)</span>
+                <span className="ml-1 text-xs font-normal text-muted-foreground">(opcional)</span>
               </label>
-              <input
+              <input id="tradeName"
                 {...register('tradeName')}
                 className="input"
                 placeholder="Ex: Glifage"
@@ -165,8 +165,8 @@ export default function NewMedicationPage() {
           {/* Dose + Unidade + Forma farmacêutica */}
           <div className="grid gap-4 grid-cols-3">
             <div>
-              <label className="label">Dose</label>
-              <input
+              <label className="label" htmlFor="dose">Dose</label>
+              <input id="dose"
                 {...register('dose')}
                 className="input"
                 placeholder="Ex: 500"
@@ -174,16 +174,16 @@ export default function NewMedicationPage() {
             </div>
 
             <div>
-              <label className="label">Unidade</label>
-              <select {...register('doseUnit')} className="input">
+              <label className="label" htmlFor="doseUnit">Unidade</label>
+              <select id="doseUnit" {...register('doseUnit')} className="input">
                 <option value="">Selecionar</option>
                 {DOSE_UNITS.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="label">Forma farmacêutica</label>
-              <select {...register('pharmaceuticalForm')} className="input">
+              <label className="label" htmlFor="pharmaceuticalForm">Forma farmacêutica</label>
+              <select id="pharmaceuticalForm" {...register('pharmaceuticalForm')} className="input">
                 <option value="">Selecionar</option>
                 {PHARMA_FORMS.map(f => <option key={f} value={f}>{f}</option>)}
               </select>
@@ -193,15 +193,15 @@ export default function NewMedicationPage() {
           {/* Via + Frequência */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Via de administração</label>
-              <select {...register('route')} className="input">
+              <label className="label" htmlFor="route">Via de administração</label>
+              <select id="route" {...register('route')} className="input">
                 {ROUTES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="label">Frequência / Posologia</label>
-              <select {...register('frequency')} className="input">
+              <label className="label" htmlFor="frequency">Frequência / Posologia</label>
+              <select id="frequency" {...register('frequency')} className="input">
                 <option value="">Selecionar</option>
                 {FREQUENCIES.map(f => <option key={f} value={f}>{f}</option>)}
                 <option value="Outro">Outro (especificar nas observações)</option>
@@ -212,8 +212,8 @@ export default function NewMedicationPage() {
           {/* Prescritor + Indicação */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Prescritor</label>
-              <input
+              <label className="label" htmlFor="prescriber">Prescritor</label>
+              <input id="prescriber"
                 {...register('prescriber')}
                 className="input"
                 placeholder="Ex: Dr. João Silva"
@@ -221,8 +221,8 @@ export default function NewMedicationPage() {
             </div>
 
             <div>
-              <label className="label">Indicação clínica</label>
-              <input
+              <label className="label" htmlFor="indication">Indicação clínica</label>
+              <input id="indication"
                 {...register('indication')}
                 className="input"
                 placeholder="Ex: Diabetes tipo 2"
@@ -233,34 +233,34 @@ export default function NewMedicationPage() {
           {/* Datas */}
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="label">Data de início</label>
-              <input type="date" {...register('startDate')} className="input" />
+              <label className="label" htmlFor="startDate">Data de início</label>
+              <input id="startDate" type="date" {...register('startDate')} className="input" />
             </div>
 
             <div>
-              <label className="label">
+              <label className="label" htmlFor="endDate">
                 Data de término
-                <span className="ml-1 text-xs font-normal text-gray-400">(em branco = uso contínuo)</span>
+                <span className="ml-1 text-xs font-normal text-muted-foreground">(em branco = uso contínuo)</span>
               </label>
-              <input type="date" {...register('endDate')} className="input" />
+              <input id="endDate" type="date" {...register('endDate')} className="input" />
             </div>
           </div>
 
           {/* Checkboxes */}
-          <div className="flex flex-wrap gap-6 rounded-lg bg-gray-50 px-4 py-3">
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+          <div className="flex flex-wrap gap-6 rounded-lg bg-muted px-4 py-3">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 {...register('isSelfMedication')}
-                className="h-4 w-4 rounded border-gray-300 text-[#1e3a5f]"
+                className="h-4 w-4 rounded border-border text-brand-800"
               />
               Automedicação
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 {...register('isActive')}
-                className="h-4 w-4 rounded border-gray-300 text-[#1e3a5f]"
+                className="h-4 w-4 rounded border-border text-brand-800"
               />
               Em uso ativo
             </label>
@@ -279,8 +279,8 @@ export default function NewMedicationPage() {
           {/* Efeitos adversos + Observações */}
           <div className="space-y-4">
             <div>
-              <label className="label">Efeitos adversos relatados</label>
-              <textarea
+              <label className="label" htmlFor="adverseEffects">Efeitos adversos relatados</label>
+              <textarea id="adverseEffects"
                 {...register('adverseEffects')}
                 rows={2}
                 className="input resize-none"
@@ -288,8 +288,8 @@ export default function NewMedicationPage() {
               />
             </div>
             <div>
-              <label className="label">Observações</label>
-              <textarea
+              <label className="label" htmlFor="observations">Observações</label>
+              <textarea id="observations"
                 {...register('observations')}
                 rows={2}
                 className="input resize-none"

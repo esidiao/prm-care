@@ -23,7 +23,7 @@ interface TourStep {
 const steps: TourStep[] = [
   {
     icon: Sparkles,
-    color: 'from-[#0f2744] to-[#1e3a5f]',
+    color: 'from-brand-900 to-brand-800',
     title: 'Bem-vindo ao PRM Care',
     description: 'Sua plataforma de farmácia clínica baseada no Método Dáder.',
     detail: 'O PRM Care automatiza a identificação de Problemas Relacionados a Medicamentos (PRMs), combinando regras clínicas locais com análise por Inteligência Artificial.',
@@ -137,13 +137,13 @@ const steps: TourStep[] = [
     icon: Calculator,
     color: 'from-teal-600 to-teal-800',
     title: 'Calculadoras Clínicas',
-    description: '15+ calculadoras farmacêuticas integradas.',
-    detail: 'Clearance de creatinina (Cockcroft-Gault, CKD-EPI), dose pediátrica, IMC, risco cardiovascular SCORE2, risco de sangramento HAS-BLED, CHADS₂-VASc e muito mais.',
+    description: '6 calculadoras farmacêuticas integradas.',
+    detail: 'Função renal por CKD-EPI (2021) e clearance de creatinina por Cockcroft-Gault, índice de comorbidade de Charlson, risco cardiovascular em 10 anos por Framingham, e o par CHA₂DS₂-VASc + HAS-BLED para a decisão de anticoagular em fibrilação atrial.',
     href: '/calculators',
     hrefLabel: 'Abrir calculadoras',
     visual: (
       <div className="grid grid-cols-2 gap-1.5 py-1">
-        {['Clearance Creatinina', 'Risco CV SCORE2', 'HAS-BLED', 'IMC / BSA', 'Dose Pediátrica', 'CHADS₂-VASc'].map(c => (
+        {['CKD-EPI', 'Cockcroft-Gault', 'Charlson', 'Risco CV (Framingham)', 'CHA₂DS₂-VASc', 'HAS-BLED'].map(c => (
           <div key={c} className="rounded bg-white/10 px-2 py-1.5 text-[10px] text-white/70 text-center">{c}</div>
         ))}
       </div>
@@ -243,7 +243,7 @@ export function GuidedTour({ trigger }: GuidedTourProps) {
                   <div
                     key={i}
                     className={`h-1 flex-1 rounded-full transition-all duration-300 ${
-                      i < step ? 'bg-white/60' : i === step ? 'bg-white' : 'bg-white/20'
+                      i < step ? 'bg-white/60' : i === step ? 'bg-card' : 'bg-white/20'
                     }`}
                   />
                 ))}
@@ -267,14 +267,14 @@ export function GuidedTour({ trigger }: GuidedTourProps) {
             </div>
 
             {/* Body */}
-            <div className="bg-white px-6 py-5 space-y-4">
-              <p className="text-sm text-gray-600 leading-relaxed">{current.detail}</p>
+            <div className="bg-card px-6 py-5 space-y-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">{current.detail}</p>
 
               <div className="flex items-center justify-between gap-3">
                 <button
                   onClick={() => setStep(s => Math.max(0, s - 1))}
                   disabled={step === 0}
-                  className="flex items-center gap-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-500 hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                  className="flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="h-4 w-4" /> Anterior
                 </button>
@@ -284,7 +284,7 @@ export function GuidedTour({ trigger }: GuidedTourProps) {
                     <Link
                       href={current.href}
                       onClick={close}
-                      className="rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                      className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted transition-colors"
                     >
                       {current.hrefLabel}
                     </Link>
@@ -301,7 +301,7 @@ export function GuidedTour({ trigger }: GuidedTourProps) {
                   ) : (
                     <button
                       onClick={() => setStep(s => s + 1)}
-                      className="flex items-center gap-1 rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-semibold text-white hover:bg-[#162d4a] transition-colors"
+                      className="flex items-center gap-1 rounded-lg bg-brand-800 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-900 transition-colors"
                     >
                       Próximo <ChevronRight className="h-4 w-4" />
                     </button>

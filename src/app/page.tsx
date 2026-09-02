@@ -137,29 +137,29 @@ const PLANS = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-card">
 
       {/* ── Nav ──────────────────────────────────────────────────────────── */}
-      <nav className="sticky top-0 z-50 border-b bg-white/95 backdrop-blur">
+      <nav className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur">
         <div className="container mx-auto flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1e3a5f]">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-800">
               <Pill className="h-4 w-4 text-white" />
             </div>
-            <span className="text-xl font-bold text-[#1e3a5f]">PRM Care</span>
+            <span className="text-xl font-bold text-brand-800">PRM Care</span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <a href="#plataforma" className="hover:text-[#1e3a5f] transition-colors">Plataforma</a>
-            <a href="#funcionalidades" className="hover:text-[#1e3a5f] transition-colors">Funcionalidades</a>
-            <a href="#precos" className="hover:text-[#1e3a5f] transition-colors">Preços</a>
-            <a href="#criador" className="hover:text-[#1e3a5f] transition-colors">Criador</a>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
+            <a href="#plataforma" className="hover:text-brand-800 transition-colors">Plataforma</a>
+            <a href="#funcionalidades" className="hover:text-brand-800 transition-colors">Funcionalidades</a>
+            <a href="#precos" className="hover:text-brand-800 transition-colors">Preços</a>
+            <a href="#criador" className="hover:text-brand-800 transition-colors">Criador</a>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-[#1e3a5f] transition-colors">
+            <Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-brand-800 transition-colors">
               Entrar
             </Link>
             <Link href="/register"
-              className="rounded-lg bg-[#1e3a5f] px-4 py-2 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+              className="rounded-lg bg-brand-800 px-4 py-2 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
               Começar grátis
             </Link>
           </div>
@@ -167,7 +167,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2644] via-[#1e3a5f] to-[#1a4d7a] py-28 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2644] via-brand-800 to-[#1a4d7a] py-28 text-white">
         <div className="absolute inset-0 opacity-[0.07]"
           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '36px 36px' }} />
         <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full opacity-[0.05]"
@@ -186,7 +186,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register"
-              className="flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-[#1e3a5f] hover:bg-blue-50 transition-colors shadow-lg">
+              className="flex items-center gap-2 rounded-xl bg-card px-8 py-4 text-base font-semibold text-brand-800 hover:bg-blue-50 transition-colors shadow-lg">
               Criar conta gratuita <ArrowRight className="h-5 w-5" />
             </Link>
             <a href="#plataforma"
@@ -216,39 +216,39 @@ export default function LandingPage() {
           <div className="mx-auto max-w-5xl">
 
             {/* Section label */}
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-[#1e3a5f]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-brand-800">
               <Brain className="h-4 w-4" /> Sobre a Plataforma
             </div>
 
             <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 leading-tight mb-5">
+                <h2 className="text-3xl font-bold text-foreground leading-tight mb-5">
                   Mais do que verificação de interações —{' '}
-                  <span className="text-[#1e3a5f]">inteligência clínica completa</span>
+                  <span className="text-brand-800">inteligência clínica completa</span>
                 </h2>
-                <p className="text-gray-600 leading-relaxed mb-6">
+                <p className="text-muted-foreground leading-relaxed mb-6">
                   O PRM Care é uma plataforma inteligente desenvolvida para transformar a forma como profissionais da saúde analisam terapias medicamentosas, identificam riscos clínicos e promovem maior segurança ao paciente.
                 </p>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   Utilizando inteligência artificial aplicada à farmacologia clínica, o sistema atua como suporte avançado à tomada de decisão, permitindo análises rápidas, seguras e contextualizadas sobre prescrições, suplementos, condições clínicas e exames laboratoriais.
                 </p>
               </div>
 
               {/* What we identify */}
-              <div className="rounded-2xl border border-gray-100 bg-gray-50 p-8">
-                <h3 className="text-base font-bold text-gray-900 mb-5 flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-[#1e3a5f]" />
+              <div className="rounded-2xl border border-border bg-muted p-8">
+                <h3 className="text-base font-bold text-foreground mb-5 flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-brand-800" />
                   A plataforma identifica:
                 </h3>
                 <ul className="space-y-3">
                   {WHAT_WE_IDENTIFY.map((item, i) => (
-                    <li key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                      <CheckCircle2 className="h-4 w-4 text-[#1e3a5f] shrink-0 mt-0.5" />
+                    <li key={i} className="flex items-start gap-3 text-sm text-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-brand-800 shrink-0 mt-0.5" />
                       {item}
                     </li>
                   ))}
                 </ul>
-                <div className="mt-6 rounded-xl bg-[#1e3a5f]/5 border border-[#1e3a5f]/10 p-4 text-xs text-[#1e3a5f] font-medium">
+                <div className="mt-6 rounded-xl bg-brand-800/5 border border-brand-800/10 p-4 text-xs text-brand-800 font-medium">
                   Tudo de forma dinâmica, intuitiva e baseada em evidências científicas.
                 </div>
               </div>
@@ -258,7 +258,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Para profissionais ───────────────────────────────────────────── */}
-      <section className="bg-gradient-to-br from-[#0f2644] to-[#1e3a5f] py-24 text-white">
+      <section className="bg-gradient-to-br from-[#0f2644] to-brand-800 py-24 text-white">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl text-center mb-14">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold text-blue-200">
@@ -285,17 +285,17 @@ export default function LandingPage() {
       </section>
 
       {/* ── Tecnologia com propósito ─────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-card">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl">
             <div className="text-center mb-14">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-[#1e3a5f]">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-brand-800">
                 <FlaskConical className="h-4 w-4" /> Tecnologia com Propósito Clínico
               </div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <h2 className="text-3xl font-bold text-foreground mb-4">
                 O diferencial está na união entre ciência e tecnologia
               </h2>
-              <p className="text-gray-500 max-w-xl mx-auto">
+              <p className="text-muted-foreground max-w-xl mx-auto">
                 Nosso objetivo é transformar dados terapêuticos complexos em informações clínicas úteis, acessíveis e aplicáveis à prática profissional.
               </p>
             </div>
@@ -303,12 +303,12 @@ export default function LandingPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
               {TECH_PILLARS.map(({ icon: Icon, label, desc }) => (
                 <div key={label}
-                  className="flex flex-col items-center text-center rounded-2xl border border-gray-100 bg-gray-50 p-6 hover:shadow-md transition-shadow">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#1e3a5f]/10">
-                    <Icon className="h-5 w-5 text-[#1e3a5f]" />
+                  className="flex flex-col items-center text-center rounded-2xl border border-border bg-muted p-6 hover:shadow-md transition-shadow">
+                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-800/10">
+                    <Icon className="h-5 w-5 text-brand-800" />
                   </div>
-                  <h3 className="text-sm font-bold text-gray-900 mb-1">{label}</h3>
-                  <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
+                  <h3 className="text-sm font-bold text-foreground mb-1">{label}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>
@@ -317,23 +317,23 @@ export default function LandingPage() {
       </section>
 
       {/* ── Funcionalidades ──────────────────────────────────────────────── */}
-      <section id="funcionalidades" className="py-24 bg-gray-50">
+      <section id="funcionalidades" className="py-24 bg-muted">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-white border px-4 py-1.5 text-sm font-semibold text-[#1e3a5f]">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-card border px-4 py-1.5 text-sm font-semibold text-brand-800">
               <Zap className="h-4 w-4" /> Funcionalidades
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Tudo que você precisa para o seguimento farmacoterapêutico</h2>
-            <p className="text-gray-500 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Tudo que você precisa para o seguimento farmacoterapêutico</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
               Do cadastro do paciente ao relatório SOAP completo, com identificação sistemática de PRMs e recomendações baseadas em evidências.
             </p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto">
             {FEATURES.map((f, i) => (
-              <div key={i} className="rounded-2xl border bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
+              <div key={i} className="rounded-2xl border bg-card p-6 shadow-sm hover:shadow-md transition-shadow">
                 <div className={`mb-4 inline-flex rounded-xl p-3 ${f.color}`}>{f.icon}</div>
-                <h3 className="mb-2 text-base font-bold text-gray-900">{f.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{f.description}</p>
+                <h3 className="mb-2 text-base font-bold text-foreground">{f.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{f.description}</p>
               </div>
             ))}
           </div>
@@ -341,9 +341,9 @@ export default function LandingPage() {
       </section>
 
       {/* ── Como funciona ────────────────────────────────────────────────── */}
-      <section className="py-24 bg-white">
+      <section className="py-24 bg-card">
         <div className="container mx-auto px-4">
-          <h2 className="mb-16 text-center text-3xl font-bold text-gray-900">Como funciona</h2>
+          <h2 className="mb-16 text-center text-3xl font-bold text-foreground">Como funciona</h2>
           <div className="grid gap-6 md:grid-cols-4 max-w-4xl mx-auto">
             {[
               { step: '01', title: 'Cadastre o paciente', desc: 'Insira dados clínicos, comorbidades, alergias e exames laboratoriais.' },
@@ -352,11 +352,11 @@ export default function LandingPage() {
               { step: '04', title: 'Gere o relatório', desc: 'Exporte PDF com SOAP, recomendações, plano de cuidado e orientações ao paciente.' },
             ].map((s, i) => (
               <div key={i} className="text-center">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1e3a5f] text-xl font-bold text-white shadow-lg">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-800 text-xl font-bold text-white shadow-lg">
                   {s.step}
                 </div>
-                <h3 className="mb-2 font-bold text-gray-900">{s.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{s.desc}</p>
+                <h3 className="mb-2 font-bold text-foreground">{s.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -364,38 +364,38 @@ export default function LandingPage() {
       </section>
 
       {/* ── Preços ───────────────────────────────────────────────────────── */}
-      <section id="precos" className="py-24 bg-gray-50">
+      <section id="precos" className="py-24 bg-muted">
         <div className="container mx-auto px-4">
-          <h2 className="mb-4 text-center text-3xl font-bold text-gray-900">Planos e preços</h2>
-          <p className="mb-16 text-center text-gray-500">Comece grátis e escale conforme sua necessidade</p>
+          <h2 className="mb-4 text-center text-3xl font-bold text-foreground">Planos e preços</h2>
+          <p className="mb-16 text-center text-muted-foreground">Comece grátis e escale conforme sua necessidade</p>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
             {PLANS.map((plan, i) => (
               <div key={i} className={`rounded-2xl border p-6 ${plan.highlight
-                ? 'border-[#1e3a5f] bg-[#1e3a5f] text-white shadow-2xl scale-105'
-                : 'bg-white shadow-sm hover:shadow-md'} transition-all`}>
+                ? 'border-brand-800 bg-brand-800 text-white shadow-2xl scale-105'
+                : 'bg-card shadow-sm hover:shadow-md'} transition-all`}>
                 {plan.highlight && (
-                  <div className="mb-3 inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-[#1e3a5f]">
+                  <div className="mb-3 inline-flex rounded-full bg-yellow-400 px-3 py-1 text-xs font-bold text-brand-800">
                     Mais popular
                   </div>
                 )}
-                <h3 className={`text-lg font-bold ${plan.highlight ? 'text-white' : 'text-gray-900'}`}>{plan.name}</h3>
-                <p className={`mb-1 text-sm ${plan.highlight ? 'text-blue-200' : 'text-gray-500'}`}>{plan.description}</p>
+                <h3 className={`text-lg font-bold ${plan.highlight ? 'text-white' : 'text-foreground'}`}>{plan.name}</h3>
+                <p className={`mb-1 text-sm ${plan.highlight ? 'text-blue-200' : 'text-muted-foreground'}`}>{plan.description}</p>
                 <div className="my-4">
-                  <span className={`text-3xl font-bold ${plan.highlight ? 'text-white' : 'text-[#1e3a5f]'}`}>{plan.price}</span>
-                  <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-gray-500'}`}>{plan.period}</span>
+                  <span className={`text-3xl font-bold ${plan.highlight ? 'text-white' : 'text-brand-800'}`}>{plan.price}</span>
+                  <span className={`text-sm ${plan.highlight ? 'text-blue-200' : 'text-muted-foreground'}`}>{plan.period}</span>
                 </div>
                 <ul className="mb-6 space-y-2">
                   {plan.features.map((f, j) => (
                     <li key={j} className="flex items-center gap-2 text-sm">
                       <CheckCircle className={`h-4 w-4 shrink-0 ${plan.highlight ? 'text-green-300' : 'text-green-500'}`} />
-                      <span className={plan.highlight ? 'text-blue-100' : 'text-gray-600'}>{f}</span>
+                      <span className={plan.highlight ? 'text-blue-100' : 'text-muted-foreground'}>{f}</span>
                     </li>
                   ))}
                 </ul>
                 <Link href={plan.href}
                   className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-colors ${plan.highlight
-                    ? 'bg-white text-[#1e3a5f] hover:bg-blue-50'
-                    : 'bg-[#1e3a5f] text-white hover:bg-[#162d4a]'}`}>
+                    ? 'bg-card text-brand-800 hover:bg-blue-50'
+                    : 'bg-brand-800 text-white hover:bg-brand-900'}`}>
                   {plan.cta}
                 </Link>
               </div>
@@ -403,8 +403,8 @@ export default function LandingPage() {
           </div>
 
           {/* Token packages */}
-          <div className="mt-16 rounded-2xl border bg-white p-8 max-w-5xl mx-auto">
-            <h3 className="mb-6 text-center text-xl font-bold text-[#1e3a5f]">Custo por operação (tokens)</h3>
+          <div className="mt-16 rounded-2xl border bg-card p-8 max-w-5xl mx-auto">
+            <h3 className="mb-6 text-center text-xl font-bold text-brand-800">Custo por operação (tokens)</h3>
             <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
               {[
                 { op: 'Análise básica', tokens: '1 token', desc: 'Até 3 medicamentos' },
@@ -414,10 +414,10 @@ export default function LandingPage() {
                 { op: 'Reanálise', tokens: '1 token', desc: 'Após atualização de dados' },
                 { op: 'Rel. institucional', tokens: '5 tokens', desc: 'Com assinatura e SOAP' },
               ].map((item, i) => (
-                <div key={i} className="rounded-xl border bg-gray-50 p-4 text-center">
-                  <div className="mb-1 text-2xl font-bold text-[#1e3a5f]">{item.tokens}</div>
-                  <div className="text-sm font-medium text-gray-900">{item.op}</div>
-                  <div className="text-xs text-gray-500">{item.desc}</div>
+                <div key={i} className="rounded-xl border bg-muted p-4 text-center">
+                  <div className="mb-1 text-2xl font-bold text-brand-800">{item.tokens}</div>
+                  <div className="text-sm font-medium text-foreground">{item.op}</div>
+                  <div className="text-xs text-muted-foreground">{item.desc}</div>
                 </div>
               ))}
             </div>
@@ -426,12 +426,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── Sobre o Criador ──────────────────────────────────────────────── */}
-      <section id="criador" className="py-24 bg-white">
+      <section id="criador" className="py-24 bg-card">
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-5xl">
 
             <div className="text-center mb-14">
-              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-[#1e3a5f]">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-blue-50 px-4 py-1.5 text-sm font-semibold text-brand-800">
                 <GraduationCap className="h-4 w-4" /> Sobre o Criador
               </div>
             </div>
@@ -451,50 +451,50 @@ export default function LandingPage() {
                     />
                   </div>
                   {/* Badge */}
-                  <div className="absolute -bottom-4 -right-4 flex items-center gap-2 rounded-xl bg-[#1e3a5f] px-4 py-2 shadow-lg">
+                  <div className="absolute -bottom-4 -right-4 flex items-center gap-2 rounded-xl bg-brand-800 px-4 py-2 shadow-lg">
                     <Pill className="h-4 w-4 text-white" />
                     <span className="text-xs font-bold text-white">Farmacêutico Dr.</span>
                   </div>
                 </div>
 
                 <div className="mt-6 text-center lg:text-left">
-                  <h3 className="text-2xl font-bold text-gray-900">Dr. Edson Sidião de Souza Júnior</h3>
+                  <h3 className="text-2xl font-bold text-foreground">Dr. Edson Sidião de Souza Júnior</h3>
                   <div className="mt-2 space-y-1">
-                    <p className="text-sm text-[#1e3a5f] font-semibold">Farmacêutico · Mestre e Doutor em Medicina Tropical</p>
-                    <p className="text-sm text-gray-500">Esp. em Gestão da Assistência Farmacêutica</p>
-                    <p className="text-sm text-gray-500">Esp. em Mídias Digitais e Comunicação</p>
-                    <p className="text-sm text-gray-500">Esp. em Inteligência Artificial e Data Science</p>
-                    <p className="text-sm text-gray-400 font-medium mt-2">Educador em Saúde com mais de 26 anos de experiência</p>
+                    <p className="text-sm text-brand-800 font-semibold">Farmacêutico · Mestre e Doutor em Medicina Tropical</p>
+                    <p className="text-sm text-muted-foreground">Esp. em Gestão da Assistência Farmacêutica</p>
+                    <p className="text-sm text-muted-foreground">Esp. em Mídias Digitais e Comunicação</p>
+                    <p className="text-sm text-muted-foreground">Esp. em Inteligência Artificial e Data Science</p>
+                    <p className="text-sm text-muted-foreground font-medium mt-2">Educador em Saúde com mais de 26 anos de experiência</p>
                   </div>
                 </div>
               </div>
 
               {/* Bio */}
               <div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-5 leading-tight">
+                <h2 className="text-3xl font-bold text-foreground mb-5 leading-tight">
                   Experiência prática,{' '}
-                  <span className="text-[#1e3a5f]">conhecimento científico</span>{' '}
+                  <span className="text-brand-800">conhecimento científico</span>{' '}
                   e inovação tecnológica
                 </h2>
-                <p className="text-gray-600 leading-relaxed mb-6">
+                <p className="text-muted-foreground leading-relaxed mb-6">
                   Com ampla experiência acadêmica, clínica e institucional, atua há anos na formação de profissionais da área da saúde, gestão educacional e desenvolvimento de soluções inovadoras aplicadas à assistência e à segurança do paciente.
                 </p>
 
-                <h4 className="text-sm font-bold text-gray-900 mb-3 uppercase tracking-wider">Áreas de atuação</h4>
+                <h4 className="text-sm font-bold text-foreground mb-3 uppercase tracking-wider">Áreas de atuação</h4>
                 <div className="grid grid-cols-2 gap-2">
                   {CREATOR_EXPERTISE.map((area) => (
-                    <div key={area} className="flex items-center gap-2 text-sm text-gray-700">
-                      <div className="h-1.5 w-1.5 rounded-full bg-[#1e3a5f] shrink-0" />
+                    <div key={area} className="flex items-center gap-2 text-sm text-foreground">
+                      <div className="h-1.5 w-1.5 rounded-full bg-brand-800 shrink-0" />
                       {area}
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-8 rounded-xl border border-[#1e3a5f]/10 bg-[#1e3a5f]/5 p-5">
-                  <p className="text-sm text-[#1e3a5f] font-medium italic">
+                <div className="mt-8 rounded-xl border border-brand-800/10 bg-brand-800/5 p-5">
+                  <p className="text-sm text-brand-800 font-medium italic">
                     "O PRM Care nasce da união entre experiência prática, conhecimento científico e inovação tecnológica — para transformar complexidade terapêutica em inteligência clínica."
                   </p>
-                  <p className="mt-2 text-xs text-[#1e3a5f]/70 font-semibold">— Dr. Edson Sidião</p>
+                  <p className="mt-2 text-xs text-brand-800/70 font-semibold">— Dr. Edson Sidião</p>
                 </div>
               </div>
             </div>
@@ -503,7 +503,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA Final ────────────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2644] via-[#1e3a5f] to-[#1a4d7a] py-24 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-br from-[#0f2644] via-brand-800 to-[#1a4d7a] py-24 text-white">
         <div className="absolute inset-0 opacity-[0.06]"
           style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '36px 36px' }} />
         <div className="container mx-auto px-4 text-center relative">
@@ -521,7 +521,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/register"
-              className="flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-base font-semibold text-[#1e3a5f] hover:bg-blue-50 transition-colors shadow-lg">
+              className="flex items-center gap-2 rounded-xl bg-card px-8 py-4 text-base font-semibold text-brand-800 hover:bg-blue-50 transition-colors shadow-lg">
               Criar conta gratuita <ArrowRight className="h-5 w-5" />
             </Link>
             <Link href="/login"
@@ -533,41 +533,41 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ───────────────────────────────────────────────────────── */}
-      <footer className="border-t bg-white py-12">
+      <footer className="border-t bg-card py-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-4">
             <div>
               <div className="mb-3 flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1e3a5f]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-800">
                   <Pill className="h-4 w-4 text-white" />
                 </div>
-                <span className="font-bold text-[#1e3a5f]">PRM Care</span>
+                <span className="font-bold text-brand-800">PRM Care</span>
               </div>
-              <p className="text-sm text-gray-500 leading-relaxed">Apoio técnico ao seguimento farmacoterapêutico baseado no Método Dáder.</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">Apoio técnico ao seguimento farmacoterapêutico baseado no Método Dáder.</p>
             </div>
             <div>
-              <h4 className="mb-3 font-semibold text-gray-900">Plataforma</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="/register" className="hover:text-[#1e3a5f] transition-colors">Começar grátis</Link></li>
-                <li><a href="#precos" className="hover:text-[#1e3a5f] transition-colors">Preços</a></li>
-                <li><Link href="/login" className="hover:text-[#1e3a5f] transition-colors">Entrar</Link></li>
+              <h4 className="mb-3 font-semibold text-foreground">Plataforma</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/register" className="hover:text-brand-800 transition-colors">Começar grátis</Link></li>
+                <li><a href="#precos" className="hover:text-brand-800 transition-colors">Preços</a></li>
+                <li><Link href="/login" className="hover:text-brand-800 transition-colors">Entrar</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 font-semibold text-gray-900">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-500">
-                <li><Link href="/terms" className="hover:text-[#1e3a5f] transition-colors">Termos de Uso</Link></li>
-                <li><Link href="/privacy" className="hover:text-[#1e3a5f] transition-colors">Política de Privacidade</Link></li>
+              <h4 className="mb-3 font-semibold text-foreground">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="/terms" className="hover:text-brand-800 transition-colors">Termos de Uso</Link></li>
+                <li><Link href="/privacy" className="hover:text-brand-800 transition-colors">Política de Privacidade</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="mb-3 font-semibold text-gray-900">Aviso Legal</h4>
-              <p className="text-xs text-gray-400 leading-relaxed">
+              <h4 className="mb-3 font-semibold text-foreground">Aviso Legal</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
                 Esta ferramenta é de apoio técnico e educacional. Não substitui avaliação profissional, prescrição ou diagnóstico médico/farmacêutico. Em emergências, procure atendimento de saúde imediatamente.
               </p>
             </div>
           </div>
-          <div className="mt-8 border-t pt-8 text-center text-xs text-gray-400">
+          <div className="mt-8 border-t pt-8 text-center text-xs text-muted-foreground">
             © {new Date().getFullYear()} PRM Care · Desenvolvido por Dr. Edson Sidião de Souza Júnior · Todos os direitos reservados.
           </div>
         </div>

@@ -54,17 +54,17 @@ export function TopBar({ user }: TopBarProps) {
       <div className="hidden sm:flex items-center gap-2 text-sm shrink-0">
         {parent ? (
           <>
-            <span className="text-gray-400 dark:text-gray-500 hidden md:inline">{parent}</span>
+            <span className="text-muted-foreground hidden md:inline">{parent}</span>
             <ChevronRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600 hidden md:inline" />
-            <span className="font-semibold text-gray-800 dark:text-gray-100">{label}</span>
+            <span className="font-semibold text-foreground">{label}</span>
           </>
         ) : (
-          <span className="font-semibold text-gray-800 dark:text-gray-100">{label}</span>
+          <span className="font-semibold text-foreground">{label}</span>
         )}
       </div>
 
       {/* Mobile title (xs only) */}
-      <span className="sm:hidden font-semibold text-gray-800 dark:text-gray-100 text-sm truncate flex-1">
+      <span className="sm:hidden font-semibold text-foreground text-sm truncate flex-1">
         {label}
       </span>
 

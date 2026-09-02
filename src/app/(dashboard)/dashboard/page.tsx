@@ -4,7 +4,7 @@ import Link from 'next/link'
 import {
   FlaskConical, Users, FileText, Coins, TrendingUp,
   AlertTriangle, Plus, ArrowRight, Clock, Activity,
-  ShieldAlert, CheckCircle2, BarChart3, Target, Download, History
+  ShieldAlert, CheckCircle2, Target, Download, History
 } from 'lucide-react'
 import { formatRelative } from '@/lib/utils'
 import { PRMCategory, RiskLevel } from '@prisma/client'
@@ -16,9 +16,6 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { GuidedTour } from '@/components/onboarding/GuidedTour'
 
 async function getDashboardData(userId: string) {
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
   const ninetyDaysAgo = new Date()
   ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90)
 
@@ -28,7 +25,6 @@ async function getDashboardData(userId: string) {
     totalPatients,
     totalReports,
     urgentFindings,
-    // Stats for charts
     allFindings,
     analysesLast90Days,
     resolvedCount,
@@ -55,33 +51,23 @@ async function getDashboardData(userId: string) {
         isResolved: false,
       },
     }),
-    // Findings distribution by category and risk
     prisma.pRMFinding.findMany({
       where: { analysis: { userId } },
       select: { category: true, riskLevel: true, isResolved: true },
     }),
-    // Analyses per day (last 90 days)
     prisma.pRMAnalysis.findMany({
       where: { userId, createdAt: { gte: ninetyDaysAgo } },
       select: { createdAt: true, totalPRMs: true, urgentPRMs: true, highRiskPRMs: true },
       orderBy: { createdAt: 'asc' },
     }),
-    // Resolved PRMs
-    prisma.pRMFinding.count({
-      where: { analysis: { userId }, isResolved: true },
-    }),
-    // Total PRMs
-    prisma.pRMFinding.count({
-      where: { analysis: { userId } },
-    }),
-    // Most common categories
+    prisma.pRMFinding.count({ where: { analysis: { userId }, isResolved: true } }),
+    prisma.pRMFinding.count({ where: { analysis: { userId } } }),
     prisma.pRMFinding.groupBy({
       by: ['category'],
       where: { analysis: { userId } },
       _count: { category: true },
       orderBy: { _count: { category: 'desc' } },
     }),
-    // Patients with unresolved high/urgent PRMs
     prisma.patient.findMany({
       where: {
         userId,
@@ -89,34 +75,18 @@ async function getDashboardData(userId: string) {
         analyses: {
           some: {
             findings: {
-              some: {
-                riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] },
-                isResolved: false,
-              },
+              some: { riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] }, isResolved: false },
             },
           },
         },
       },
       select: {
-        id: true,
-        name: true,
-        code: true,
+        id: true, name: true, code: true,
         analyses: {
           where: {
-            findings: {
-              some: {
-                riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] },
-                isResolved: false,
-              },
-            },
+            findings: { some: { riskLevel: { in: [RiskLevel.URGENT, RiskLevel.HIGH] }, isResolved: false } },
           },
-          select: {
-            id: true,
-            createdAt: true,
-            urgentPRMs: true,
-            highRiskPRMs: true,
-            _count: { select: { findings: true } },
-          },
+          select: { id: true, createdAt: true, urgentPRMs: true, highRiskPRMs: true, _count: { select: { findings: true } } },
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -158,9 +128,7 @@ export default async function DashboardPage() {
 
   const firstName = session.user.name?.split(' ')[0] || 'Farmacêutico(a)'
 
-  // ── Prepare chart data ──────────────────────────────────────────────────
-
-  // Risk distribution
+  // Prepare chart data
   const riskCounts: Record<string, number> = { URGENT: 0, HIGH: 0, MODERATE: 0, LOW: 0 }
   const categoryCounts: Record<string, number> = { NECESSITY: 0, EFFECTIVENESS: 0, SAFETY: 0, ADHERENCE: 0 }
   for (const f of allFindings) {
@@ -169,24 +137,22 @@ export default async function DashboardPage() {
   }
 
   const riskChartData = [
-    { name: 'Urgente', value: riskCounts.URGENT, color: '#dc2626' },
-    { name: 'Alto', value: riskCounts.HIGH, color: '#ea580c' },
-    { name: 'Moderado', value: riskCounts.MODERATE, color: '#d97706' },
-    { name: 'Baixo', value: riskCounts.LOW, color: '#16a34a' },
+    { name: 'Urgente',  value: riskCounts.URGENT,   color: '#dc2626' },
+    { name: 'Alto',     value: riskCounts.HIGH,      color: '#ea580c' },
+    { name: 'Moderado', value: riskCounts.MODERATE,  color: '#d97706' },
+    { name: 'Baixo',    value: riskCounts.LOW,        color: '#16a34a' },
   ].filter(d => d.value > 0)
 
   const categoryChartData = [
-    { name: 'Segurança', value: categoryCounts.SAFETY, color: '#dc2626' },
-    { name: 'Efetividade', value: categoryCounts.EFFECTIVENESS, color: '#2563eb' },
-    { name: 'Necessidade', value: categoryCounts.NECESSITY, color: '#7c3aed' },
-    { name: 'Adesão', value: categoryCounts.ADHERENCE, color: '#d97706' },
+    { name: 'Segurança',    value: categoryCounts.SAFETY,        color: '#dc2626' },
+    { name: 'Efetividade',  value: categoryCounts.EFFECTIVENESS, color: '#2563eb' },
+    { name: 'Necessidade',  value: categoryCounts.NECESSITY,     color: '#7c3aed' },
+    { name: 'Adesão',       value: categoryCounts.ADHERENCE,     color: '#d97706' },
   ].filter(d => d.value > 0)
 
-  // Analyses timeline (last 30 days, grouped by week)
   const weekMap = new Map<string, { analyses: number; prms: number }>()
   for (const a of analysesLast90Days) {
     const d = new Date(a.createdAt)
-    // Group by week
     const weekStart = new Date(d)
     weekStart.setDate(d.getDate() - d.getDay())
     const key = weekStart.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
@@ -199,12 +165,10 @@ export default async function DashboardPage() {
     PRMs: data.prms,
   }))
 
-  // Resolution rate
   const resolutionRate = totalFindingsCount > 0
     ? Math.round((resolvedCount / totalFindingsCount) * 100)
     : 0
 
-  // Total analyses count
   const totalAnalyses = await prisma.pRMAnalysis.count({ where: { userId: session.user.id } })
 
   const stats = [
@@ -212,32 +176,32 @@ export default async function DashboardPage() {
       label: 'Pacientes ativos',
       value: totalPatients,
       icon: Users,
-      bg: 'bg-violet-50',
-      text: 'text-violet-600',
+      iconBg: 'bg-violet-100 dark:bg-violet-900/30',
+      iconColor: 'text-violet-600 dark:text-violet-400',
       action: { href: '/patients', label: 'Ver pacientes' },
     },
     {
       label: 'Análises realizadas',
       value: totalAnalyses,
       icon: FlaskConical,
-      bg: 'bg-emerald-50',
-      text: 'text-emerald-600',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
       action: { href: '/analysis/new', label: 'Nova análise' },
     },
     {
       label: 'PRMs identificados',
       value: totalFindingsCount,
       icon: ShieldAlert,
-      bg: 'bg-red-50',
-      text: 'text-red-600',
+      iconBg: 'bg-red-100 dark:bg-red-900/30',
+      iconColor: 'text-red-600 dark:text-red-400',
       action: { href: '/reports', label: 'Ver relatórios' },
     },
     {
       label: 'Taxa de resolução',
       value: `${resolutionRate}%`,
       icon: CheckCircle2,
-      bg: 'bg-green-50',
-      text: 'text-green-600',
+      iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
+      iconColor: 'text-emerald-600 dark:text-emerald-400',
       action: { href: '/reports', label: 'Ver PRMs' },
     },
   ]
@@ -246,20 +210,22 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header — welcome banner para novos, header simples para usuários existentes */}
+      {/* Header */}
       {isNewUser ? (
         <WelcomeBanner firstName={firstName} tokenBalance={user?.tokenBalance ?? 0} />
       ) : (
-        <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Olá, {firstName} 👋</h1>
-            <p className="mt-1 text-sm text-gray-500">Painel de seguimento farmacoterapêutico — Método Dáder</p>
+            <h1 className="heading-lg">Olá, {firstName} 👋</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Painel de seguimento farmacoterapêutico — Método Dáder
+            </p>
           </div>
           <GuidedTour />
         </div>
       )}
 
-      {/* Checklist de primeiros passos */}
+      {/* Onboarding checklist */}
       {!isNewUser && (
         <OnboardingChecklist
           hasPatient={totalPatients > 0}
@@ -271,47 +237,51 @@ export default async function DashboardPage() {
 
       {/* Urgent alert */}
       {urgentFindings > 0 && (
-        <div className="flex items-center justify-between rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-red-50/50 px-5 py-4">
+        <div className="flex items-center justify-between gap-4 rounded-2xl border border-red-200 bg-red-50/70 px-5 py-4 dark:border-red-500/20 dark:bg-red-500/10">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-100">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+            <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-red-100 dark:bg-red-500/20">
+              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-red-800">
+              <p className="text-sm font-semibold text-red-800 dark:text-red-300">
                 {urgentFindings} alerta{urgentFindings > 1 ? 's' : ''} de alto risco ou urgência sem resolução
               </p>
-              <p className="text-xs text-red-600">Requerem intervenção imediata ou prioritária</p>
+              <p className="text-xs text-red-600 dark:text-red-400">Requerem intervenção imediata ou prioritária</p>
             </div>
           </div>
-          <Link href="/reports"
-            className="flex items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-700 transition-colors shadow-sm">
+          <Link
+            href="/reports"
+            className="flex flex-shrink-0 items-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-semibold text-white transition-colors hover:bg-red-700 shadow-sm"
+          >
             Ver alertas <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
       )}
 
-      {/* Stats */}
+      {/* Stats grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat, i) => (
           <div key={i} className="stat-card group">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{stat.label}</p>
-                <p className="mt-2 text-3xl font-bold text-gray-900 tabular-nums">{stat.value}</p>
+              <div className="min-w-0">
+                <p className="section-label">{stat.label}</p>
+                <p className="mt-2 font-sans text-3xl font-bold tabular-nums text-foreground">{stat.value}</p>
               </div>
-              <div className={`rounded-xl p-2.5 ${stat.bg}`}>
-                <stat.icon className={`h-5 w-5 ${stat.text}`} />
+              <div className={`flex-shrink-0 rounded-xl p-2.5 ${stat.iconBg}`}>
+                <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
               </div>
             </div>
-            <Link href={stat.action.href}
-              className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${stat.text} hover:underline`}>
+            <Link
+              href={stat.action.href}
+              className={`mt-4 inline-flex items-center gap-1 text-xs font-semibold ${stat.iconColor} hover:underline`}
+            >
               {stat.action.label} <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         ))}
       </div>
 
-      {/* Charts row */}
+      {/* Charts */}
       {totalFindingsCount > 0 && (
         <DashboardCharts
           riskChartData={riskChartData}
@@ -323,99 +293,117 @@ export default async function DashboardPage() {
         />
       )}
 
-      {/* Upcoming reviews + High-risk patients + Recent analyses */}
+      {/* Upcoming reviews */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Upcoming reviews — full width on mobile, 1 col on lg */}
         <UpcomingReviews />
       </div>
 
+      {/* High-risk patients + Recent analyses */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* High risk patients */}
         <div className="card">
-          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4 text-red-500" />
-              <h2 className="text-sm font-semibold text-gray-900">Pacientes em risco</h2>
+              <h2 className="text-sm font-semibold text-foreground">Pacientes em risco</h2>
             </div>
-            <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] hover:underline">Ver todos</Link>
+            <Link href="/patients" className="text-xs font-medium text-brand-800 hover:underline dark:text-brand-400">
+              Ver todos
+            </Link>
           </div>
           <HighRiskPatients patients={highRiskPatients} />
         </div>
 
-        {/* Recent analyses */}
         <div className="card lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
+          <div className="flex items-center justify-between border-b border-border px-5 py-4">
             <div className="flex items-center gap-2">
-              <Activity className="h-4 w-4 text-gray-400" />
-              <h2 className="text-sm font-semibold text-gray-900">Análises recentes</h2>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-sm font-semibold text-foreground">Análises recentes</h2>
             </div>
-            <Link href="/patients" className="text-xs font-medium text-[#1e3a5f] hover:underline">Ver todos</Link>
+            <Link href="/patients" className="text-xs font-medium text-brand-800 hover:underline dark:text-brand-400">
+              Ver todos
+            </Link>
           </div>
 
           {recentAnalyses.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-14 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 mb-4">
-                <FlaskConical className="h-7 w-7 text-gray-400" />
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <FlaskConical className="h-7 w-7 text-muted-foreground" />
               </div>
-              <p className="text-sm font-semibold text-gray-600">Nenhuma análise ainda</p>
-              <p className="mt-1 text-xs text-gray-400">Cadastre um paciente e inicie o seguimento</p>
+              <p className="text-sm font-semibold text-foreground">Nenhuma análise ainda</p>
+              <p className="mt-1 text-xs text-muted-foreground">Cadastre um paciente e inicie o seguimento</p>
               <Link href="/analysis/new" className="btn-primary mt-5 text-xs">
                 <Plus className="h-3.5 w-3.5" /> Iniciar análise
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-gray-50">
-              {recentAnalyses.map((analysis) => (
-                <Link key={analysis.id} href={`/analysis/${analysis.id}`}
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50/80 transition-colors group">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f]/10 text-[#1e3a5f] text-xs font-bold">
-                      {(analysis.patient.code || 'P').slice(0, 3)}
+            <div className="divide-y divide-border">
+              {recentAnalyses.map((analysis) => {
+                const topRisk = analysis.urgentPRMs > 0
+                  ? 'urgent'
+                  : analysis.highRiskPRMs > 0
+                  ? 'high'
+                  : null
+                return (
+                  <Link
+                    key={analysis.id}
+                    href={`/analysis/${analysis.id}`}
+                    className={`flex items-center justify-between px-5 py-3.5 transition-colors hover:bg-muted/40 group ${topRisk ? `card-risk-${topRisk}` : ''}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-800 text-xs font-bold dark:bg-brand-900/30 dark:text-brand-400">
+                        {(analysis.patient.code || 'P').slice(0, 3)}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground group-hover:text-brand-800 dark:group-hover:text-brand-400 transition-colors">
+                          {analysis.patient.name || analysis.patient.code}
+                        </p>
+                        <p className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          {formatRelative(analysis.createdAt)}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1e3a5f] transition-colors">
-                        {analysis.patient.name || analysis.patient.code}
-                      </p>
-                      <p className="flex items-center gap-1 text-xs text-gray-400">
-                        <Clock className="h-3 w-3" />
-                        {formatRelative(analysis.createdAt)}
-                      </p>
+                    <div className="flex items-center gap-2">
+                      {analysis.urgentPRMs > 0 && (
+                        <span className="risk-badge-urgent">{analysis.urgentPRMs} urgente</span>
+                      )}
+                      {analysis.highRiskPRMs > 0 && (
+                        <span className="risk-badge-high">{analysis.highRiskPRMs} alto</span>
+                      )}
+                      <span className="text-xs font-medium text-muted-foreground">{analysis.totalPRMs} PRM</span>
+                      <ArrowRight className="h-3.5 w-3.5 text-border group-hover:text-muted-foreground transition-colors" />
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {analysis.urgentPRMs > 0 && (
-                      <span className="risk-badge-urgent">{analysis.urgentPRMs} urgente</span>
-                    )}
-                    {analysis.highRiskPRMs > 0 && (
-                      <span className="risk-badge-high">{analysis.highRiskPRMs} alto</span>
-                    )}
-                    <span className="text-xs font-medium text-gray-500">{analysis.totalPRMs} PRM</span>
-                    <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-gray-500 transition-colors" />
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           )}
         </div>
       </div>
 
       {/* Export strip */}
-      <div className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 shadow-sm">
+      <div className="flex items-center justify-between rounded-xl border border-border bg-card px-5 py-3 shadow-xs">
         <div className="flex items-center gap-2">
-          <Download className="h-4 w-4 text-gray-400" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Exportar dados</span>
+          <Download className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Exportar dados</span>
         </div>
         <div className="flex gap-2">
-          <a href="/api/export/patients"
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <a
+            href="/api/export/patients"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/50"
+          >
             ⬇️ Pacientes CSV
           </a>
-          <a href="/api/export/prms"
-            className="flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-600 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <a
+            href="/api/export/prms"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground/70 transition-colors hover:bg-muted/50"
+          >
             ⬇️ PRMs CSV
           </a>
-          <Link href="/analyses"
-            className="flex items-center gap-1.5 rounded-lg bg-[#1e3a5f]/10 dark:bg-blue-950 border border-[#1e3a5f]/20 dark:border-blue-900 px-3 py-1.5 text-xs font-medium text-[#1e3a5f] dark:text-blue-400 hover:bg-[#1e3a5f]/15 transition-colors">
+          <Link
+            href="/analyses"
+            className="flex items-center gap-1.5 rounded-lg bg-brand-50 border border-brand-800/20 px-3 py-1.5 text-xs font-medium text-brand-800 transition-colors hover:bg-brand-50/80 dark:bg-brand-900/20 dark:text-brand-400 dark:border-brand-700/30"
+          >
             <History className="h-3.5 w-3.5" /> Histórico completo
           </Link>
         </div>
@@ -423,46 +411,54 @@ export default async function DashboardPage() {
 
       {/* Quick actions */}
       <div>
-        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Ações rápidas</h2>
+        <p className="section-label mb-3">Ações rápidas</p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link href="/analysis/new"
-            className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-[#1e3a5f]/20 bg-white p-4 hover:border-[#1e3a5f]/50 hover:bg-[#eff6ff]/50 transition-all group">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#1e3a5f] text-white shadow-sm group-hover:scale-105 transition-transform">
+          <Link
+            href="/analysis/new"
+            className="group flex items-center gap-3 rounded-2xl border-2 border-dashed border-brand-800/20 bg-card p-4 transition-all hover:border-brand-800/50 hover:bg-brand-50/50 dark:hover:bg-brand-900/20"
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-brand-800 text-white shadow-sm transition-transform group-hover:scale-105">
               <Plus className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900 group-hover:text-[#1e3a5f]">Nova análise PRM</p>
-              <p className="text-xs text-gray-500">Seguimento farmacoterapêutico</p>
+              <p className="text-sm font-semibold text-foreground group-hover:text-brand-800 dark:group-hover:text-brand-400">Nova análise PRM</p>
+              <p className="text-xs text-muted-foreground">Seguimento farmacoterapêutico</p>
             </div>
           </Link>
-          <Link href="/patients/new"
-            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-violet-50 group-hover:scale-105 transition-transform">
-              <Users className="h-5 w-5 text-violet-600" />
+          <Link
+            href="/patients/new"
+            className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-all hover:shadow-md"
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-violet-100 transition-transform group-hover:scale-105 dark:bg-violet-900/30">
+              <Users className="h-5 w-5 text-violet-600 dark:text-violet-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Cadastrar paciente</p>
-              <p className="text-xs text-gray-500">{totalPatients} ativo{totalPatients !== 1 ? 's' : ''}</p>
+              <p className="text-sm font-semibold text-foreground">Cadastrar paciente</p>
+              <p className="text-xs text-muted-foreground">{totalPatients} ativo{totalPatients !== 1 ? 's' : ''}</p>
             </div>
           </Link>
-          <Link href="/reports"
-            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-50 group-hover:scale-105 transition-transform">
-              <FileText className="h-5 w-5 text-orange-600" />
+          <Link
+            href="/reports"
+            className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-all hover:shadow-md"
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-orange-100 transition-transform group-hover:scale-105 dark:bg-orange-900/30">
+              <FileText className="h-5 w-5 text-orange-600 dark:text-orange-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Relatórios PDF</p>
-              <p className="text-xs text-gray-500">{totalReports} gerado{totalReports !== 1 ? 's' : ''}</p>
+              <p className="text-sm font-semibold text-foreground">Relatórios PDF</p>
+              <p className="text-xs text-muted-foreground">{totalReports} gerado{totalReports !== 1 ? 's' : ''}</p>
             </div>
           </Link>
-          <Link href="/tokens"
-            className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 hover:shadow-md transition-all group">
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-50 group-hover:scale-105 transition-transform">
-              <Coins className="h-5 w-5 text-blue-600" />
+          <Link
+            href="/tokens"
+            className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 transition-all hover:shadow-md"
+          >
+            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-blue-100 transition-transform group-hover:scale-105 dark:bg-blue-900/30">
+              <Coins className="h-5 w-5 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-900">Tokens</p>
-              <p className="text-xs text-gray-500">Saldo: {user?.tokenBalance ?? 0}</p>
+              <p className="text-sm font-semibold text-foreground">Tokens</p>
+              <p className="text-xs text-muted-foreground">Saldo: {user?.tokenBalance ?? 0}</p>
             </div>
           </Link>
         </div>
@@ -470,7 +466,7 @@ export default async function DashboardPage() {
 
       {/* Upgrade banner */}
       {user?.plan === 'FREE' && (
-        <div className="rounded-2xl bg-gradient-to-r from-[#1e3a5f] to-[#2563eb] p-5 text-white">
+        <div className="rounded-2xl bg-gradient-to-r from-brand-900 to-brand-600 p-5 text-white">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-3">
               <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-white/10">
@@ -478,13 +474,15 @@ export default async function DashboardPage() {
               </div>
               <div>
                 <p className="font-semibold">Plano gratuito — {user.demonstrationUsed ?? 0}/2 análises usadas</p>
-                <p className="mt-1 text-sm text-blue-200">
+                <p className="mt-1 text-sm text-white/70">
                   Faça upgrade para análises ilimitadas, relatórios PDF e histórico completo.
                 </p>
               </div>
             </div>
-            <Link href="/tokens"
-              className="flex-shrink-0 flex items-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-semibold text-white transition-colors border border-white/20">
+            <Link
+              href="/tokens"
+              className="flex flex-shrink-0 items-center gap-1.5 rounded-xl border border-white/20 bg-white/15 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/25"
+            >
               Upgrade <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

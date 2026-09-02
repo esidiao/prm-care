@@ -9,7 +9,7 @@ const STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
   PENDING: { label: 'Pendente', badge: 'bg-yellow-100 text-yellow-800' },
   VALIDATED: { label: 'Validado', badge: 'bg-green-100 text-green-800' },
   EXPIRED: { label: 'Vencido', badge: 'bg-red-100 text-red-800' },
-  ARCHIVED: { label: 'Arquivado', badge: 'bg-gray-100 text-gray-600' },
+  ARCHIVED: { label: 'Arquivado', badge: 'bg-muted text-muted-foreground' },
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -35,11 +35,11 @@ export default async function KnowledgePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="page-header mb-0">
-          <h1 className="text-2xl font-bold text-gray-900">Base de Conhecimento Clínico</h1>
-          <p className="text-gray-500">{entries.length} entrada(s) · {pendingCount} pendente(s) de validação</p>
+          <h1 className="text-2xl font-bold text-foreground">Base de Conhecimento Clínico</h1>
+          <p className="text-muted-foreground">{entries.length} entrada(s) · {pendingCount} pendente(s) de validação</p>
         </div>
         <Link href="/admin/knowledge/new"
-          className="flex items-center gap-2 rounded-lg bg-[#1e3a5f] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#162d4a] transition-colors">
+          className="flex items-center gap-2 rounded-lg bg-brand-800 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-900 transition-colors">
           <Plus className="h-4 w-4" /> Nova entrada
         </Link>
       </div>
@@ -59,37 +59,37 @@ export default async function KnowledgePage() {
         </div>
       )}
 
-      <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-xl border bg-card shadow-sm overflow-hidden">
         <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
+          <thead className="bg-muted border-b">
             <tr>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Título</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Tipo</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Fonte</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Última revisão</th>
-              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Criado por</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Título</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tipo</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Fonte</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Última revisão</th>
+              <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Criado por</th>
               <th className="px-5 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {entries.map((entry) => (
-              <tr key={entry.id} className="hover:bg-gray-50">
+              <tr key={entry.id} className="hover:bg-muted">
                 <td className="px-5 py-3">
-                  <p className="font-medium text-gray-900 max-w-xs truncate">{entry.title}</p>
+                  <p className="font-medium text-foreground max-w-xs truncate">{entry.title}</p>
                   {entry.drugNames.length > 0 && (
-                    <p className="text-xs text-gray-400">{entry.drugNames.slice(0, 3).join(', ')}</p>
+                    <p className="text-xs text-muted-foreground">{entry.drugNames.slice(0, 3).join(', ')}</p>
                   )}
                 </td>
                 <td className="px-5 py-3">
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-[#1e3a5f]">
+                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-brand-800">
                     {TYPE_LABELS[entry.type] || entry.type}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-500 max-w-xs truncate">
+                <td className="px-5 py-3 text-muted-foreground max-w-xs truncate">
                   {entry.sourceUrl ? (
                     <a href={entry.sourceUrl} target="_blank" rel="noopener noreferrer"
-                      className="hover:underline text-[#1e3a5f]">{entry.source}</a>
+                      className="hover:underline text-brand-800">{entry.source}</a>
                   ) : entry.source}
                 </td>
                 <td className="px-5 py-3">
@@ -97,16 +97,16 @@ export default async function KnowledgePage() {
                     {STATUS_CONFIG[entry.status]?.label || entry.status}
                   </span>
                 </td>
-                <td className="px-5 py-3 text-gray-500">
+                <td className="px-5 py-3 text-muted-foreground">
                   {entry.lastReviewedAt ? formatRelative(entry.lastReviewedAt) : '—'}
                 </td>
-                <td className="px-5 py-3 text-gray-500 text-xs">
+                <td className="px-5 py-3 text-muted-foreground text-xs">
                   {entry.createdBy.name || entry.createdBy.email}
                 </td>
                 <td className="px-5 py-3">
                   <Link
                     href={`/admin/knowledge/${entry.id}`}
-                    className="text-xs text-[#1e3a5f] hover:underline font-medium"
+                    className="text-xs text-brand-800 hover:underline font-medium"
                   >
                     Editar
                   </Link>
@@ -118,9 +118,9 @@ export default async function KnowledgePage() {
 
         {entries.length === 0 && (
           <div className="py-16 text-center">
-            <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <p className="text-gray-500">Base de conhecimento vazia</p>
-            <Link href="/admin/knowledge/new" className="mt-2 inline-block text-sm text-[#1e3a5f] hover:underline">
+            <BookOpen className="mx-auto mb-3 h-10 w-10 text-gray-300 dark:text-gray-600" />
+            <p className="text-muted-foreground">Base de conhecimento vazia</p>
+            <Link href="/admin/knowledge/new" className="mt-2 inline-block text-sm text-brand-800 hover:underline">
               Adicionar primeira entrada
             </Link>
           </div>
@@ -129,7 +129,7 @@ export default async function KnowledgePage() {
 
       {/* Sources guidance */}
       <div className="rounded-xl border border-blue-100 bg-[#eff6ff] p-5">
-        <h3 className="font-semibold text-[#1e3a5f] mb-3">Fontes recomendadas para atualização</h3>
+        <h3 className="font-semibold text-brand-800 mb-3">Fontes recomendadas para atualização</h3>
         <ul className="space-y-1.5 text-sm text-blue-700">
           {[
             'Bulário Eletrônico da Anvisa — bulario.anvisa.gov.br',
